@@ -4,7 +4,7 @@ Decide **which** architecture style to apply before loading style details or sta
 
 **Stack:** Cross-stack  
 **Layer:** A (selection gate) → hand off to B (`architecture/`) then C (`*-guidelines`)  
-**Used by:** architect agent, orchestrate-analyze, greenfield ARCH write
+**Used by:** architect agent, adt-orchestrate-analyze, greenfield ARCH write
 
 ---
 

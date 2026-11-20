@@ -25,9 +25,9 @@ Do **not** present `invented` content as `agreed`. Do **not** invent a third id 
 
 | Skill | Role |
 |-------|------|
-| `sdd-spec` | **Author** — primary wire; marks REQ/CA/OOS/assumptions on write |
-| `sdd-plan` | **Consumer** — treat PRD REQs as `agreed` unless PRD labels otherwise; do not re-label invented as agreed |
-| `sdd-develop` | **Consumer** — implement only `agreed` step Aceite / cited REQ; invented gaps need operator confirm before coding as requirement |
+| `adt-sdd-spec` | **Author** — primary wire; marks REQ/CA/OOS/assumptions on write |
+| `adt-sdd-plan` | **Consumer** — treat PRD REQs as `agreed` unless PRD labels otherwise; do not re-label invented as agreed |
+| `adt-sdd-develop` | **Consumer** — implement only `agreed` step Aceite / cited REQ; invented gaps need operator confirm before coding as requirement |
 
 Other pipeline skills may **cite** this file when they synthesize requirements; they must not invent REQ text and call it operator-agreed.
 
@@ -52,7 +52,7 @@ Resolve provenance **per claim** (REQ, CA bullet, assumption, OOS item), not onc
 | Selective retrieval | Cite portable paths + short summaries; **must not** dump entire `memory-bank/` or paste full PRD |
 | Portable paths | Cross-refs in written artifacts use portable paths only |
 
-### `sdd-spec` (author)
+### `adt-sdd-spec` (author)
 
 | Observable | Required behavior |
 |------------|-------------------|
@@ -60,9 +60,9 @@ Resolve provenance **per claim** (REQ, CA bullet, assumption, OOS item), not onc
 | Agent proposals (defaults, inferred NFRs, guessed IDs) | Label as suggestions or assumptions; a material proposal needs a decision before it is treated as approved scope |
 | Draft preparation | Drafts may be written during authorized specification/planning; do not require approval of each PRD bullet before writing |
 | OOS | Record user-stated boundaries as agreed; label agent-suggested exclusions so they are not mistaken for decisions |
-| Handoff | Do not tell `sdd-plan` that invented gaps are locked requirements |
+| Handoff | Do not tell `adt-sdd-plan` that invented gaps are locked requirements |
 
-### `sdd-plan` / `sdd-develop` (consume)
+### `adt-sdd-plan` / `adt-sdd-develop` (consume)
 
 | Observable | Required behavior |
 |------------|-------------------|
@@ -83,7 +83,7 @@ Token header: Authorization: Bearer ***
 Authorization: Bearer eyJhbGciOi***real***
 ```
 
-### Authoring shape (sdd-spec)
+### Authoring shape (adt-sdd-spec)
 
 ```text
 ## Assumptions (invented until confirmed)
@@ -97,7 +97,7 @@ Authorization: Bearer eyJhbGciOi***real***
 
 After an explicit plan decision adopts an assumption, record it in the approved requirements and remove or update the assumption label.
 
-### Consumer shape (sdd-plan)
+### Consumer shape (adt-sdd-plan)
 
 ```text
 PRD marks REQ-001 agreed → PLAN Aceite may cite REQ-001.
@@ -106,8 +106,8 @@ PRD lists "Assumptions (invented)" → do not map into Aceite as Completed crite
 
 ## Wiring requirement
 
-1. **`sdd-spec` (required):** Cite this file in Lazy-load; apply `CP-AGREED-VS-INVENTED` during requirements authoring and before Write; restate in Must-not.
-2. **`sdd-plan` / `sdd-develop` (minimal):** Cite this file in Lazy-load and Must-not so consumers do not re-label invented as agreed.
+1. **`adt-sdd-spec` (required):** Cite this file in Lazy-load; apply `CP-AGREED-VS-INVENTED` during requirements authoring and before Write; restate in Must-not.
+2. **`adt-sdd-plan` / `adt-sdd-develop` (minimal):** Cite this file in Lazy-load and Must-not so consumers do not re-label invented as agreed.
 3. Pointers only — do **not** paste this body into `SKILL.md` or child Agent prompts.
 
 ## Enforcement
@@ -115,9 +115,9 @@ PRD lists "Assumptions (invented)" → do not map into Aceite as Completed crite
 | Check | How |
 |-------|-----|
 | Documented | This file + skill Lazy-load / Must-not pointers |
-| Smoke | Contract file exists; contains `CP-AGREED-VS-INVENTED`, `agreed`, `invented`; `sdd-spec` SKILL.md cites `CONTRACT-PROVENANCE` and `CP-AGREED-VS-INVENTED`; `sdd-plan` / `sdd-develop` cite `CONTRACT-PROVENANCE` |
+| Smoke | Contract file exists; contains `CP-AGREED-VS-INVENTED`, `agreed`, `invented`; `adt-sdd-spec` SKILL.md cites `CONTRACT-PROVENANCE` and `CP-AGREED-VS-INVENTED`; `adt-sdd-plan` / `adt-sdd-develop` cite `CONTRACT-PROVENANCE` |
 
-Automated Assert may be added later; missing `sdd-spec` wire → do not mark REQ-002 / CA1 done.
+Automated Assert may be added later; missing `adt-sdd-spec` wire → do not mark REQ-002 / CA1 done.
 
 ## Must not
 

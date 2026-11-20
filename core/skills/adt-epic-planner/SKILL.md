@@ -38,7 +38,7 @@ Only after this setup, proceed with the workflow. The main agent owns discovery 
 
 ## Handoff
 
-When the user wants to continue with one feature, invoke `orchestrate-analyze` with the EPIC path and selected stable feature ID. O1 uses that brief and relevant shared context as optional input; do not require this handoff to save the EPIC or continue using O1 without one.
+When the user wants to continue with one feature, invoke `adt-orchestrate-analyze` with the EPIC path and selected stable feature ID. O1 uses that brief and relevant shared context as optional input; do not require this handoff to save the EPIC or continue using O1 without one.
 
 ## Lazy-load
 

@@ -11,9 +11,9 @@ title: Home
 | Install the toolkit | [Get started](get-started.md) |
 | Sync or validate from the command line | [CLI](cli.md) |
 | Run my first skill | [First use](first-use.md) |
-| Pick the right workflow for a feature | [Orchestrated Delivery](orchestrated-delivery.md) |
+| Choose a feature delivery workflow | [Choosing a delivery flow](delivery-flow.md) |
 
-Also: [Using skills](using-skills.md), [Adapters](adapters.md), and [Architecture](architecture.md).
+Also: [Using skills](using-skills.md), [Orchestrated Delivery](orchestrated-delivery.md), [Adapters](adapters.md), and [Architecture](architecture.md).
 
 <figure class="home-diagram">
   <img src="assets/core-adapters-diagram.svg" alt="Core skills, adapters, and agent install roots" width="560" height="300">

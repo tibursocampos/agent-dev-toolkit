@@ -37,7 +37,7 @@ $script:CopilotPathConstant = @{
     TextFileExtensionPattern          = '\.(md|mdc|json|ps1|yml|yaml|txt)$'
     PathSeparatorForwardSlash         = '/'
     SmokeFilesystemOnlyNote           = 'EvidenceType=static; smoke validates filesystem presence only. HostExecutionStatus=SKIPPED; no Copilot CLI, VS Code extension, SDK session, or GitHub login is invoked.'
-    SmokeExpectedSkillFolders         = @('commit', 'sdd-develop')
+    SmokeExpectedSkillFolders         = @('adt-commit', 'adt-sdd-develop')
     SmokeExpectedSharedSkillsFolder   = '_shared'
     SmokeExpectedInstructionBases     = @('guardrails', 'ai-stealth', 'sdd-pipeline-guards', 'orchestrator-session')
     SmokeAlwaysApplyFrontmatterKey    = 'alwaysApply:'

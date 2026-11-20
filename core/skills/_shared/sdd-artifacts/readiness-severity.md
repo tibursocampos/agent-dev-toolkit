@@ -76,7 +76,7 @@ Do not stop solely because `ANALYSIS/`, `ARCH/`, or `SEC/` is absent by classifi
 
 ### Context boundary for required siblings
 
-The presence rule is strict only for `invocation_context=orchestrated` (O1/O2). In `direct` Classic SDD, a missing O1-only `ANALYSIS/`, `ARCH/`, or `SEC/` sibling is an operator decision point: ask for inline creation, explicit operator-risk continuation, or optional `/orchestrate-analyze`. Do not hard-block direct mode solely on that missing folder. This exception does not waive unanswered open questions at the four Open-question gates, does not make folder presence equal READY, and does not relax any B/I severity result.
+The presence rule is strict only for `invocation_context=orchestrated` (O1/O2). In `direct` Classic SDD, a missing O1-only `ANALYSIS/`, `ARCH/`, or `SEC/` sibling is an operator decision point: ask for inline creation, explicit operator-risk continuation, or optional `/adt-orchestrate-analyze`. Do not hard-block direct mode solely on that missing folder. This exception does not waive unanswered open questions at the four Open-question gates, does not make folder presence equal READY, and does not relax any B/I severity result.
 
 The risk path must durably register `owner`, the portable missing `path`, and the current `baseline` that is not reconciled. If the operator does not choose inline or risk, stop. Orchestrated mode must return to O1 and must not use the direct waiver.
 
@@ -110,16 +110,16 @@ Use stop code **`open_question`** only when an unresolved B/I question prevents 
 
 Resolve a material question with cited evidence (portable path, `STORAGE.md`) or an explicit user decision. Do not present a specialist suggestion as a user decision. A minor question may remain open without blocking.
 
-Finding shape: `refine-story/references/finding-format.md`. A blocked story does not erase sibling stories and does not re-slice the feature.
+Finding shape: `adt-refine-story/references/finding-format.md`. A blocked story does not erase sibling stories and does not re-slice the feature.
 
 ## Consumers (skill-text this US)
 
 | Skill / ref | Obligation |
 |-------------|------------|
 | `clarify-depth.md` | Depth rules + pointer to this severity distinction |
-| `orchestrate-deliver` | Pause only the affected story when a material B/I question blocks its next action; proceed on independent stories |
-| `refine-story` | Label material open questions and distinguish non-blocking MINOR items |
-| `requirement-review` | Report evidence, inference, suggestions, and decisions separately; do not promote suggestions to scope |
+| `adt-orchestrate-prepare` | Pause only the affected story when a material B/I question blocks its next action; proceed on independent stories |
+| `adt-refine-story` | Label material open questions and distinguish non-blocking MINOR items |
+| `adt-requirement-review` | Report evidence, inference, suggestions, and decisions separately; do not promote suggestions to scope |
 
 Readiness is a semantic review of material behavior, acceptance, scope, access, and implementation choices. Markdown labels, a fixed status token, or a structural validator do not authorize or block advancement by themselves.
 

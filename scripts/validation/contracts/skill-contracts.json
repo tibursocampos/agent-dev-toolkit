@@ -1,72 +1,376 @@
 {
   "skillsRoot": "core/skills",
   "complexitySources": [
-    { "skill": "sdd-plan", "mode": "Classic direct", "source": "approved PRD" },
-    { "skill": "sdd-plan", "mode": "O2", "source": "FEATURE" }
+    {
+      "skill": "adt-sdd-plan",
+      "mode": "Classic direct",
+      "source": "approved PRD"
+    },
+    {
+      "skill": "adt-sdd-plan",
+      "mode": "O2",
+      "source": "FEATURE"
+    }
   ],
   "referenceRoutes": [
     {
-      "skill": "code-review",
-      "owner": "core/skills/code-review/SKILL.md",
+      "skill": "adt-code-review",
+      "owner": "core/skills/adt-code-review/SKILL.md",
       "routes": [
-        { "mode": "all", "condition": "after gates; load one process section per active review step", "required": ["references/sdd-resolution.md when SDD resolution applies", "references/report-template.md", "references/verification.md", "references/policy.md", "references/contracts.md"], "conditional": ["references/multi-angle.md only for multi-angle", "references/n-plus-one.md for N+1/hot-path signals", "frontend/dotnet checklist only for detected changed surface", "coverage pack only when threshold is required"], "excluded": ["unselected review-angle and surface checklists", "unused references/*.md and full guideline packs"] }
+        {
+          "mode": "all",
+          "condition": "after gates; load one process section per active review step",
+          "required": [
+            "references/sdd-resolution.md when SDD resolution applies",
+            "references/report-template.md",
+            "references/verification.md",
+            "references/policy.md",
+            "references/contracts.md"
+          ],
+          "conditional": [
+            "references/multi-angle.md only for multi-angle",
+            "references/n-plus-one.md for N+1/hot-path signals",
+            "frontend/dotnet checklist only for detected changed surface",
+            "coverage pack only when threshold is required"
+          ],
+          "excluded": [
+            "unselected review-angle and surface checklists",
+            "unused references/*.md and full guideline packs"
+          ]
+        }
       ],
-      "sharedRules": [{ "owner": "core/skills/_shared/agents/QUESTIONS.md", "consumers": ["code-review", "requirement-review", "refine-story"], "preserve": "code-review single/multi-angle selection and report-specific gates" }]
+      "sharedRules": [
+        {
+          "owner": "core/skills/_shared/agents/QUESTIONS.md",
+          "consumers": [
+            "adt-code-review",
+            "adt-requirement-review",
+            "adt-refine-story"
+          ],
+          "preserve": "adt-code-review single/multi-angle selection and report-specific gates"
+        }
+      ]
     },
     {
-      "skill": "requirement-review",
-      "owner": "core/skills/requirement-review/SKILL.md",
+      "skill": "adt-requirement-review",
+      "owner": "core/skills/adt-requirement-review/SKILL.md",
       "routes": [
-        { "mode": "--feature", "condition": "feature mode selected", "required": ["references/feature.md", "refine-story/references/finding-format.md", "refine-story/references/qa-history.md", "_shared/sdd-artifacts/INVOCATION-CONTEXTS.md"], "conditional": ["feature-research only when required by its flow"], "excluded": ["references/tech.md", "api-standards"] },
-        { "mode": "--tech", "condition": "technical mode selected", "required": ["references/tech.md", "refine-story/references/finding-format.md", "refine-story/references/qa-history.md", "_shared/sdd-artifacts/INVOCATION-CONTEXTS.md"], "conditional": ["api-standards/SKILL.md and one matching reference only when an affected API contract exists"], "excluded": ["references/feature.md", "api-standards when no API contract is affected"] }
+        {
+          "mode": "--feature",
+          "condition": "feature mode selected",
+          "required": [
+            "references/feature.md",
+            "adt-refine-story/references/finding-format.md",
+            "adt-refine-story/references/qa-history.md",
+            "_shared/sdd-artifacts/INVOCATION-CONTEXTS.md"
+          ],
+          "conditional": [
+            "feature-research only when required by its flow"
+          ],
+          "excluded": [
+            "references/tech.md",
+            "adt-api-standards"
+          ]
+        },
+        {
+          "mode": "--tech",
+          "condition": "technical mode selected",
+          "required": [
+            "references/tech.md",
+            "adt-refine-story/references/finding-format.md",
+            "adt-refine-story/references/qa-history.md",
+            "_shared/sdd-artifacts/INVOCATION-CONTEXTS.md"
+          ],
+          "conditional": [
+            "adt-api-standards/SKILL.md and one matching reference only when an affected API contract exists"
+          ],
+          "excluded": [
+            "references/feature.md",
+            "adt-api-standards when no API contract is affected"
+          ]
+        }
       ],
-      "sharedRules": [{ "owner": "core/skills/refine-story/references/finding-format.md", "consumers": ["requirement-review", "refine-story"], "preserve": "feature atomization vs tech grounding/follow-ups" }, { "owner": "core/skills/_shared/agents/QUESTIONS.md", "consumers": ["code-review", "requirement-review", "refine-story"], "preserve": "mode-specific finding and Q&A flow" }]
+      "sharedRules": [
+        {
+          "owner": "core/skills/adt-refine-story/references/finding-format.md",
+          "consumers": [
+            "adt-requirement-review",
+            "adt-refine-story"
+          ],
+          "preserve": "feature atomization vs tech grounding/follow-ups"
+        },
+        {
+          "owner": "core/skills/_shared/agents/QUESTIONS.md",
+          "consumers": [
+            "adt-code-review",
+            "adt-requirement-review",
+            "adt-refine-story"
+          ],
+          "preserve": "mode-specific finding and Q&A flow"
+        }
+      ]
     },
     {
-      "skill": "developer",
-      "owner": "core/skills/developer/SKILL.md",
-      "routes": [{ "mode": "stack/ad-hoc", "condition": "route after stack detection; one section per process step", "required": ["references/stack-routing.md", "selected stack SKILL.md on match", "references/fallback-execution.md when no stack matches"], "conditional": ["references/frontend-design-routing.md for UI", "selected frontend-design brief when applicable"], "excluded": ["unselected stack packs and references/*.md"] }],
-      "sharedRules": [{ "owner": "core/skills/_shared/developer-common/subagent-first.md", "consumers": ["developer and stack developer skills"], "preserve": "stack-specific implementation conventions" }]
-    },
-    {
-      "skill": "refine-story",
-      "owner": "core/skills/refine-story/SKILL.md",
+      "skill": "adt-developer",
+      "owner": "core/skills/adt-developer/SKILL.md",
       "routes": [
-        { "mode": "feature", "condition": "feature item selected", "required": ["references/feature.md", "references/mode-isolation.md"], "conditional": ["feature-research for orchestrated FEATURE flow", "persona-context for User Stories", "scorecard-rubric and validation when called by the selected playbook"], "excluded": ["references/tech.md", "references/split.md"] },
-        { "mode": "tech", "condition": "technical item selected", "required": ["references/tech.md", "references/mode-isolation.md"], "conditional": ["shared tail sections referenced by the selected playbook"], "excluded": ["references/feature.md", "references/split.md"] },
-        { "mode": "split", "condition": "split mode selected", "required": ["references/split.md", "references/mode-isolation.md"], "conditional": ["anti-task-shatter and type-classification at their stated gates"], "excluded": ["references/feature.md", "references/tech.md"] }
+        {
+          "mode": "stack/ad-hoc",
+          "condition": "route after stack detection; one section per process step",
+          "required": [
+            "references/stack-routing.md",
+            "selected stack SKILL.md on match",
+            "references/fallback-execution.md when no stack matches"
+          ],
+          "conditional": [
+            "references/frontend-design-routing.md for UI",
+            "selected frontend-design brief when applicable"
+          ],
+          "excluded": [
+            "unselected stack packs and references/*.md"
+          ]
+        }
       ],
-      "sharedRules": [{ "owner": "core/skills/refine-story/references/mode-isolation.md", "consumers": ["refine-story"], "preserve": "mode-specific generation and checks" }, { "owner": "core/skills/refine-story/references/finding-format.md", "consumers": ["requirement-review", "refine-story"], "preserve": "refinement mode playbooks" }]
+      "sharedRules": [
+        {
+          "owner": "core/skills/_shared/developer-common/subagent-first.md",
+          "consumers": [
+            "adt-developer and stack developer skills"
+          ],
+          "preserve": "stack-specific implementation conventions"
+        }
+      ]
     },
     {
-      "skill": "split-story-checklist",
-      "owner": "core/skills/split-story-checklist/SKILL.md",
-      "routes": [{ "mode": "direct|orchestrated", "condition": "after gates and complexity source resolution; load current step only", "required": ["references/complexity-policy.md", "selected references/<section>.md"], "conditional": ["anti-task-shatter when titles are task-shaped", "type-classification before checklist write"], "excluded": ["unselected process sections and backlog-item-types"] }],
-      "sharedRules": [{ "owner": "core/skills/split-story-checklist/references/complexity-policy.md", "consumers": ["split-story-checklist", "sdd-plan"], "preserve": "direct PRD vs O2 FEATURE complexity sources and split ownership" }]
+      "skill": "adt-refine-story",
+      "owner": "core/skills/adt-refine-story/SKILL.md",
+      "routes": [
+        {
+          "mode": "feature",
+          "condition": "feature item selected",
+          "required": [
+            "references/feature.md",
+            "references/mode-isolation.md"
+          ],
+          "conditional": [
+            "feature-research for orchestrated FEATURE flow",
+            "persona-context for User Stories",
+            "scorecard-rubric and validation when called by the selected playbook"
+          ],
+          "excluded": [
+            "references/tech.md",
+            "references/split.md"
+          ]
+        },
+        {
+          "mode": "tech",
+          "condition": "technical item selected",
+          "required": [
+            "references/tech.md",
+            "references/mode-isolation.md"
+          ],
+          "conditional": [
+            "shared tail sections referenced by the selected playbook"
+          ],
+          "excluded": [
+            "references/feature.md",
+            "references/split.md"
+          ]
+        },
+        {
+          "mode": "split",
+          "condition": "split mode selected",
+          "required": [
+            "references/split.md",
+            "references/mode-isolation.md"
+          ],
+          "conditional": [
+            "anti-task-shatter and type-classification at their stated gates"
+          ],
+          "excluded": [
+            "references/feature.md",
+            "references/tech.md"
+          ]
+        }
+      ],
+      "sharedRules": [
+        {
+          "owner": "core/skills/adt-refine-story/references/mode-isolation.md",
+          "consumers": [
+            "adt-refine-story"
+          ],
+          "preserve": "mode-specific generation and checks"
+        },
+        {
+          "owner": "core/skills/adt-refine-story/references/finding-format.md",
+          "consumers": [
+            "adt-requirement-review",
+            "adt-refine-story"
+          ],
+          "preserve": "refinement mode playbooks"
+        }
+      ]
     },
     {
-      "skill": "sdd-spec",
-      "owner": "core/skills/sdd-spec/SKILL.md",
-      "routes": [{ "mode": "Classic direct|O2 stage", "condition": "resolve request and invocation context; load only references needed for current work", "required": ["references/command.md", "selected references/<section>.md when applicable", "shared SDD pipeline and storage contracts"], "conditional": ["product-depth norms when material decisions need them", "semantic-sufficiency for material decisions projected into PRD"], "excluded": ["all unused references, templates, backlog item types and full sdd-plan/develop packs"] }],
-      "sharedRules": [{ "owner": "core/skills/_shared/sdd-artifacts/PIPELINE.md", "consumers": ["sdd-spec", "sdd-plan", "orchestrate-deliver"], "preserve": "draft preparation, one PLAN approval before implementation, and material decision boundaries" }]
+      "skill": "adt-split-story-checklist",
+      "owner": "core/skills/adt-split-story-checklist/SKILL.md",
+      "routes": [
+        {
+          "mode": "direct|orchestrated",
+          "condition": "after gates and complexity source resolution; load current step only",
+          "required": [
+            "references/complexity-policy.md",
+            "selected references/<section>.md"
+          ],
+          "conditional": [
+            "anti-task-shatter when titles are task-shaped",
+            "type-classification before checklist write"
+          ],
+          "excluded": [
+            "unselected process sections and backlog-item-types"
+          ]
+        }
+      ],
+      "sharedRules": [
+        {
+          "owner": "core/skills/adt-split-story-checklist/references/complexity-policy.md",
+          "consumers": [
+            "adt-split-story-checklist",
+            "adt-sdd-plan"
+          ],
+          "preserve": "direct PRD vs O2 FEATURE complexity sources and split ownership"
+        }
+      ]
     },
     {
-      "skill": "sdd-plan",
-      "owner": "core/skills/sdd-plan/SKILL.md",
-      "routes": [{ "mode": "Classic direct|O2 stage", "condition": "resolve invocation context and PRD or demand; load references needed for the current work", "required": ["references/command.md", "selected references/<section>.md", "shared SDD pipeline and storage contracts"], "conditional": ["split-story-checklist only when explicitly useful or adopted", "selected template/validation references at their step"], "excluded": ["unselected process sections, mandatory TASKS/checklists, and unrelated full skill packs"] }],
-      "sharedRules": [{ "owner": "core/skills/split-story-checklist/references/complexity-policy.md", "consumers": ["split-story-checklist", "sdd-plan"], "preserve": "direct PRD vs O2 FEATURE source distinction" }]
+      "skill": "adt-sdd-spec",
+      "owner": "core/skills/adt-sdd-spec/SKILL.md",
+      "routes": [
+        {
+          "mode": "Classic direct|O2 stage",
+          "condition": "resolve request and invocation context; load only references needed for current work",
+          "required": [
+            "references/command.md",
+            "selected references/<section>.md when applicable",
+            "shared SDD pipeline and storage contracts"
+          ],
+          "conditional": [
+            "product-depth norms when material decisions need them",
+            "semantic-sufficiency for material decisions projected into PRD"
+          ],
+          "excluded": [
+            "all unused references, templates, backlog item types and full adt-sdd-plan/develop packs"
+          ]
+        }
+      ],
+      "sharedRules": [
+        {
+          "owner": "core/skills/_shared/sdd-artifacts/PIPELINE.md",
+          "consumers": [
+            "adt-sdd-spec",
+            "adt-sdd-plan",
+            "adt-orchestrate-prepare"
+          ],
+          "preserve": "draft preparation, one PLAN approval before implementation, and material decision boundaries"
+        }
+      ]
     },
     {
-      "skill": "orchestrate-analyze",
-      "owner": "core/skills/orchestrate-analyze/SKILL.md",
-      "routes": [{ "mode": "O1", "condition": "resolve intent and current step; load references needed for the concrete work", "required": ["references/command.md", "selected references/<section>.md", "FEATURE contract when O1 is appropriate"], "conditional": ["SPAWN and specialist prompts only for a concrete question needing specialist reasoning", "existing CONTINUITY as optional context", "domain/API/security/database references only for triggered scope"], "excluded": ["unselected process sections and specialist prompts without a concrete need"] }],
-      "sharedRules": [{ "owner": "core/skills/_shared/agents/ROSTER.md", "consumers": ["orchestrate-analyze", "orchestrate-deliver"], "preserve": "O1 triage flags vs O2 delivery sequence and per-story decisions" }]
+      "skill": "adt-sdd-plan",
+      "owner": "core/skills/adt-sdd-plan/SKILL.md",
+      "routes": [
+        {
+          "mode": "Classic direct|O2 stage",
+          "condition": "resolve invocation context and PRD or demand; load references needed for the current work",
+          "required": [
+            "references/command.md",
+            "selected references/<section>.md",
+            "shared SDD pipeline and storage contracts"
+          ],
+          "conditional": [
+            "adt-split-story-checklist only when explicitly useful or adopted",
+            "selected template/validation references at their step"
+          ],
+          "excluded": [
+            "unselected process sections, mandatory TASKS/checklists, and unrelated full skill packs"
+          ]
+        }
+      ],
+      "sharedRules": [
+        {
+          "owner": "core/skills/adt-split-story-checklist/references/complexity-policy.md",
+          "consumers": [
+            "adt-split-story-checklist",
+            "adt-sdd-plan"
+          ],
+          "preserve": "direct PRD vs O2 FEATURE source distinction"
+        }
+      ]
     },
     {
-      "skill": "orchestrate-deliver",
-      "owner": "core/skills/orchestrate-deliver/SKILL.md",
-      "routes": [{ "mode": "O2 series|parallel document preparation", "condition": "resolve mode and current story phase; load references needed for the current work", "required": ["references/command.md", "selected references/<section>.md", "per-story contracts for active story"], "conditional": ["SPAWN when delegating independent story preparation", "sdd-spec or sdd-plan contracts at matching story stage", "optional diagnostics when a concrete inconsistency needs investigation"], "excluded": ["unselected sections, unused full skill packs, and internal table duplication"] }],
-      "sharedRules": [{ "owner": "core/skills/orchestrate-deliver/references/per-story-contracts.md", "consumers": ["orchestrate-deliver"], "preserve": "story independence, one complete PLAN-set approval before implementation, and O3 handoff" }]
+      "skill": "adt-orchestrate-analyze",
+      "owner": "core/skills/adt-orchestrate-analyze/SKILL.md",
+      "routes": [
+        {
+          "mode": "O1",
+          "condition": "resolve intent and current step; load references needed for the concrete work",
+          "required": [
+            "references/command.md",
+            "selected references/<section>.md",
+            "FEATURE contract when O1 is appropriate"
+          ],
+          "conditional": [
+            "SPAWN and specialist prompts only for a concrete question needing specialist reasoning",
+            "existing CONTINUITY as optional context",
+            "domain/API/security/database references only for triggered scope"
+          ],
+          "excluded": [
+            "unselected process sections and specialist prompts without a concrete need"
+          ]
+        }
+      ],
+      "sharedRules": [
+        {
+          "owner": "core/skills/_shared/agents/ROSTER.md",
+          "consumers": [
+            "adt-orchestrate-analyze",
+            "adt-orchestrate-prepare"
+          ],
+          "preserve": "O1 triage flags vs O2 delivery sequence and per-story decisions"
+        }
+      ]
+    },
+    {
+      "skill": "adt-orchestrate-prepare",
+      "owner": "core/skills/adt-orchestrate-prepare/SKILL.md",
+      "routes": [
+        {
+          "mode": "O2 series|parallel document preparation",
+          "condition": "resolve mode and current story phase; load references needed for the current work",
+          "required": [
+            "references/command.md",
+            "selected references/<section>.md",
+            "per-story contracts for active story"
+          ],
+          "conditional": [
+            "SPAWN when delegating independent story preparation",
+            "adt-sdd-spec or adt-sdd-plan contracts at matching story stage",
+            "optional diagnostics when a concrete inconsistency needs investigation"
+          ],
+          "excluded": [
+            "unselected sections, unused full skill packs, and internal table duplication"
+          ]
+        }
+      ],
+      "sharedRules": [
+        {
+          "owner": "core/skills/adt-orchestrate-prepare/references/per-story-contracts.md",
+          "consumers": [
+            "adt-orchestrate-prepare"
+          ],
+          "preserve": "story independence, one complete PLAN-set approval before implementation, and O3 handoff"
+        }
+      ]
     }
   ],
   "mustNotContain": [
@@ -84,77 +388,165 @@
   ],
   "contracts": [
     {
-      "id": "o2-reuses-sdd-spec-plan",
-      "skill": "orchestrate-deliver",
-      "files": ["SKILL.md"],
-      "mustContain": ["sdd-spec", "sdd-plan", "Must not"],
-      "mustContainAny": ["No app code", "does not implement application code", "never writes application code"]
+      "id": "o2-reuses-adt-sdd-spec-plan",
+      "skill": "adt-orchestrate-prepare",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "adt-sdd-spec",
+        "adt-sdd-plan",
+        "Must not"
+      ],
+      "mustContainAny": [
+        "No app code",
+        "does not implement application code",
+        "never writes application code"
+      ]
     },
     {
-      "id": "o3-reuses-sdd-develop",
-      "skill": "orchestrate-develop",
-      "files": ["SKILL.md"],
-      "mustContain": ["sdd-develop", "one PLAN step", "Must not"],
-      "mustContainAny": ["never writes application code", "Parent orchestrator never"]
+      "id": "o3-reuses-adt-sdd-develop",
+      "skill": "adt-orchestrate-implement",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "adt-sdd-develop",
+        "one PLAN step",
+        "Must not"
+      ],
+      "mustContainAny": [
+        "never writes application code",
+        "Parent orchestrator never"
+      ]
     },
     {
-      "id": "sdd-develop-one-step-per-scope",
-      "skill": "sdd-develop",
-      "files": ["SKILL.md"],
-      "mustContain": ["step_by_step", "continuous", "one explicit approval", "completed", "STOP - Read before ANY tool call"],
-      "mustNotContain": ["reset and revalidate", "step_confirmed"]
+      "id": "adt-sdd-develop-one-step-per-scope",
+      "skill": "adt-sdd-develop",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "step_by_step",
+        "continuous",
+        "one explicit approval",
+        "completed",
+        "STOP - Read before ANY tool call"
+      ],
+      "mustNotContain": [
+        "reset and revalidate",
+        "step_confirmed"
+      ]
     },
     {
-      "id": "sdd-develop-plan-only-progress",
-      "skill": "sdd-develop",
-      "files": ["SKILL.md", "references/plan-update.md"],
+      "id": "adt-sdd-develop-plan-only-progress",
+      "skill": "adt-sdd-develop",
+      "files": [
+        "SKILL.md",
+        "references/plan-update.md"
+      ],
       "match": "any-file",
-      "mustContain": ["single canonical progress row", "SESSION", "claims"]
+      "mustContain": [
+        "single canonical progress row",
+        "SESSION",
+        "claims"
+      ]
     },
     {
       "id": "commit-no-auto-pr-cli",
-      "skill": "commit",
-      "files": ["SKILL.md"],
-      "mustContain": ["open-github-pr", "same operator request", "Must not", "Conventional"],
-      "mustNotContain": ["gh pr", "gh run"]
+      "skill": "adt-commit",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "adt-open-github-pr",
+        "same operator request",
+        "Must not",
+        "Conventional"
+      ],
+      "mustNotContain": [
+        "gh pr",
+        "gh run"
+      ]
     },
     {
       "id": "commit-no-lateral-artifact-flow",
-      "skill": "commit",
-      "files": ["SKILL.md"],
-      "mustContain": ["Do not ask about memory bank", "Do not start a memory-bank refresh", "Do not hand off documentation"]
+      "skill": "adt-commit",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "Do not ask about memory bank",
+        "Do not start a memory-bank refresh",
+        "Do not hand off documentation"
+      ]
     },
     {
-      "id": "code-review-post-o3-closeout-loop",
-      "skill": "code-review",
-      "files": ["SKILL.md"],
-      "mustContain": ["After O3", "shared closeout contract", "concrete risk"]
+      "id": "adt-code-review-post-o3-closeout-loop",
+      "skill": "adt-code-review",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "After O3",
+        "shared closeout contract",
+        "concrete risk"
+      ]
     },
     {
-      "id": "sdd-develop-bank-docs-handoff-ask",
-      "skill": "sdd-develop",
-      "files": ["references/optional-flows.md"],
-      "mustContain": ["memory-bank", "QUESTIONS.md", "`confirm`", "`skip`", "document"]
+      "id": "adt-sdd-develop-bank-docs-handoff-ask",
+      "skill": "adt-sdd-develop",
+      "files": [
+        "references/optional-flows.md"
+      ],
+      "mustContain": [
+        "memory-bank",
+        "QUESTIONS.md",
+        "`confirm`",
+        "`skip`",
+        "document"
+      ]
     },
     {
-      "id": "document-implement-cadence-spawn",
-      "skill": "document-implement",
-      "files": ["SKILL.md", "references/step-selection.md"],
+      "id": "adt-document-implement-cadence-spawn",
+      "skill": "adt-document-implement",
+      "files": [
+        "SKILL.md",
+        "references/step-selection.md"
+      ],
       "match": "any-file",
-      "mustContain": ["Kind: update", "coalesced", "SPAWN"]
+      "mustContain": [
+        "Kind: update",
+        "coalesced",
+        "SPAWN"
+      ]
     },
     {
       "id": "push-no-gh",
-      "skill": "push",
-      "files": ["SKILL.md", "references/handoff-pr.md"],
+      "skill": "adt-push",
+      "files": [
+        "SKILL.md",
+        "references/handoff-pr.md"
+      ],
       "match": "any-file",
-      "mustContain": ["open-github-pr", "fluxo completo", "Must not", "git push"],
-      "mustNotContain": ["gh pr", "gh run"]
+      "mustContain": [
+        "adt-open-github-pr",
+        "fluxo completo",
+        "Must not",
+        "git push"
+      ],
+      "mustNotContain": [
+        "gh pr",
+        "gh run"
+      ]
     },
     {
-      "id": "help-skills-reads-catalog",
-      "skill": "help-skills",
-      "files": ["SKILL.md", "references/must-not.md"],
+      "id": "adt-help-skills-reads-catalog",
+      "skill": "adt-help-skills",
+      "files": [
+        "SKILL.md",
+        "references/must-not.md"
+      ],
       "match": "any-file",
       "mustContain": [
         "skills-catalog/CATALOG.md",
@@ -165,9 +557,11 @@
       ]
     },
     {
-      "id": "read-sdd-artifact-source-context",
-      "skill": "read-sdd-artifact",
-      "files": ["SKILL.md"],
+      "id": "adt-read-sdd-artifact-source-context",
+      "skill": "adt-read-sdd-artifact",
+      "files": [
+        "SKILL.md"
+      ],
       "mustContain": [
         "RSA-SOURCE-CONTEXT",
         "source_context",
@@ -181,8 +575,11 @@
     },
     {
       "id": "open-github-pr-gh-and-modes",
-      "skill": "open-github-pr",
-      "files": ["SKILL.md", "references/confirm-and-create.md"],
+      "skill": "adt-open-github-pr",
+      "files": [
+        "SKILL.md",
+        "references/confirm-and-create.md"
+      ],
       "match": "any-file",
       "mustContain": [
         "gh pr create",
@@ -196,74 +593,155 @@
       ]
     },
     {
-      "id": "code-review-no-gh",
-      "skill": "code-review",
-      "files": ["SKILL.md"],
-      "mustContain": ["Must not", "Do not suggest creating another pull request"],
-      "mustNotContain": ["gh pr", "gh run"]
+      "id": "adt-code-review-no-gh",
+      "skill": "adt-code-review",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "Must not",
+        "Do not suggest creating another pull request"
+      ],
+      "mustNotContain": [
+        "gh pr",
+        "gh run"
+      ]
     },
     {
-      "id": "code-review-spawn-fallback",
-      "skill": "code-review",
-      "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "in-parent"]
+      "id": "adt-code-review-spawn-fallback",
+      "skill": "adt-code-review",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "SPAWN.md",
+        "fallback",
+        "in-parent"
+      ]
     },
     {
-      "id": "orchestrate-analyze-spawn-fallback",
-      "skill": "orchestrate-analyze",
-      "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "Agent"]
+      "id": "adt-orchestrate-analyze-spawn-fallback",
+      "skill": "adt-orchestrate-analyze",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "SPAWN.md",
+        "fallback",
+        "Agent"
+      ]
     },
     {
-      "id": "orchestrate-develop-spawn-fallback",
-      "skill": "orchestrate-develop",
-      "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "Agent"]
+      "id": "adt-orchestrate-implement-spawn-fallback",
+      "skill": "adt-orchestrate-implement",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "SPAWN.md",
+        "fallback",
+        "Agent"
+      ]
     },
     {
       "id": "axis-b-omit-model-developer-common",
       "skill": "_shared/developer-common",
-      "files": ["subagent-first.md"],
-      "mustContain": ["SUBAGENT-MODEL.md"],
-      "mustNotContain": ["inherit parent / Auto"]
+      "files": [
+        "subagent-first.md"
+      ],
+      "mustContain": [
+        "SUBAGENT-MODEL.md"
+      ],
+      "mustNotContain": [
+        "inherit parent / Auto"
+      ]
     },
     {
       "id": "axis-b-subagent-model-host-ui-limit",
       "skill": "_shared/agents",
-      "files": ["SUBAGENT-MODEL.md"],
-      "mustContain": ["omit `model`", "Host UI limit", "outside"],
-      "mustNotContain": ["inherit parent / Auto"]
+      "files": [
+        "SUBAGENT-MODEL.md"
+      ],
+      "mustContain": [
+        "omit `model`",
+        "Host UI limit",
+        "outside"
+      ],
+      "mustNotContain": [
+        "inherit parent / Auto"
+      ]
     },
     {
       "id": "axis-c-session-choice-subagent-model",
       "skill": "_shared/agents",
-      "files": ["SUBAGENT-MODEL.md"],
-      "mustContain": ["Session choice (once per session)", "Only the parent asks", "omit both", "one inheritance attempt", "effort=unverified"],
-      "mustNotContain": ["alternate slug", "extremely necessary", "Different model", "premium", "inherit parent / Auto"]
+      "files": [
+        "SUBAGENT-MODEL.md"
+      ],
+      "mustContain": [
+        "Session choice (once per session)",
+        "Only the parent asks",
+        "omit both",
+        "one inheritance attempt",
+        "effort=unverified"
+      ],
+      "mustNotContain": [
+        "alternate slug",
+        "extremely necessary",
+        "Different model",
+        "premium",
+        "inherit parent / Auto"
+      ]
     },
     {
       "id": "axis-c-session-choice-developer-common",
       "skill": "_shared/developer-common",
-      "files": ["subagent-first.md"],
-      "mustContain": ["SUBAGENT-MODEL.md"],
-      "mustNotContain": ["alternate slug", "gate + explicit"]
+      "files": [
+        "subagent-first.md"
+      ],
+      "mustContain": [
+        "SUBAGENT-MODEL.md"
+      ],
+      "mustNotContain": [
+        "alternate slug",
+        "gate + explicit"
+      ]
     },
     {
       "id": "simplified-o3-no-session-or-claim-gates",
-      "skill": "orchestrate-develop",
-      "files": ["SKILL.md", "references/step-queue-spawn.md", "references/execution-modes.md"],
-      "mustNotContain": ["Invoke-DevelopSessionGate.ps1", "Invoke-PlanLedgerClaim.ps1", "Invoke-ExecutionModeGate.ps1", "Invoke-O3ArtifactPreflight.ps1", "continuous-queue.ps1"]
+      "skill": "adt-orchestrate-implement",
+      "files": [
+        "SKILL.md",
+        "references/step-queue-spawn.md",
+        "references/execution-modes.md"
+      ],
+      "mustNotContain": [
+        "Invoke-DevelopSessionGate.ps1",
+        "Invoke-PlanLedgerClaim.ps1",
+        "Invoke-ExecutionModeGate.ps1",
+        "Invoke-O3ArtifactPreflight.ps1",
+        "continuous-queue.ps1"
+      ]
     },
     {
       "id": "simplified-classic-develop-no-session-or-claim-gates",
-      "skill": "sdd-develop",
-      "files": ["SKILL.md", "references/canonical-scripts.md"],
-      "mustNotContain": ["Invoke-DevelopSessionGate.ps1", "Invoke-PlanLedgerClaim.ps1", "-RequiredGate step_confirmed", "-RequiredGate tests_run"]
+      "skill": "adt-sdd-develop",
+      "files": [
+        "SKILL.md",
+        "references/canonical-scripts.md"
+      ],
+      "mustNotContain": [
+        "Invoke-DevelopSessionGate.ps1",
+        "Invoke-PlanLedgerClaim.ps1",
+        "-RequiredGate step_confirmed",
+        "-RequiredGate tests_run"
+      ]
     },
     {
       "id": "req-004-readiness-severity-contract",
       "skill": "_shared/sdd-artifacts",
-      "files": ["readiness-severity.md"],
+      "files": [
+        "readiness-severity.md"
+      ],
       "mustContain": [
         "READY",
         "NEEDS_CLARIFICATION",
@@ -276,7 +754,9 @@
     {
       "id": "req-004-clarify-depth-severity",
       "skill": "_shared/backlog-item-types",
-      "files": ["clarify-depth.md"],
+      "files": [
+        "clarify-depth.md"
+      ],
       "mustContain": [
         "readiness-severity.md",
         "READY",
@@ -287,8 +767,10 @@
     },
     {
       "id": "req-005-refine-stop-bi-boundary",
-      "skill": "refine-story",
-      "files": ["references/boundary.md"],
+      "skill": "adt-refine-story",
+      "files": [
+        "references/boundary.md"
+      ],
       "mustContain": [
         "NEEDS_CLARIFICATION",
         "READY",
@@ -299,9 +781,11 @@
       ]
     },
     {
-      "id": "requirement-review-shared-base",
-      "skill": "requirement-review",
-      "files": ["SKILL.md"],
+      "id": "adt-requirement-review-shared-base",
+      "skill": "adt-requirement-review",
+      "files": [
+        "SKILL.md"
+      ],
       "mustContain": [
         "--feature",
         "--tech",
@@ -316,52 +800,101 @@
       ]
     },
     {
-      "id": "requirement-review-feature-playbook",
-      "skill": "requirement-review",
-      "files": ["references/feature.md"],
-      "mustContain": ["Load only when mode", "ACCEPTANCE_GAP", "CA-002.a", "Product", "Engineering", "UX"]
+      "id": "adt-requirement-review-feature-playbook",
+      "skill": "adt-requirement-review",
+      "files": [
+        "references/feature.md"
+      ],
+      "mustContain": [
+        "Load only when mode",
+        "ACCEPTANCE_GAP",
+        "CA-002.a",
+        "Product",
+        "Engineering",
+        "UX"
+      ]
     },
     {
-      "id": "requirement-review-tech-playbook",
-      "skill": "requirement-review",
-      "files": ["references/tech.md"],
-      "mustContain": ["Load only when mode", "not-found", "api-standards", "non-blocking"]
+      "id": "adt-requirement-review-tech-playbook",
+      "skill": "adt-requirement-review",
+      "files": [
+        "references/tech.md"
+      ],
+      "mustContain": [
+        "Load only when mode",
+        "not-found",
+        "adt-api-standards",
+        "non-blocking"
+      ]
     },
     {
-      "id": "req-refine-step-requirement-review",
-      "skill": "refine-story",
-      "files": ["SKILL.md", "references/command.md"],
+      "id": "req-refine-step-adt-requirement-review",
+      "skill": "adt-refine-story",
+      "files": [
+        "SKILL.md",
+        "references/command.md"
+      ],
       "match": "any-file",
-      "mustContain": ["requirement-review", "4a"]
+      "mustContain": [
+        "adt-requirement-review",
+        "4a"
+      ]
     },
     {
       "id": "classic-spec-optional-sibling-navigation",
-      "skill": "sdd-spec",
-      "files": ["references/template-usage.md"],
-      "mustContain": ["portable paths", "Omit absent siblings", "do not create CONTINUITY, CHANGE, TASKS"]
+      "skill": "adt-sdd-spec",
+      "files": [
+        "references/template-usage.md"
+      ],
+      "mustContain": [
+        "portable paths",
+        "Omit absent siblings",
+        "do not create CONTINUITY, CHANGE, TASKS"
+      ]
     },
     {
       "id": "classic-plan-portable-prd-link",
-      "skill": "sdd-plan",
-      "files": ["references/template-usage.md"],
-      "mustContain": ["portable", "source PRD", "Omit absent siblings"]
+      "skill": "adt-sdd-plan",
+      "files": [
+        "references/template-usage.md"
+      ],
+      "mustContain": [
+        "portable",
+        "source PRD",
+        "Omit absent siblings"
+      ]
     },
     {
       "id": "o3-plan-only-progress-and-no-continuity-mirror",
-      "skill": "orchestrate-develop",
-      "files": ["SKILL.md"],
-      "mustContain": ["The PLAN is the sole persisted implementation-progress source", "CONTINUITY progress mirrors", "one live progress table"]
+      "skill": "adt-orchestrate-implement",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustContain": [
+        "The PLAN is the sole persisted implementation-progress source",
+        "CONTINUITY progress mirrors",
+        "one live progress table"
+      ]
     },
     {
       "id": "forma-a-spec-no-memory-bank-required",
-      "skill": "sdd-spec",
-      "files": ["SKILL.md"],
-      "mustNotContain": ["memory-bank required", "requires memory-bank"]
+      "skill": "adt-sdd-spec",
+      "files": [
+        "SKILL.md"
+      ],
+      "mustNotContain": [
+        "memory-bank required",
+        "requires memory-bank"
+      ]
     },
     {
       "id": "Should_ReferenceFastapiFlaskPytest_When_PythonSkillLoaded",
-      "skill": "python-developer",
-      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "skill": "adt-python-developer",
+      "files": [
+        "SKILL.md",
+        "references/scope.md",
+        "references/execute-flow.md"
+      ],
       "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
@@ -382,8 +915,12 @@
     },
     {
       "id": "Should_CoverNodeBackend_When_JavascriptDeveloperLoaded",
-      "skill": "javascript-developer",
-      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "skill": "adt-javascript-developer",
+      "files": [
+        "SKILL.md",
+        "references/scope.md",
+        "references/execute-flow.md"
+      ],
       "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
@@ -404,8 +941,12 @@
     },
     {
       "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
-      "skill": "angular-developer",
-      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "skill": "adt-angular-developer",
+      "files": [
+        "SKILL.md",
+        "references/scope.md",
+        "references/execute-flow.md"
+      ],
       "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
@@ -422,8 +963,12 @@
     },
     {
       "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
-      "skill": "react-developer",
-      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "skill": "adt-react-developer",
+      "files": [
+        "SKILL.md",
+        "references/scope.md",
+        "references/execute-flow.md"
+      ],
       "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
@@ -440,8 +985,12 @@
     },
     {
       "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
-      "skill": "vue-developer",
-      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "skill": "adt-vue-developer",
+      "files": [
+        "SKILL.md",
+        "references/scope.md",
+        "references/execute-flow.md"
+      ],
       "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
@@ -458,8 +1007,12 @@
     },
     {
       "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
-      "skill": "react-native-developer",
-      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "skill": "adt-react-native-developer",
+      "files": [
+        "SKILL.md",
+        "references/scope.md",
+        "references/execute-flow.md"
+      ],
       "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
@@ -476,8 +1029,10 @@
     },
     {
       "id": "Should_FindReactNativeGuidelines_When_RnSkillPresent",
-      "skill": "react-native-developer",
-      "files": ["SKILL.md"],
+      "skill": "adt-react-native-developer",
+      "files": [
+        "SKILL.md"
+      ],
       "mustContain": [
         "react-native-guidelines/structure-and-navigation.md",
         "react-native-guidelines/testing.md",

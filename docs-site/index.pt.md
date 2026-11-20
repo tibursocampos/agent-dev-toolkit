@@ -11,9 +11,9 @@ O **agent-dev-toolkit** é um toolkit para agentes de código. Um core compartil
 | Instalar o toolkit | [Começar](get-started.md) |
 | Sincronizar ou validar pela linha de comando | [CLI](cli.md) |
 | Rodar minha primeira skill | [Primeiro uso](first-use.md) |
-| Escolher o fluxo certo para uma feature | [Entrega orquestrada](orchestrated-delivery.md) |
+| Escolher um fluxo de entrega de feature | [Escolher um fluxo](delivery-flow.pt.md) |
 
-Também: [Usando skills](using-skills.md), [Adaptadores](adapters.md) e [Arquitetura](architecture.md).
+Também: [Usando skills](using-skills.md), [Entrega orquestrada](orchestrated-delivery.pt.md), [Adaptadores](adapters.md) e [Arquitetura](architecture.md).
 
 <figure class="home-diagram">
   <img src="../assets/core-adapters-diagram-pt.svg" alt="Skills do núcleo, adaptadores e pastas de instalação dos agentes" width="560" height="300">

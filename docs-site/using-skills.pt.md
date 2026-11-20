@@ -6,13 +6,13 @@ title: Usando skills
 
 Invoque skills pelo **id** (kebab-case em `core/skills/`). O id é o mesmo em todo host. O prefixo é do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat em muitos hosts: `use skill <id>`, ou linguagem natural que bate com a descrição da skill.
 
-Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **52** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
+Depois de qualquer sync, invoque **`adt-help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **52** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
 
 O roteamento depende do adaptador: o Copilot tem `router=false`, então a orientação de `core/router/AGENTS.md` fica embutida no `copilot-instructions.md` gerado; isso não é um id de skill separado nem prova de execução no host ao vivo.
 
 `/hooks` do Codex e `/hooks-trust` do Grok são telas de confiança de hooks. Não são atalhos de skill. O Codex não tem a flag `$skill --menu`. O seletor `$` / `/skills` é o menu do produto.
 
-Instalação: [Começar](get-started.md). Um exemplo de cada skill: [Primeiro uso](first-use.md). O caminho da feature: [Entrega orquestrada](orchestrated-delivery.md). Comandos de sync, validação e desinstalação: [CLI](cli.md).
+Instalação: [Começar](get-started.md). Um exemplo de cada skill: [Primeiro uso](first-use.md). Escolha o fluxo da feature: [Escolher um fluxo de entrega](delivery-flow.pt.md). Comandos de sync, validação e desinstalação: [CLI](cli.md).
 
 ## Pré-requisitos
 
@@ -28,33 +28,33 @@ O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode 
 
 ## Qual skill
 
-Escolha o fluxo antes com [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md) (guia ainda só em inglês).
+Escolha o caminho que combina com a demanda: [Escolher um fluxo de entrega](delivery-flow.pt.md).
 
-```text
-Feature
-  └─ orchestrate-analyze
-        ├─ entende o resultado, pergunta decisões materiais e investiga proporcionalmente
-        ├─ um arquivo trivial → /developer (só se você escolher esse atalho)
-        ├─ uma story já clara → sdd-spec
-        └─ stories selecionadas → PRD + PLAN por story → uma aprovação do conjunto completo
-                    └─ um passo sdd-develop por filho → run-tests, code-review, run-tests (após mudanças da revisão), security
-```
+| Situação | Comece por | Como funciona |
+|-----------|------------|---------------|
+| Uma feature com direção clara | [Classic SDD](delivery-flow.pt.md#classic-sdd) | PRD → PLAN → implementação; uma aprovação do PLAN antes de implementar. |
+| Várias stories, brownfield ou análise coordenada de especialistas | [Orchestrated Delivery](delivery-flow.pt.md#orchestrated-delivery) | Análise O1 → O2 prepara PRDs e PLANs das stories selecionadas → uma aprovação do conjunto completo de PLANs → O3 serial opcional. |
+| Refinamento, planejamento e implementação de ponta a ponta em um plano da feature | [ADT Delivery](delivery-flow.pt.md#adt-delivery) | Um único `PLAN.md` evolutivo na raiz da feature; uma aprovação antes da implementação. |
+
+Esses fluxos são recomendações, não pré-requisitos entre si. Para uma mudança pequena e isolada, `adt-developer` ou uma skill de stack também pode ser usada como atalho escolhido por você. Consulte o [guia dos fluxos](delivery-flow.pt.md) para ver caminhos e aprovações.
 
 ### Orchestrated Delivery
 
 ```text
-orchestrate-analyze
-orchestrate-deliver - features/NNN-slug/
-orchestrate-develop - features/NNN-slug/
+adt-orchestrate-analyze
+adt-orchestrate-prepare - features/NNN-slug/
+adt-orchestrate-implement - features/NNN-slug/
 ```
 
 Analyze investiga proporcionalmente e usa especialistas para perguntas concretas. Deliver prepara PRDs e PLANs das stories selecionadas e apresenta o conjunto completo, explicitamente listado, para uma aprovação antes da implementação. Develop despacha serialmente, um passo do PLAN por filho, reconciliando cada resultado antes do próximo. Memory Bank e arquivos auxiliares são contexto opcional. Detalhes: [Entrega orquestrada](orchestrated-delivery.pt.md).
+
+Cada prompt de especialista declara o resultado que seu chamador deve receber. Achados, recomendações de desenho, rascunhos de story e resultados de implementação têm finalidades diferentes; a recomendação de um especialista não aprova uma decisão nem amplia o escopo. Caveman pode encurtar a conversa ao redor, mas resultados obrigatórios dos agentes e suas evidências permanecem completos.
 
 Legenda dos gates (rótulo em português = id): `sim` = confirm, `ajustar` = adjust, `cancelar` = cancel, `pular` = skip, `não` = decline. Os rótulos são localizados; os ids ficam sempre em inglês. Detalhes: [Perguntas e confirmações](questions.md).
 
 Use o papel **architect** do roster quando uma pergunta concreta de arquitetura precisar de análise especializada. Peça uma decisão ao operador somente quando ela afetar materialmente comportamento, aceite, escopo ou implementação. Ser greenfield, não ter estilo definido ou ser brownfield não exige aprovação ou espelhamento de ARCH. O pai permanece coordenador.
 
-Em Classic SDD e O1/O2/O3, somente uma questão material sem resposta bloqueia o trabalho afetado. Dúvidas menores ficam visíveis; stories independentes podem avançar. O PLAN é a única fonte persistida de progresso. Backlog Refine e outras skills mantêm seus próprios contratos.
+Em Classic SDD e O1/O2/O3, somente uma questão material sem resposta bloqueia o trabalho afetado. Dúvidas menores ficam visíveis; stories independentes podem avançar. O PLAN é a única fonte persistida de progresso desses fluxos. ADT Delivery tem seu próprio ciclo de plano único. Backlog Refine e outras skills mantêm seus próprios contratos.
 
 ### Classic SDD direto
 
@@ -62,33 +62,33 @@ Use isto quando uma feature tiver caminho claro. SDD clássico é independente e
 
 | Ordem | Skill | Saída |
 |-------|--------|--------|
-| 1 | `sdd-spec` | `features/NNN-slug/USnn/PRD/NNN_slug.md` |
-| 2 | `sdd-plan` | `features/NNN-slug/USnn/PLAN/PLAN_NNN_slug.md` |
-| 3 | `sdd-develop` | Um passo do PLAN: código, testes, progresso do PLAN |
-| — | `read-sdd-artifact` | `source_context` somente leitura |
+| 1 | `adt-sdd-spec` | `features/NNN-slug/USnn/PRD/NNN_slug.md` |
+| 2 | `adt-sdd-plan` | `features/NNN-slug/USnn/PLAN/PLAN_NNN_slug.md` |
+| 3 | `adt-sdd-develop` | Um passo do PLAN: código, testes, progresso do PLAN |
+| — | `adt-read-sdd-artifact` | `source_context` somente leitura |
 
 A pasta de story padrão, quando não informada, é `US01` (`TSnn` para story técnica). Pastas `PRD/` ou `PLAN/` na raiz são inválidas.
 
 ```text
-sdd-spec
-sdd-plan - features/NNN-slug/US01/PRD/NNN_slug.md
-sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
-read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
+adt-sdd-spec
+adt-sdd-plan - features/NNN-slug/US01/PRD/NNN_slug.md
+adt-sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
+adt-read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 ```
 
-`sdd-spec` define comportamento esperado, escopo, aceite, contratos relevantes e perguntas materiais no PRD. Rascunhar e salvar fazem parte da preparação; não há aprovação separada para escrever o PRD. IDs e gramática exata ajudam na rastreabilidade, mas não são gates de autorização. Contexto brownfield entra no PRD ou PLAN quando for relevante. A skill não escreve PLAN na mesma sessão.
+`adt-sdd-spec` define comportamento esperado, escopo, aceite, contratos relevantes e perguntas materiais no PRD. Rascunhar e salvar fazem parte da preparação; não há aprovação separada para escrever o PRD. IDs e gramática exata ajudam na rastreabilidade, mas não são gates de autorização. Contexto brownfield entra no PRD ou PLAN quando for relevante. A skill não escreve PLAN na mesma sessão.
 
-`sdd-plan` deriva passos executáveis diretamente do PRD ou de uma demanda suficientemente especificada. `split-story-checklist` é opcional. O PLAN reúne dependências, aceite, evidências de validação, bloqueios, próxima ação e a única tabela de progresso. Apresente o PLAN completo para uma aprovação explícita antes da implementação. O planejamento direto termina com handoff; não inicia a implementação automaticamente.
+`adt-sdd-plan` deriva passos executáveis diretamente do PRD ou de uma demanda suficientemente especificada. `adt-split-story-checklist` é opcional. O PLAN reúne dependências, aceite, evidências de validação, bloqueios, próxima ação e a única tabela de progresso. Apresente o PLAN completo para uma aprovação explícita antes da implementação. O planejamento direto termina com handoff; não inicia a implementação automaticamente.
 
-`sdd-develop` segue o ritmo `step_by_step` ou `continuous` do PLAN aprovado. Antes de cada passo, confira aprovação, dependências, escopo, aceite e evidências relevantes. O PLAN é a única fonte de progresso; flags de SESSION e claims não são pré-requisitos. Registre o estado/evidência canônicos por passo. Agrupe validações quando isso produzir evidência mais clara do que rodar testes após cada passo.
+`adt-sdd-develop` segue o ritmo `step_by_step` ou `continuous` do PLAN aprovado. Antes de cada passo, confira aprovação, dependências, escopo, aceite e evidências relevantes. O PLAN é a única fonte de progresso; flags de SESSION e claims não são pré-requisitos. Registre o estado/evidência canônicos por passo. Agrupe validações quando isso produzir evidência mais clara do que rodar testes após cada passo.
 
-`read-sdd-artifact` não tem gate de **sim**. Tipos permitidos: FEATURE, STORY, PRD, PLAN. Motivos de rejeição: `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`.
+`adt-read-sdd-artifact` não tem gate de **sim**. Tipos permitidos: FEATURE, STORY, PRD, PLAN. Motivos de rejeição: `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`.
 
 Classic SDD e O2 fazem verificações substantivas de comportamento, aceite, escopo, dependências e validação exigida. Validadores genéricos de PRD/PLAN/CHANGE podem ser diagnósticos opcionais; títulos, contagem de seções e arquivos auxiliares não autorizam avanço.
 
 ### Um item de produto
 
-O O1 cria stories justificadas sem exigir um scorecard ou chamada separada de refine. Invoque `refine-story` para formar um item único de backlog fora do fluxo de feature.
+O O1 cria stories justificadas sem exigir um scorecard ou chamada separada de refine. Invoque `adt-refine-story` para formar um item único de backlog fora do fluxo de feature.
 
 O modo é obrigatório. Se você omitir, a skill pergunta uma vez.
 
@@ -99,75 +99,75 @@ O modo é obrigatório. Se você omitir, a skill pergunta uma vez.
 | split | `split`, `3` | Qualquer tipo, depois handoff para o checklist |
 
 ```text
-refine-story - feature
-refine-story - tech
-refine-story - split
-split-story-checklist - features/NNN-slug/US01/STORY.md
+adt-refine-story - feature
+adt-refine-story - tech
+adt-refine-story - split
+adt-split-story-checklist - features/NNN-slug/US01/STORY.md
 ```
 
 ### Desafiar um requisito
 
-Rode `requirement-review` antes do SDD quando uma feature ou story ainda tem perguntas abertas, ou quando uma story técnica precisa ser conferida contra o repositório. O modo é obrigatório: `--feature` confere lacunas funcionais e critérios de aceite; `--tech` confere contratos e fluxos contra o repositório. A skill pergunta uma vez se você omitir o modo.
+Rode `adt-requirement-review` antes do SDD quando uma feature ou story ainda tem perguntas abertas, ou quando uma story técnica precisa ser conferida contra o repositório. O modo é obrigatório: `--feature` confere lacunas funcionais e critérios de aceite; `--tech` confere contratos e fluxos contra o repositório. A skill pergunta uma vez se você omitir o modo.
 
 ```text
-requirement-review --feature - features/NNN-slug/US01/STORY.md
-requirement-review --tech - features/NNN-slug/US01/STORY.md
+adt-requirement-review --feature - features/NNN-slug/US01/STORY.md
+adt-requirement-review --tech - features/NNN-slug/US01/STORY.md
 ```
 
-Depois de um **sim** explícito, a revisão grava um relatório e acrescenta ao histórico de perguntas em `REFINE/`, ao lado da story. O status é `READY` ou `NEEDS_CLARIFICATION`. O `refine-story` chama essa revisão no passo 4a, antes de passar para o `sdd-spec`.
+Depois de um **sim** explícito, a revisão grava um relatório e acrescenta ao histórico de perguntas em `REFINE/`, ao lado da story. O status é `READY` ou `NEEDS_CLARIFICATION`. O `adt-refine-story` chama essa revisão no passo 4a, antes de passar para o `adt-sdd-spec`.
 
 Persistência, nesta ordem: `features/NNN-slug/USnn/STORY.md` ou `TSnn/STORY.md`, `REFINE/` opcional (incluindo `REFINE/qa-history.md`), ou o atalho `docs/backlog/<slug>.md` depois de uma pergunta de idioma da documentação. A skill não cria cartões de tracker.
 
 Em Classic SDD e O1/O2/O3, resolva uma pergunta antes do trabalho dependente somente quando ela afetar materialmente comportamento, aceite, escopo, acesso ou implementação. Dúvidas menores ficam visíveis e não interrompem trabalho independente.
 
-`split-story-checklist` cria tarefas SMART de forma opcional sob a story existente (`REFINE/tasks.md` por padrão). Não cria pastas novas `USnn` ou `TSnn`. `sdd-plan` pode derivar passos diretamente do PRD; a falta de checklist nunca bloqueia o planejamento, em qualquer nível de complexidade.
+`adt-split-story-checklist` cria tarefas SMART de forma opcional sob a story existente (`REFINE/tasks.md` por padrão). Não cria pastas novas `USnn` ou `TSnn`. `adt-sdd-plan` pode derivar passos diretamente do PRD; a falta de checklist nunca bloqueia o planejamento, em qualquer nível de complexidade.
 
 ### Mudança pequena de stack
 
 ```text
-developer
+adt-developer
 ```
 
-`developer` confere um brief de UI e depois a tabela de stack. O primeiro acerto vence.
+`adt-developer` confere um brief de UI e depois a tabela de stack. O primeiro acerto vence.
 
 | Sinal | Skill |
 |-------|--------|
-| Plugin Blip novo, sem projeto `blip-ds` existente | `blip-plugin-developer` |
-| `package.json` tem `blip-ds` e `iframe-message-proxy` | `react-developer` |
-| Marcadores Blazor | `blazor-developer` |
-| `electron`, `electron-builder` ou `electron-vite` | `electron-developer` |
-| `vue` (e não React nem Angular) | `vue-developer` |
-| `react-native` ou `expo` | `react-native-developer` |
-| `react` | `react-developer` |
-| `@angular/core` ou `angular` | `angular-developer` |
-| `package.json` sem nenhum dos anteriores | `javascript-developer` |
-| `.csproj` / `.sln` sem marcadores Blazor | `dotnet-developer` |
-| `pom.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle` | `java-developer` |
-| Evidência explícita de Arduino Core/framework, metadados do Arduino ou `framework = arduino` configurado | `arduino-developer` |
-| Evidência nativa de ESP-IDF (`idf_component.yml`, lockfile do Component Manager, `idf_component_register`, estrutura CMake do ESP-IDF, `sdkconfig`/`sdkconfig.defaults` ou scripts `idf.py`) | `esp-idf-developer` |
-| Runtime MicroPython ou fluxo de firmware declarado, com evidência de runtime, target ou porta | `micropython-developer` |
-| Aplicações, ferramentas ou testes CPython no host (inclusive código do host que se comunica com firmware) | `python-developer` |
-| `.py`, `main.py` ou nome de família de placa sem evidência de framework/runtime/toolchain | `/developer` (pergunte evidências de framework/core/runtime/versão/toolchain; não infira) |
-| Python sem evidência de runtime/target/porta quando APIs ou deployment puderem diferir | `/developer` (pergunte evidências de runtime, target e porta; a ambiguidade é intencional) |
-| `requirements.txt` ou `pyproject.toml` com evidência de runtime no host | `python-developer` |
+| Plugin Blip novo, sem projeto `blip-ds` existente | `adt-blip-plugin-developer` |
+| `package.json` tem `blip-ds` e `iframe-message-proxy` | `adt-react-developer` |
+| Marcadores Blazor | `adt-blazor-developer` |
+| `electron`, `electron-builder` ou `electron-vite` | `adt-electron-developer` |
+| `vue` (e não React nem Angular) | `adt-vue-developer` |
+| `react-native` ou `expo` | `adt-react-native-developer` |
+| `react` | `adt-react-developer` |
+| `@angular/core` ou `angular` | `adt-angular-developer` |
+| `package.json` sem nenhum dos anteriores | `adt-javascript-developer` |
+| `.csproj` / `.sln` sem marcadores Blazor | `adt-dotnet-developer` |
+| `pom.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle` | `adt-java-developer` |
+| Evidência explícita de Arduino Core/framework, metadados do Arduino ou `framework = arduino` configurado | `adt-arduino-developer` |
+| Evidência nativa de ESP-IDF (`idf_component.yml`, lockfile do Component Manager, `idf_component_register`, estrutura CMake do ESP-IDF, `sdkconfig`/`sdkconfig.defaults` ou scripts `idf.py`) | `adt-esp-idf-developer` |
+| Runtime MicroPython ou fluxo de firmware declarado, com evidência de runtime, target ou porta | `adt-micropython-developer` |
+| Aplicações, ferramentas ou testes CPython no host (inclusive código do host que se comunica com firmware) | `adt-python-developer` |
+| `.py`, `main.py` ou nome de família de placa sem evidência de framework/runtime/toolchain | `/adt-developer` (pergunte evidências de framework/core/runtime/versão/toolchain; não infira) |
+| Python sem evidência de runtime/target/porta quando APIs ou deployment puderem diferir | `/adt-developer` (pergunte evidências de runtime, target e porta; a ambiguidade é intencional) |
+| `requirements.txt` ou `pyproject.toml` com evidência de runtime no host | `adt-python-developer` |
 
-HTML isolado ou scripts de shell ficam em `/developer`. Um escopo grande faz handoff para `/sdd-spec`. O O3 não chama `*-developer` para um passo do PLAN.
+HTML isolado ou scripts de shell ficam em `/adt-developer`. Um escopo grande faz handoff para `/adt-sdd-spec`. O O3 não chama `adt-*-developer` para um passo do PLAN.
 
 Cada skill de stack é trabalho pequeno ou médio. Confirme com **sim** antes de escrever. Um resultado, e para.
 
 | Skill | Escopo | Handoff quando o escopo cresce |
 |-------|--------|--------------------------------|
-| `dotnet-developer` | .NET | `/sdd-spec` |
-| `java-developer` | JVM. Spring Boot é o padrão que a skill nomeia | `/sdd-spec` |
-| `javascript-developer` | Node ou DOM. Não existe o id `node-developer` | `/sdd-spec` |
-| `python-developer` | FastAPI ou Flask, pytest | `/sdd-spec` |
-| `react-developer` | React web | `/react-native-developer` para mobile |
-| `react-native-developer` | React Native ou Expo | `/react-developer` para web |
-| `angular-developer` | Angular | Criar um brief quando decisões visuais substanciais forem necessárias |
-| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | Criar um brief quando decisões visuais substanciais forem necessárias |
-| `blazor-developer` | WASM, Server, Hybrid | `/dotnet-developer` para a API |
-| `electron-developer` | Main, preload, renderer, IPC, empacotamento | Segurança e CSP carregam primeiro quando o IPC muda |
-| `blip-plugin-developer` | Andaime de um plugin Blip React novo | UI para `react-developer`. Ela não implementa o conjunto da feature |
+| `adt-dotnet-developer` | .NET | `/adt-sdd-spec` |
+| `adt-java-developer` | JVM. Spring Boot é o padrão que a skill nomeia | `/adt-sdd-spec` |
+| `adt-javascript-developer` | Node ou DOM. Não existe o id `node-developer` | `/adt-sdd-spec` |
+| `adt-python-developer` | FastAPI ou Flask, pytest | `/adt-sdd-spec` |
+| `adt-react-developer` | React web | `/adt-react-native-developer` para mobile |
+| `adt-react-native-developer` | React Native ou Expo | `/adt-react-developer` para web |
+| `adt-angular-developer` | Angular | Criar um brief quando decisões visuais substanciais forem necessárias |
+| `adt-vue-developer` | Vue 3, Composition API, Pinia, Vitest | Criar um brief quando decisões visuais substanciais forem necessárias |
+| `adt-blazor-developer` | WASM, Server, Hybrid | `/adt-dotnet-developer` para a API |
+| `adt-electron-developer` | Main, preload, renderer, IPC, empacotamento | Segurança e CSP carregam primeiro quando o IPC muda |
+| `adt-blip-plugin-developer` | Andaime de um plugin Blip React novo | UI para `adt-react-developer`. Ela não implementa o conjunto da feature |
 Para UI nova ou redesign visual substancial, registre público, hierarquia, direção visual, comportamento responsivo, estados dos componentes e acessibilidade em `docs/DESIGN-BRIEF.md` antes da implementação. A orientação geral está em `core/skills/_shared/frontend-guidelines/frontend-practices.md`.
 
 Guidelines ficam em `core/skills/_shared/code-guidelines/`. Carregue um arquivo.
@@ -182,77 +182,78 @@ Quando uma escolha concreta de arquitetura afetar materialmente comportamento ou
 
 ### Depois da implementação
 
-```text
-run-tests
-code-review
-run-tests (após mudanças da revisão, ou registre que não foi necessário repetir)
-security
-test-coverage
-commit
-push
-open-github-pr
-```
+O fechamento de cada fluxo de feature segue o plano aprovado. Uma validação atual e uma revisão substantiva podem cobrir o fechamento; reutilize evidências atuais e rode novamente somente verificações afetadas por uma correção. Estas skills adjacentes são invocadas separadamente quando fizerem sentido no escopo:
 
-`code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Faixas de achado: `critical`, `important` e `nice-to-have`. Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** só para uma correção e uma nova revisão. Não pergunta sobre memory bank, docs do projeto ou pull request. `implementation-survey` é uma skill separada. Ela descreve a mudança e não emite veredito. Quando um escopo do O3 fecha, a ordem é `run-tests`, `code-review`, `run-tests` após mudanças da revisão (ou registre que não foi necessário repetir), a passagem de `security`, depois `/commit` e `/push`.
+| Necessidade | Skill |
+|-------------|-------|
+| Evidência de teste atual (reutilize ou rode uma vez quando ausente/desatualizada); repetição direcionada após mudança afetada | `adt-run-tests` |
+| Revisão substantiva do código | `adt-code-review` |
+| Meta de cobertura definida pelo plano | `adt-test-coverage` |
+| Risco concreto de segurança que exige análise especializada | Papel security do roster |
+| Commit, push ou pull request | `adt-commit`, `adt-push`, `adt-open-github-pr` (autorização separada) |
 
-`run-tests` roda o comando de teste de cada stack detectada e devolve `PASS` ou `FAIL`. Não edita código. Uma checagem que o repositório não tem fica `SKIPPED`.
+`adt-code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Faixas de achado: `critical`, `important` e `nice-to-have`. Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** só para uma correção e uma nova revisão. Não pergunta sobre memory bank, docs do projeto ou pull request. `adt-code-explain` é separada: compara mudanças quando os dois endpoints resolvem, pergunta pelo endpoint faltante ou explica código existente a partir de tópico, símbolo, arquivo ou pasta resolvível, sem diff. Cita o código aberto e separa observação de inferência; não emite veredito de revisão.
 
-`test-coverage` é Coverlet para .NET. Limiar padrão **80**. Escreve `TestResults/CoverageReport/`. Não bloqueia merge sozinha. `code-review` aplica o limiar. Uma falha vai para `/dotnet-developer` ou `/sdd-develop`. Um build quebrado vai para `/repair-dotnet-build`. `run-tests` chama essa skill só quando o PLAN pede cobertura.
+Em um fluxo de feature, o fechamento segue as validações exigidas pelo PLAN aprovado e uma revisão substantiva. Reutilize evidências atuais e rode novamente somente verificações invalidadas por uma correção. Revisão de segurança não é um gate universal por passo; commit, push e pull request precisam de autorização própria.
 
-`repair-dotnet-build` usa `dotnet build` / `dotnet test` local, ou um log colado. Não chama uma API de CI remota. Um erro por vez, só .NET. Cada edição proposta espera confirmação.
+`adt-run-tests` roda o comando de teste de cada stack detectada e devolve `PASS` ou `FAIL`. Não edita código. Uma checagem que o repositório não tem fica `SKIPPED`.
 
-`refactor` é um passo seguro com os testes ainda verdes. Não mistura features nem correções de bug. Sem auto-commit.
+`adt-test-coverage` é Coverlet para .NET. Limiar padrão **80**. Escreve `TestResults/CoverageReport/`. Não bloqueia merge sozinha. `adt-code-review` aplica o limiar. Uma falha vai para `/adt-dotnet-developer` ou `/adt-sdd-develop`. Um build quebrado vai para `/adt-repair-dotnet-build`. `adt-run-tests` chama essa skill só quando o PLAN pede cobertura.
 
-`performance-profile` audita primeiro, espera uma escolha de fluxo e então prova a mudança com um micro-benchmark.
+`adt-repair-dotnet-build` usa `dotnet build` / `dotnet test` local, ou um log colado. Não chama uma API de CI remota. Um erro por vez, só .NET. Cada edição proposta espera confirmação.
 
-Modos de `framework-upgrade`: `audit`, `plan`, `migrate`, `validate`. Packs no disco: `angular`, `dotnet`. Se o modo for omitido, a skill pergunta uma vez. `migrate` precisa de **sim**. O id da skill nunca inclui um número de versão (`dotnet10-upgrade` e `framework-upgrade-vN` são proibidos). `targetVersion` precisa ser maior que `currentVersion`.
+`adt-refactor` é um passo seguro com os testes ainda verdes. Não mistura features nem correções de bug. Sem auto-commit.
+
+`adt-performance-profile` audita primeiro, espera uma escolha de fluxo e então prova a mudança com um micro-benchmark.
+
+Modos de `adt-framework-upgrade`: `audit`, `plan`, `migrate`, `validate`. Packs no disco: `angular`, `dotnet`. Se o modo for omitido, a skill pergunta uma vez. `migrate` precisa de **sim**. O id da skill nunca inclui um número de versão (`dotnet10-upgrade` e `framework-upgrade-vN` são proibidos). `targetVersion` precisa ser maior que `currentVersion`.
 
 ### Skills de plataforma
 
-Elas ficam ao lado da entrega. Quando a mudança é um passo do PLAN, termine a skill e volte a `/sdd-develop` para o passo correspondente. Cada passo precisa da própria invocação, mas não exige um novo chat do operador.
+Elas ficam ao lado da entrega. Quando a mudança é um passo do PLAN, termine a skill e volte a `/adt-sdd-develop` para o passo correspondente. Cada passo precisa da própria invocação, mas não exige um novo chat do operador.
 
 ```text
-api-standards
-api-standards - versioning
-api-integrate - <openapi>
-i18n-manager
-containerize
-ef-add-migration
-scaffold-message-handler
+adt-api-standards
+adt-api-standards - versioning
+adt-api-integrate - <openapi>
+adt-i18n-manager
+adt-containerize
+adt-ef-add-migration
+adt-scaffold-message-handler
 ```
 
-`api-standards` cobre forma REST, versionamento, erros, nomes e higiene de segurança. Foco opcional: `rest`, `versioning`, `errors`, `naming`, `security`. Clientes tipados são `api-integrate` (OpenAPI ou Swagger). Sem segredos no código-fonte.
+`adt-api-standards` cobre forma REST, versionamento, erros, nomes e higiene de segurança. Foco opcional: `rest`, `versioning`, `errors`, `naming`, `security`. Clientes tipados são `adt-api-integrate` (OpenAPI ou Swagger). Sem segredos no código-fonte.
 
-`i18n-manager` extrai literais de UI para `.resx` ou `.json` e os troca por chaves. Espera uma escolha de fluxo antes de escrever. Não localiza logs nem configuração.
+`adt-i18n-manager` extrai literais de UI para `.resx` ou `.json` e os troca por chaves. Espera uma escolha de fluxo antes de escrever. Não localiza logs nem configuração.
 
-`containerize` escreve um Dockerfile multi-stage, `.dockerignore` e compose para dependências locais. Espera uma escolha de fluxo. Arquivos que serão commitados não contêm segredos.
+`adt-containerize` escreve um Dockerfile multi-stage, `.dockerignore` e compose para dependências locais. Espera uma escolha de fluxo. Arquivos que serão commitados não contêm segredos.
 
-`ef-add-migration` descobre o projeto de startup, o DbContext e a pasta de migrations, e então roda `dotnet ef migrations add`. Um nome inferido é confirmado antes. Use no repositório consumidor.
+`adt-ef-add-migration` descobre o projeto de startup, o DbContext e a pasta de migrations, e então roda `dotnet ef migrations add`. Um nome inferido é confirmado antes. Use no repositório consumidor.
 
-`scaffold-message-handler` coleta fila, contrato, retry e idempotência antes de escrever um consumidor. Detecta MassTransit, RabbitMQ ou Azure Service Bus no repositório consumidor. Não entrega um template corporativo.
+`adt-scaffold-message-handler` coleta fila, contrato, retry e idempotência antes de escrever um consumidor. Detecta MassTransit, RabbitMQ ou Azure Service Bus no repositório consumidor. Não entrega um template corporativo.
 
 ### Git e documentação do repositório
 
-`commit`, `push` e `open-github-pr` permanecem em prosa completa. Heads permitidos: `feature/<slug>` ou `feat/<id>` (um segmento). Bloqueados: `main`, `master`, `develop`, `feature/a/b` aninhado. Nenhum deles faz force-push de `main`, `master` ou `develop`.
+`adt-commit`, `adt-push` e `adt-open-github-pr` permanecem em prosa completa. Heads permitidos: `feature/<slug>` ou `feat/<id>` (um segmento). Bloqueados: `main`, `master`, `develop`, `feature/a/b` aninhado. Nenhum deles faz force-push de `main`, `master` ou `develop`.
 
 ```text
-commit
-push
-open-github-pr
-document-plan
-document-implement
-help-skills
+adt-commit
+adt-push
+adt-open-github-pr
+adt-document-plan
+adt-document-implement
+adt-help-skills
 ```
 
-`commit` redige um Conventional Commit (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`) e espera o texto exato. Assunto e corpo são em inglês. Não pergunta sobre memory bank nem docs do projeto. Depois do commit, um trailer `Co-authored-by` é removido até sumir. Push ou pull request só roda quando o mesmo pedido já inclui essa ação.
+`adt-commit` redige um Conventional Commit (`feat`, `fix`, `docs`, `style`, `adt-refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`) e espera o texto exato. Assunto e corpo são em inglês. Não pergunta sobre memory bank nem docs do projeto. Depois do commit, um trailer `Co-authored-by` é removido até sumir. Push ou pull request só roda quando o mesmo pedido já inclui essa ação.
 
-`push` roda `git push -u origin HEAD` depois da checagem do branch. Se esta conversa já pediu um pull request, carrega `open-github-pr`. Caso contrário, pergunta.
+`adt-push` roda `git push -u origin HEAD` depois da checagem do branch. Se esta conversa já pediu um pull request, carrega `adt-open-github-pr`. Caso contrário, pergunta.
 
-`open-github-pr` é dono de `gh pr create`. Feature (`feature/*` ou `feat/*` atual) aponta para `develop` com `--squash` quando o auto-merge está ligado. Release (`develop` para `master` ou `main`) usa `--rebase`. O gate do conteúdo (ids `confirm`, `adjust`, `cancel`) é separado da pergunta de auto-merge (ids `confirm`, `decline`). Os rótulos são localizados. Se o branch não estiver em `origin`, o handoff é `/push` primeiro.
+`adt-open-github-pr` é dono de `gh pr create`. Feature (`feature/*` ou `feat/*` atual) aponta para `develop` com `--squash` quando o auto-merge está ligado. Release (`develop` para `master` ou `main`) usa `--rebase`. O gate do conteúdo (ids `confirm`, `adjust`, `cancel`) é separado da pergunta de auto-merge (ids `confirm`, `decline`). Os rótulos são localizados. Se o branch não estiver em `origin`, o handoff é `/adt-push` primeiro.
 
-`document-plan` pergunta o idioma da documentação uma vez, e então escreve `docs/overview.md` e `docs/documentation-plan/plan.md`. Não escreve PLANs de feature. Para este toolkit o idioma é inglês. `document-implement` executa um passo pendente e para.
+`adt-document-plan` pergunta o idioma da documentação uma vez, e então escreve `docs/overview.md` e `docs/documentation-plan/plan.md`. Não escreve PLANs de feature. Para este toolkit o idioma é inglês. `adt-document-implement` executa um passo pendente e para.
 
-`help-skills` imprime o catálogo estático. Não inventa ids. Não existe o id `open-pr`. O id é `open-github-pr`.
+`adt-help-skills` imprime o catálogo estático. Não inventa ids. Não existe o id `open-pr`. O id é `adt-open-github-pr`.
 
 Um exemplo de cada id está em [Primeiro uso](first-use.md).
 
@@ -284,7 +285,7 @@ O primeiro sync interativo pergunta se a compressão de resposta Caveman fica li
 
 Comandos: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` e `normal mode` desligam.
 
-`help-skills`, `read-sdd-artifact`, `commit`, `push` e `open-github-pr` nunca comprimem. Gates, rascunhos, caminhos e as opções dos gates (ids `confirm`, `adjust`, `cancel`; no install em português: sim / ajustar / cancelar) permanecem claros. Arquivo de política: `core/policy/caveman-mode.md`. A ideia está creditada em [Créditos](credits.md).
+`adt-help-skills`, `adt-read-sdd-artifact`, `adt-commit`, `adt-push` e `adt-open-github-pr` nunca comprimem. Gates, rascunhos, caminhos e as opções dos gates (ids `confirm`, `adjust`, `cancel`; no install em português: sim / ajustar / cancelar) permanecem claros. Arquivo de política: `core/policy/caveman-mode.md`. A ideia está creditada em [Créditos](credits.md).
 
 ### Subagentes: modelo e esforço
 
@@ -313,7 +314,7 @@ Atualize o status de um adapter somente depois de registrar evidência real para
 | `artifact_language` | `null` | Sem override de locale |
 | `verify_mode` | `false` | O O3 não faz spawn de um verificador somente leitura depois de cada implementador |
 
-`verify_mode: true` é um segundo filho depois de um passo bem-sucedido de `sdd-develop`. Ele é separado do script de evidência (`validate-evidence`).
+`verify_mode: true` é um segundo filho depois de um passo bem-sucedido de `adt-sdd-develop`. Ele é separado do script de evidência (`validate-evidence`).
 
 ## Sync de novo
 

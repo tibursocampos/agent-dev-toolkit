@@ -1,7 +1,7 @@
 # Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout from the current inventory (2026-11-07T16:35:57.0380358Z; 144 source(s); stack: markdown, powershell; hash `cb3726a4546479a35b9005db86d83f1909303dd7a27063741b5732373ea42481`; status: ready)._
+_Entry points and layout from the current inventory (2026-11-20T16:26:13.4871755Z; 144 source(s); stack: markdown, powershell; 52 skills; hash `fb07cb6220b3a73b1db80888222f17cc0e77c9aeb49d4654afa0b176d4450bcc`; status: ready)._
 
 | Signal | Path |
 |--------|------|
@@ -13,6 +13,8 @@ _Entry points and layout from the current inventory (2026-11-07T16:35:57.0380358
 | Agent registry | `adapters/registry.json` |
 | Skills catalog | `core/skills/_shared/skills-catalog/CATALOG.md` |
 | Shared SDD contracts | `core/skills/_shared/sdd-artifacts/` |
+| Specialist prompt contracts | `core/skills/_shared/agents/prompts/`, `RECEIPT.md`, and `ROSTER.md` |
+| Canonical SDD templates | `core/skills/_shared/templates/` |
 | Router index | `core/router/AGENTS.md` |
 | Session orchestration policy | `core/policy/orchestrator-session.md` |
 | Host spawn contract | `docs/SPAWN.md` |
@@ -24,6 +26,10 @@ _Entry points and layout from the current inventory (2026-11-07T16:35:57.0380358
 ## Overview
 
 The toolkit maintains an agent-neutral core and publishes host-specific layouts through adapters. The PowerShell CLI provides sync, validation, list, and uninstall operations. It defaults to an in-repository fixture; writes under a real user profile require `-AllowUserHome`.
+
+## Feature delivery paths
+
+The catalog defines three feature-delivery paths with separate artifact lifecycles. Classic SDD writes a PRD and PLAN for a story; Orchestrated Delivery coordinates selected stories, approves the complete PLAN set once, and dispatches O3 serially; ADT Delivery carries refinement through implementation in one evolving feature-root `PLAN.md` with its own approval and closeout. Backlog Refine is optional preparation. Memory Bank, continuity files, specialist sidecars, and generic validators are not universal flow prerequisites. See `core/skills/_shared/skills-catalog/CATALOG.md`, `core/skills/_shared/sdd-artifacts/PIPELINE.md`, and `core/skills/_shared/adt-delivery/`.
 
 ## Layers
 
@@ -40,7 +46,7 @@ The toolkit maintains an agent-neutral core and publishes host-specific layouts 
 - Adapter capabilities and supported hosts are declared in `adapters/registry.json`; host-specific behavior is implemented by each adapter.
 - `scripts/toolkit.ps1` dispatches command-line validation scripts in child PowerShell processes so their top-level `exit` codes return to the menu rather than terminating it. Standalone scripts retain their normal exit-code behavior.
 - Install roots are fixture-first. Profile writes require `-AllowUserHome`; local fixtures do not prove behavior in a live host.
-- Copilot publishing supports `-Mode user|repo`. Codex user-scope skill mirroring is optional and off by default.
+- Copilot publishing supports `-Mode user|repo`. Codex direct sync defaults to `Both` (home skills and plugin package); guided Sync also offers `Both`, `Local`, and `Plugin`. Optional `-UserScope` mirrors skills to a second personal root.
 - Runtime preferences are initialized by `scripts/_lib/Initialize-SddPreferences.ps1`; missing preferences default `orchestrator_mode` to `adaptive`.
 - `core/skills/adt-settings/SKILL.md` defines session-wide subagent model and effort choice; omitted adapter overrides inherit the parent selection. This documents configuration behavior, while host runtime application still requires provider-specific evidence.
 - Hermes uninstall reports `KeyedOnly=true` and `WholesaleWipe=false` for its bounded toolkit-owned removal. `scripts/_lib/AdapterChecks.ps1` checks the folded policy and Copilot publish-mode install-root checks; contract assertions do not prove live-host behavior.

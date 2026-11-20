@@ -1,0 +1,121 @@
+---
+name: adt-document-implement
+description: Execute the next pending step from docs/documentation-plan/plan.md and write domain docs for RAG. Use when documenting the repo or invoking /adt-document-implement.
+---
+
+## STOP - Read before ANY tool call
+
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
+
+---
+
+# Skill: adt-document-implement
+
+## Trigger
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
+
+Invoke when the user asks for: `/adt-document-implement`, `document repository`, `/adt-document-implement`, or `execute documentation plan`.
+
+Requires `docs/documentation-plan/plan.md` in the **target workspace**. If missing, hand off to `/adt-document-plan` (do not invent steps).
+
+## Outcome
+
+One **documentation plan step** completed in the target repo: new/updated markdown under `docs/`, plan progress advanced, next step identified for a future session.
+
+**Cadence:** prefer **new file = one step**; **updates to existing docs = one coalesced step**. Use spawn only for large greenfield or large adt-refactor steps (`SPAWN.md`).
+
+## Lazy-load
+
+| When | Path |
+|------|------|
+| Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Doc-plan stack detection / plan template | `{{TOOLKIT_ROOT}}/skills/adt-document-plan/references/stack-detection.md`, `.../plan-template.md` |
+| This skill reference index (routing only) | `skills/adt-document-implement/reference.md` |
+| Process step detail (lazy) | `skills/adt-document-implement/references/<section>.md` |
+| SDD vs RAG plan boundary | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Session gates (PLAN-scoped) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md` |
+| Spawn vs in-parent (large new/adt-refactor steps) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
+
+**Never by default:** do not preload all `references/*.md`, full adt-document-plan packs, or unrelated SDD contracts. Load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Process
+
+Read `references/<section>.md` for execution detail — **not** full `reference.md`.
+
+### Step -1b - Caveman Mode (Full cap)
+1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
+2. If `caveman_mode` is false: continue without compression.
+3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
+5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
+
+### 0. Workspace, plan, and stack
+
+1. Confirm **target repository**.
+2. Resolve **doc plan path** = absolute `$Cwd/docs/documentation-plan/plan.md` (or user-given alternate). If absent -> stop and suggest `/adt-document-plan`.
+3. Load/create **develop session** keyed by that full plan path per `SESSION.md` (`plan-{plan-hash}.json`). Gates `step_confirmed` / `tests_run` live **only** there - never use flat `{repo-hash}.json` for them.
+4. Read the plan. Read **Doc language** from plan header. If missing, ask the doc-language question (ids `pt-br` / `en`) before writing `docs/` (`references/doc-language.md`).
+5. Re-detect stack briefly (Glob per `adt-document-plan/references/stack-detection.md`) if plan is stale.
+
+**Not Classic SDD / Orchestrated Delivery:** only the documentation plan applies here - not `features/**/PLAN/`. For feature delivery PRD/PLAN, use `adt-sdd-spec` / `adt-sdd-plan` / `adt-sdd-develop` and `STORAGE.md`. Prerequisite rules: `references/prerequisite.md`.
+
+### 1. Select step
+
+Pick the first step with **Status:** Pending (or **Pendente**) whose dependencies are completed (`references/step-selection.md`). If user names a step id, use that step after validating deps.
+
+Summarize objective and deliverables. If `step_confirmed` is false: ask in the **user chat language** to implement this doc step, with `confirm` and `cancel` choices (ids and render rule: `core/skills/_shared/agents/QUESTIONS.md`); set gate `true` only after a `confirm` answer. That gate has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, end of turn, a lone emoji, or an ambiguous or unrelated reply is not approval; a clear affirmative reply in any language is. After the answer, resume this skill until the doc step finishes or this skill declares a blocker with the cause. The `confirm` answer stays required before writes.
+
+### 2. Execute step
+
+Follow the step's **Tasks** in the plan (`references/writing-guidelines.md`):
+
+- Glob/Grep/Read source; document facts evidenced in code/config
+- Write paths listed in **Deliverables** (e.g. `docs/domains/<slug>.md`)
+- Use **doc language** from plan; keep file paths and type names in English
+- No secrets, tokens, or internal-only URLs in markdown
+
+**Spawn (Axis A — `SPAWN.md`):** for **Kind: new** large greenfield docs, or **Kind: adt-refactor** / large multi-file doc changes, when effective `subagents=native` and work is independent, prefer ≤2 specialist children (scoped **paths** + **receipt**; omit Agent `model`). Trivial or single-file **update** stays **in-parent**. If `subagents=none` or Agent unavailable → **fallback in-parent** (never hard-fail). Do not paste guideline packs into child prompts.
+
+### 3. Update plan
+
+Before marking the step done: set `tests_run=true` on the scoped develop session after reporting what was written (doc verification - no app test suite required).
+
+Edit `docs/documentation-plan/plan.md` in place per `references/plan-update.md`:
+
+| Field | Value |
+|-------|--------|
+| Step status | Completed / Concluido |
+| **Completed:** | `YYYY-MM-DD` |
+| Deliverables / acceptance | `[x]` when met |
+| Progress | `N/M` and bar |
+| **Next step** | following pending step |
+
+After complete: clear `step_confirmed` and `tests_run` to `false` on the scoped develop session (`SESSION.md` after-step rules).
+
+### 4. Context checkpoint
+
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
+
+### 5. Report
+
+Files written, step completed, progress `N/M`, suggested handoff. Manual validation: `references/validation.md`. Optional commit: `references/optional-commit.md`.
+
+## Must not
+
+- Run without `docs/documentation-plan/plan.md` (unless user gives an explicit alternate plan path)
+- Use flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when the doc plan path is known - always PLAN-scoped develop session
+- Assume MES or fixed stack versions
+- Write product `docs/` before doc language is known
+- Complete multiple **Kind: new** plan steps in one session when context is high - prefer one new-doc step per session
+- Hard-fail when Agent/subagents unavailable on a heavy doc step (fallback **in-parent** per `SPAWN.md`)
+- Require external wiki or work-item APIs
+
+## Handoff
+
+| Situation | Next |
+|-----------|------|
+| No plan | `/adt-document-plan` |
+| Next doc step (new chat) | `/adt-document-implement` |
+| All steps done | `/adt-code-review` (optional) or `/adt-commit` |
+| Feature code change | `/adt-sdd-spec` -> `adt-sdd-plan` -> `adt-sdd-develop` |

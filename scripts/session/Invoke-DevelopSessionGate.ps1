@@ -8,7 +8,7 @@
   create schema defaults when missing and set step_confirmed after operator approval.
   Set tests_run only after tests execute and step_confirmed is true; reset both gates
   after the step closes. Set operations skip rewriting when already in the target state.
-  This scoped compatibility helper is used by document-implement only; Classic SDD and Orchestrated Delivery do not use session gates.
+  This scoped compatibility helper is used by adt-document-implement only; Classic SDD and Orchestrated Delivery do not use session gates.
 
 .PARAMETER PlanPath
   Absolute or repo-relative PLAN path (or docs/documentation-plan/plan.md).

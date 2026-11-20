@@ -5,10 +5,10 @@ Applies to `adt-delivery-refine` and `adt-delivery-plan`, including when either 
 ## Procedure
 
 1. Set the `needs_*` flags (`needs_api`, `needs_domain`, `needs_database`, `needs_frontend`, `needs_security`, `needs_devops`) and the nature (`greenfield` | `brownfield` | `operational`) using the canonical table in `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md`, section "Flags (`needs_*`)". Do not fork a second mapping.
-2. TE01 applies unchanged (ROSTER, section "TE01 / security signals"). If authentication, secrets, PII, feed tokens or supply-chain signals appear in the demand, never default `needs_security` to `false`. Ask the operator or set it to `true`. Demand text about logging of authorization data, tokens, request or response bodies, or PII counts as one of these signals.
-3. Ambiguous flag: ask the operator a few high-cost questions at most, in the user's chat language. Otherwise prefer `false` until evidence or operator confirmation.
-4. For each `true` flag and for brownfield or greenfield nature, use the specialists ROSTER names. Spawn them in parallel in the same turn, following `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Use in-parent analysis only when subagents are unavailable or the host refused the spawn, and say so. Skip a specialist only when the operator declines it in chat.
-5. Specialists RETURN findings in their receipt. They do NOT write `ANALYSIS/`, `ARCH/` or `SEC/` folders or any new artifact. The parent records a summary of the findings under Evidence in the plan. Specialist findings are suggestions, not authorized scope.
+2. Apply the security triage in ROSTER. For authentication, secrets, sensitive data or supply-chain signals, identify the affected trust boundary and the material question. Existing safeguards can be evidence; new controls remain proposals until decided.
+3. Scope each investigation using the applicable surface in `../sdd-artifacts/AUTHORING-CONTENT.md`. Use the repository first and ask the operator only for a material choice or missing confirmation.
+4. Choose the specialist named in ROSTER when expertise can answer a concrete question. A flag or project classification alone does not require delegation. Independent investigations can run in parallel under `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Use focused parent analysis for the documented fallback and record any evidence limit.
+5. Specialists RETURN source, observation or inference, evidence limits and effect on the affected work. They do not write artifacts in this flow. The parent reconciles their findings and recommendations into Evidence and Decisions before handoff. Recommendations do not authorize scope.
 6. An `architect` design result is a suggestion until the operator approves the plan. Present the design choice inside the plan so it is visible at approval.
 7. `needs_frontend` and `needs_devops` have no specialist agent (ROSTER). Note them in the plan only.
 

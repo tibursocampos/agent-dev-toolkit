@@ -19,10 +19,12 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent zcode -InstallRoot .\scrip
 |------|-------|
 | Skills path (live) | `~/.zcode/skills/<id>/SKILL.md` |
 | Explicit form | `$id` |
-| Examples | `$help-skills`, `$sdd-spec` |
+| Examples | `$adt-help-skills`, `$adt-sdd-spec` |
 | After sync | Settings → Skills → Refresh if the product requires it |
 
 Canonical form is the skill **id**; `$` is the ZCode host prefix (same token as Codex, different product).
+
+Skills that explicitly refer to a toolkit policy use the canonical Markdown copies published under `skills/_shared/policy/`. These references are loaded on demand. The adapter still has no native rules tree.
 
 ## Spawn / subagents (honesty)
 

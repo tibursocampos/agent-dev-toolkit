@@ -6,7 +6,7 @@
 .DESCRIPTION
   Materializes {{TOOLKIT_ROOT}}, {{SDD_ROOT}}, and {{GUARDRAILS_PATH}} into
   InstallRoot-absolute forward-slash paths. Codex is dual-root: plugin skills
-  live under InstallRoot/plugin/skills (TOOLKIT_ROOT for skills paths), while
+  live under InstallRoot/plugins/agent-dev-toolkit/skills (TOOLKIT_ROOT for skills paths), while
   Publish-Policy writes rules under InstallRoot/rules. Router materialization
   rewrites {{TOOLKIT_ROOT}}/rules/ to the InstallRoot rules tree first, then
   remaining {{TOOLKIT_ROOT}} to the plugin root. Converts .mdc rule refs to .md
@@ -53,10 +53,9 @@ function Get-CodexRouterSkillsCatalogPath {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $PluginRoot
+        [string] $SkillsRoot
     )
 
-    $skillsRoot = Join-Path $PluginRoot $script:CodexPathConstant.SkillsDirectoryName
     $sharedRoot = Join-Path $skillsRoot $script:CodexPathConstant.SharedSkillsDirectoryName
     $catalogDir = Join-Path $sharedRoot $script:CodexPathConstant.SkillsCatalogDirectoryName
     return [System.IO.Path]::GetFullPath(
@@ -104,7 +103,7 @@ function Add-CodexRouterDualRootCallout {
         [string] $PluginRootAbsolute,
 
         [Parameter(Mandatory = $true)]
-        [string] $HomeSkillsRootAbsolute,
+        [string] $LocalSkillsRootAbsolute,
 
         [Parameter(Mandatory = $true)]
         [string] $RulesRootAbsolute,
@@ -113,10 +112,25 @@ function Add-CodexRouterDualRootCallout {
         [string] $CatalogPathAbsolute,
 
         [Parameter(Mandatory = $true)]
-        [string] $GuardrailsPathAbsolute
+        [string] $GuardrailsPathAbsolute,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $Distribution,
+
+        [Parameter(Mandatory = $true)]
+        [string] $SelectedSkillsRootAbsolute
     )
 
-    $callout = @(
+    $skillRootRows = @()
+    if ($Distribution -in @('Both', 'Local')) {
+        $skillRootRows += ("| Local skills (picker) | `{0}` |" -f $LocalSkillsRootAbsolute)
+    }
+    if ($Distribution -in @('Both', 'Plugin')) {
+        $skillRootRows += ("| Plugin skills | `{0}` |" -f (Join-Path $PluginRootAbsolute $script:CodexPathConstant.SkillsDirectoryName))
+    }
+
+    $calloutHeader = @(
         '',
         $script:CodexPathConstant.RouterDualRootHeading,
         '',
@@ -125,15 +139,19 @@ function Add-CodexRouterDualRootCallout {
         '| Surface | Absolute path |',
         '|---------|---------------|',
         ("| InstallRoot (product / AGENTS / rules parent) | `{0}` |" -f $InstallRootAbsolute),
-        ("| {0} | `{1}` |" -f $script:CodexPathConstant.RouterHomeSkillsTableLabel, $HomeSkillsRootAbsolute),
-        ("| Plugin skills TOOLKIT_ROOT | `{0}` |" -f $PluginRootAbsolute),
+        ("| Skill distribution | `{0}` |" -f $Distribution),
+        ("| Plugin root (marketplace and hooks) | `{0}` |" -f $PluginRootAbsolute)
+    )
+    $calloutFooter = @(
+        ("| Selected skills TOOLKIT_ROOT | `{0}` |" -f $SelectedSkillsRootAbsolute),
         ("| Rules (Publish-Policy) | `{0}` |" -f $RulesRootAbsolute),
         ("| Guardrails | `{0}` |" -f $GuardrailsPathAbsolute),
         ("| Skills catalog | `{0}` |" -f $CatalogPathAbsolute),
         '',
         $script:CodexPublishMessage.RouterDualRootNote,
         ''
-    ) -join "`n"
+    )
+    $callout = ($calloutHeader + $skillRootRows + $calloutFooter) -join "`n"
 
     if ($Text -match '(?m)^## Language\s*$') {
         return ($Text -replace '(?m)^## Language\s*$', ($callout.TrimEnd() + "`n`n## Language"))
@@ -153,7 +171,11 @@ function Resolve-CodexRouterPlaceholdersInText {
         [string] $Text,
 
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $CodexSkillDistribution
     )
 
     if (-not (Get-Command -Name Get-CodexNormalizedForwardSlashPath -ErrorAction SilentlyContinue)) {
@@ -161,26 +183,28 @@ function Resolve-CodexRouterPlaceholdersInText {
     }
 
     $installAbsolute = Get-CodexNormalizedForwardSlashPath -Path $InstallRoot
+    $distribution = Resolve-CodexSkillDistribution -InstallRoot $InstallRoot -Distribution $CodexSkillDistribution
     $pluginRoot = Get-CodexRouterPluginRoot -InstallRoot $InstallRoot
     $pluginAbsolute = Get-CodexNormalizedForwardSlashPath -Path $pluginRoot
     $homeSkillsRoot = Join-Path $InstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
     $homeSkillsAbsolute = Get-CodexNormalizedForwardSlashPath -Path $homeSkillsRoot
+    $selectedToolkitRoot = if ($distribution -eq 'Local') { $InstallRoot } else { $pluginRoot }
+    $selectedToolkitRootAbsolute = Get-CodexNormalizedForwardSlashPath -Path $selectedToolkitRoot
+    $selectedSkillsRoot = Join-Path $selectedToolkitRoot $script:CodexPathConstant.SkillsDirectoryName
     $rulesRoot = Get-CodexRouterRulesRoot -InstallRoot $InstallRoot
     $rulesAbsolute = Get-CodexNormalizedForwardSlashPath -Path $rulesRoot
     $sddAbsolute = Get-CodexNormalizedForwardSlashPath -Path (Join-Path $InstallRoot $script:CodexPathConstant.SddDirectoryName)
     $guardrailsAbsolute = Get-CodexNormalizedForwardSlashPath -Path (
         Join-Path $rulesRoot $script:CodexPathConstant.GuardrailsFileName
     )
-    $catalogAbsolute = Get-CodexNormalizedForwardSlashPath -Path (
-        (Get-CodexRouterSkillsCatalogPath -PluginRoot $pluginRoot)
-    )
+    $catalogAbsolute = Get-CodexNormalizedForwardSlashPath -Path (Get-CodexRouterSkillsCatalogPath -SkillsRoot $selectedSkillsRoot)
 
     $toolkitToken = $script:CodexPathConstant.PlaceholderToolkitRoot
     $rulesPrefix = $toolkitToken + $script:CodexPathConstant.PathSeparatorForwardSlash + $script:CodexPathConstant.RulesDirectoryName + $script:CodexPathConstant.PathSeparatorForwardSlash
     $rulesRootToken = $toolkitToken + $script:CodexPathConstant.PathSeparatorForwardSlash + $script:CodexPathConstant.RulesDirectoryName
 
     $updated = $Text
-    # Rules under InstallRoot — rewrite before remaining TOOLKIT_ROOT → plugin.
+    # Rules under InstallRoot — rewrite before remaining TOOLKIT_ROOT → selected skill root.
     if ($updated.Contains($rulesPrefix)) {
         $updated = $updated.Replace($rulesPrefix, ($rulesAbsolute + $script:CodexPathConstant.PathSeparatorForwardSlash))
     }
@@ -194,7 +218,8 @@ function Resolve-CodexRouterPlaceholdersInText {
         $updated = $updated.Replace($script:CodexPathConstant.PlaceholderSddRoot, $sddAbsolute)
     }
     if ($updated.Contains($toolkitToken)) {
-        $updated = $updated.Replace($toolkitToken, $pluginAbsolute)
+        $toolkitRoot = if ($distribution -eq 'Local') { $homeSkillsRoot } else { $pluginRoot }
+        $updated = $updated.Replace($toolkitToken, (Get-CodexNormalizedForwardSlashPath -Path $toolkitRoot))
     }
 
     $updated = Convert-CodexRouterMdcReferencesToMd -Text $updated
@@ -203,10 +228,12 @@ function Resolve-CodexRouterPlaceholdersInText {
         -Text $updated `
         -InstallRootAbsolute $installAbsolute `
         -PluginRootAbsolute $pluginAbsolute `
-        -HomeSkillsRootAbsolute $homeSkillsAbsolute `
+        -LocalSkillsRootAbsolute $homeSkillsAbsolute `
         -RulesRootAbsolute $rulesAbsolute `
         -CatalogPathAbsolute $catalogAbsolute `
-        -GuardrailsPathAbsolute $guardrailsAbsolute
+        -GuardrailsPathAbsolute $guardrailsAbsolute `
+        -Distribution $distribution `
+        -SelectedSkillsRootAbsolute $selectedToolkitRootAbsolute
 
     return $updated
 }
@@ -243,7 +270,11 @@ function Get-CodexRouterPublishContent {
         [string] $InstallRoot,
 
         [Parameter()]
-        [switch] $AllowUserHome
+        [switch] $AllowUserHome,
+
+        [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $CodexSkillDistribution
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
@@ -263,7 +294,10 @@ function Get-CodexRouterPublishContent {
     }
 
     $raw = [System.IO.File]::ReadAllText($sourceAgentsPath)
-    return (Resolve-CodexRouterPlaceholdersInText -Text $raw -InstallRoot $resolvedInstallRoot)
+    return (Resolve-CodexRouterPlaceholdersInText `
+        -Text $raw `
+        -InstallRoot $resolvedInstallRoot `
+        -CodexSkillDistribution $CodexSkillDistribution)
 }
 
 function Invoke-CodexPublishRouter {
@@ -276,7 +310,11 @@ function Invoke-CodexPublishRouter {
         [switch] $AllowUserHome,
 
         [Parameter()]
-        [switch] $WhatIf
+        [switch] $WhatIf,
+
+        [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $CodexSkillDistribution
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
@@ -323,7 +361,10 @@ function Invoke-CodexPublishRouter {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    $publishedContent = Get-CodexRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    $publishedContent = Get-CodexRouterPublishContent `
+        -InstallRoot $resolvedInstallRoot `
+        -AllowUserHome:$AllowUserHome `
+        -CodexSkillDistribution $CodexSkillDistribution
     Assert-CodexRouterPlaceholdersResolved -Text $publishedContent -DestinationPath $destinationAgentsPath
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false

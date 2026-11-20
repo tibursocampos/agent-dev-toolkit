@@ -2,7 +2,7 @@
 
 Validates inline pull-request review comments for consistent structure (GitHub/generic).
 
-**Related:** `skills/code-review/SKILL.md`
+**Related:** `skills/adt-code-review/SKILL.md`
 
 ## Expected format
 
@@ -35,7 +35,7 @@ Validates inline pull-request review comments for consistent structure (GitHub/g
 </details>
 
 ---
-_Review comment - agent-dev-toolkit code-review_
+_Review comment - agent-dev-toolkit adt-code-review_
 ```
 
 ## Validation rules

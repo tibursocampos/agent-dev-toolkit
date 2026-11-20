@@ -1,6 +1,6 @@
 # Story sizing guidance
 
-Guidance for choosing useful story boundaries when that question affects scope, dependencies, or acceptance. O1 and `refine-story` may consult it selectively; it does not impose a fixed story count, rationale record, scorecard, or approval gate.
+Guidance for choosing useful story boundaries when that question affects scope, dependencies, or acceptance. O1 and `adt-refine-story` may consult it selectively; it does not impose a fixed story count, rationale record, scorecard, or approval gate.
 
 Enforcement smoke: `Assert-CoreContracts.ps1` (StorySizing section).
 
@@ -43,7 +43,7 @@ Apply in order during O1 synthesis and refine escalation:
 
 **4. Dependency order** — Upstream story must merge before downstream (package on feed before App B references it).
 
-**5. Refine step count** — If a single story needs **more than ~5–8 refine steps** before `split-story-checklist`, consider splitting into **two stories** with explicit dependencies rather than one oversized STORY.
+**5. Refine step count** — If a single story needs **more than ~5–8 refine steps** before `adt-split-story-checklist`, consider splitting into **two stories** with explicit dependencies rather than one oversized STORY.
 
 When in doubt, prefer **fewer, outcome-sized stories** over many file-scoped ones.
 
@@ -64,7 +64,7 @@ together:
 1. Prefer outcome-based stories over file or layer lists.
 2. Consider merging slices that differ only by file or layer within the same bounded context and consumer.
 3. Consider separate stories when consumers, dependencies, rollout, or rollback boundaries are materially independent.
-4. Use the optional `split-story-checklist` only when it adds distinct value; no step-count or group-count threshold is an authorization gate.
+4. Use the optional `adt-split-story-checklist` only when it adds distinct value; no step-count or group-count threshold is an authorization gate.
 
 O1 may complete backlog preparation without a separate backlog approval or a prescribed merge/split pass. Resolve only decisions that materially affect the approved outcome or dependent work.
 
@@ -94,7 +94,7 @@ O1 may complete backlog preparation without a separate backlog approval or a pre
 | TS03 | TS | App B consumes package without CI regression | Same bounded context as TS02 but separate blast radius | n/a |
 | US01 | US | Developer documents publish flow in runbook | Optional user-facing outcome; not merged into TS01 | Who: package maintainer / Job: publish shared lib safely / Outcome: runbook-ready publish |
 
-Full triage flags and spawn map: `orchestrate-analyze/references/triage.md` § Example: NuGet brownfield triage.
+Full triage flags and spawn map: `adt-orchestrate-analyze/references/triage.md` § Example: NuGet brownfield triage.
 
 ---
 
@@ -102,14 +102,14 @@ Full triage flags and spawn map: `orchestrate-analyze/references/triage.md` § E
 
 | Skill | Role |
 |-------|------|
-| `refine-story` | Consult when story scope or outcome boundaries need clarification |
-| `orchestrate-analyze` | Consult only when story boundaries materially affect division or dependencies; no fixed rationale column |
-| `split-story-checklist` | Optional, independently invocable organization aid when it adds distinct value |
+| `adt-refine-story` | Consult when story scope or outcome boundaries need clarification |
+| `adt-orchestrate-analyze` | Consult only when story boundaries materially affect division or dependencies; no fixed rationale column |
+| `adt-split-story-checklist` | Optional, independently invocable organization aid when it adds distinct value |
 
 Handoff when item is too large for single refine:
 
 ```
-/orchestrate-analyze
+/adt-orchestrate-analyze
 ```
 
 ---

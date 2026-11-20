@@ -4,8 +4,8 @@
 
 | Area | Description | Evidence |
 |------|-------------|----------|
-| Skills catalog | The toolkit has 52 invocable skills. `help-skills` presents the canonical catalog and operator notes; parity validation checks source skill IDs against the human and docs-site catalogs. | `core/skills/_shared/skills-catalog/CATALOG.md`, `core/skills/help-skills/references/present-catalog.md`, `scripts/validation/Assert-SkillCatalogParity.ps1` |
-| Delivery workflows | Classic SDD handles a clear feature directly. Orchestrated Delivery uses O1 analyze, O2 deliver per story, then O3 develop; `memory-bank-init` supports the workspace context. Human approval gates remain separate from validation and implementation. | `core/skills/_shared/sdd-artifacts/PIPELINE.md`, `core/skills/orchestrate-analyze/SKILL.md`, `core/skills/orchestrate-deliver/SKILL.md`, `core/skills/orchestrate-develop/SKILL.md` |
+| Skills catalog | The toolkit has 52 invocable skills. `adt-help-skills` presents the canonical catalog and operator notes; parity validation checks source skill IDs against the human and docs-site catalogs. | `core/skills/_shared/skills-catalog/CATALOG.md`, `core/skills/adt-help-skills/references/present-catalog.md`, `scripts/validation/Assert-SkillCatalogParity.ps1` |
+| Delivery workflows | Classic SDD handles a clear feature directly. Orchestrated Delivery uses O1 analyze, O2 deliver per story, then O3 develop; `adt-memory-bank` supports the workspace context. Human approval gates remain separate from validation and implementation. | `core/skills/_shared/sdd-artifacts/PIPELINE.md`, `core/skills/adt-orchestrate-analyze/SKILL.md`, `core/skills/adt-orchestrate-prepare/SKILL.md`, `core/skills/adt-orchestrate-implement/SKILL.md` |
 | Agent registry and adapters | Ten registered host adapters publish the shared core. `subagents` is declared as `native` or `none`; Antigravity uses a runtime capability probe, and fallback behavior is part of the contract. | `adapters/registry.json`, `adapters/`, `core/skills/_shared/agents/SPAWN.md` |
 | Storage and install | `InstallRoot` defaults to an in-repository fixture. Live user-home writes require `-AllowUserHome`. Manifest `storage_mode` selects repository or global SDD storage; feature artifacts and `memory-bank/` share the resolved root. | `README.md`, `core/skills/_shared/sdd-artifacts/STORAGE.md`, `scripts/toolkit.ps1` |
 | External-access evidence | Feature 020 remains `IN_PROGRESS`. Contract and fixture checks establish scoped local behavior; they do not establish provider/host enforcement, production I/O, isolation, or TOCTOU behavior. O3 receipt paths are evidence-only, not Classic access grants. | `features/020-classic-external-access/US01/PLAN/PLAN_020_classic_external_access.md`, `core/skills/_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md` |
@@ -26,7 +26,7 @@
 
 ## Invariants
 
-- A direct `sdd-develop` session executes one PLAN step and then stops. O3 has its own bounded queue and receipt contracts.
+- A direct `adt-sdd-develop` session executes one PLAN step and then stops. O3 has its own bounded queue and receipt contracts.
 - `subagents=none` is a fallback condition, not a reason to hard-fail or invent a host capability.
 - Chat follows the user's language; skill bodies and specialist prompts/receipts stay en-US; SDD artifact prose follows the content-language resolver.
 - Local fixtures and assertions do not prove live host, provider, publication, or production integration behavior.

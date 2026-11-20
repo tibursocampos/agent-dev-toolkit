@@ -38,6 +38,7 @@ plugins:
             Get started: Get started
             CLI: CLI
             First use: First use
+            Choosing a delivery flow: Choosing a delivery flow
             Orchestrated Delivery: Orchestrated Delivery
             Using skills: Using skills
             Questions: Questions
@@ -54,6 +55,7 @@ plugins:
             Get started: Começar
             CLI: CLI
             First use: Primeiro uso
+            Choosing a delivery flow: Escolher um fluxo
             Orchestrated Delivery: Entrega orquestrada
             Using skills: Usando skills
             Questions: Perguntas
@@ -68,6 +70,7 @@ nav:
   - Get started: get-started.md
   - CLI: cli.md
   - First use: first-use.md
+  - Choosing a delivery flow: delivery-flow.md
   - Orchestrated Delivery: orchestrated-delivery.md
   - Using skills: using-skills.md
   - Questions: questions.md

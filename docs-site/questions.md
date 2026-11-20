@@ -67,4 +67,4 @@ Only the main session asks you questions. Subagents never ask you directly. When
 
 ## Free-text questions
 
-Some questions are open on purpose. The intake questions in `sdd-spec` are one example. They have no fixed set of ids, and your answer is recorded as text. The question still waits until you answer it.
+Some questions are open on purpose. The intake questions in `adt-sdd-spec` are one example. They have no fixed set of ids, and your answer is recorded as text. The question still waits until you answer it.

@@ -60,6 +60,6 @@ When any unanswered **B**/**I**/**MINOR** remains at an O2 or refine→PRD bound
 |-------------|------|
 | `readiness-severity.md` | Canonical B/I/MINOR, READY / NEEDS_CLARIFICATION, dual plane, STOP shape |
 | `feature-altitude.md` | Which questions belong on FEATURE vs story |
-| `sdd-spec` / `refine-story` | Wire challenge prompts; refine STOP fake-forward when B/I open |
-| `orchestrate-deliver` | O2 STOP Write on any unanswered B/I/MINOR (`preconditions.md`) |
+| `adt-sdd-spec` / `adt-refine-story` | Wire challenge prompts; refine STOP fake-forward when B/I open |
+| `adt-orchestrate-prepare` | O2 STOP Write on any unanswered B/I/MINOR (`preconditions.md`) |
 | `invest-and-story-quality.md` | Negotiable / Estimable unlocked by clarify |

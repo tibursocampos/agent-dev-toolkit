@@ -8,7 +8,7 @@ When SPAWN / Orchestrated Delivery prefer a specialist child:
 
 1. Call **`delegate_task`** with a clear `goal` and a self-contained `context`.
 2. Put in `context`: portable paths (FEATURE / CONTINUITY / PLAN / story notes), role, and receipt requirement (`RECEIPT.md`). Do **not** paste guideline packs, full SKILL bodies, or large policy dumps.
-3. O3 develop: **one child = one PLAN step** (`sdd-develop` contract). Parent updates CONTINUITY only; parent never writes application code.
+3. O3 develop: **one child = one PLAN step** (`adt-sdd-develop` contract). Parent updates CONTINUITY only; parent never writes application code.
 4. Prefer `role=leaf` (default). Nested `role=orchestrator` is optional operator config — the toolkit does **not** emit `delegation.*` YAML.
 
 ### Where this file applies

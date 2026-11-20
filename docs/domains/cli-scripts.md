@@ -16,23 +16,23 @@ Operator entry points under `scripts/`.
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Read-only bank inventory (`ready` \| `not-ready`) |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped TRACE harvest |
 | `scripts/trace/Invoke-AuthorshipGitNotes.ps1` | Opt-in authorship git-notes (default off; never TRACE SoT) — [guide 09](../guides/09-authorship-git-notes.md) |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | Session helper for `document-implement` |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Session helper for `adt-document-implement` |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION (WS3) |
-| `scripts/_lib/Test-ToolkitFileReadback.ps1` | Shared write-then-readback helper for `document-implement` session persistence |
+| `scripts/_lib/Test-ToolkitFileReadback.ps1` | Shared write-then-readback helper for `adt-document-implement` session persistence |
 
 Shared helpers: `scripts/_lib/` (`Resolve-InstallRoot`, `Resolve-RegistryAgent`, toolkit constants, …).
 
 ## Skill reference inventory and publication policy
 
-Every executable script path referenced from `core/skills/**/*.md` is classified below. Runtime entries are published by `scripts/sync-agent.ps1` from `scripts/runtime/runtime-manifest.json` under each resolved `TOOLKIT_ROOT/scripts/`. The primary root is `<InstallRoot>`; Codex also publishes to `<InstallRoot>/plugin` and, with `-UserScope`, `<InstallRoot>/.agents`; OpenHands project installs also publish to `<InstallRoot>/.agents` (a user install whose root is already `.agents` uses the primary root only). `support` files are copied only as transitive dependencies of the listed runtime entries. No folder-wide `scripts/` copy occurs.
+Every executable script path referenced from `core/skills/**/*.md` is classified below. Runtime entries are published by `scripts/sync-agent.ps1` from `scripts/runtime/runtime-manifest.json` under each resolved `TOOLKIT_ROOT/scripts/`. The primary root is `<InstallRoot>`; Codex also publishes to `<InstallRoot>/plugins/agent-dev-toolkit` and, with `-UserScope`, `<InstallRoot>/.agents`; OpenHands project installs also publish to `<InstallRoot>/.agents` (a user install whose root is already `.agents` uses the primary root only). Codex separately manages `<InstallRoot>/plugins/cache`; the toolkit does not publish there. `support` files are copied only as transitive dependencies of the listed runtime entries. No folder-wide `scripts/` copy occurs.
 
 | Source | Caller / reference | Class | Installed destination |
 |--------|--------------------|-------|-----------------------|
-| `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `memory-bank-init`, shared MEMORY-BANK contract | runtime | matching `TOOLKIT_ROOT/scripts/inventory/` path |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | `document-implement` session contract | runtime | matching `TOOLKIT_ROOT/scripts/session/` path |
+| `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `adt-memory-bank`, shared MEMORY-BANK contract | runtime | matching `TOOLKIT_ROOT/scripts/inventory/` path |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | `adt-document-implement` session contract | runtime | matching `TOOLKIT_ROOT/scripts/session/` path |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | shared readiness-severity contract | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
 | `scripts/validation/validate-session-gates.ps1` | shared SESSION contract | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
-| `scripts/validation/validate-evidence.ps1`, `validate-trace.ps1` | `sdd-develop` evidence/archive gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
+| `scripts/validation/validate-evidence.ps1`, `validate-trace.ps1` | `adt-sdd-develop` evidence/archive gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
 | `scripts/validation/validate-prd.ps1`, `validate-plan.ps1`, `validate-change.ps1` | Optional structural diagnostics when explicitly requested; not flow authorization gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
 | `scripts/_lib/ToolkitConstants.ps1`, `Get-ToolkitRepoRoot.ps1`, `Resolve-EffectiveSddRoot.ps1`, `Resolve-InstallRoot.ps1`, `Test-ToolkitFileReadback.ps1` | dot-sourced by published runtime scripts that require them | support | matching `TOOLKIT_ROOT/scripts/_lib/` paths (manifest-listed files only) |
 | `scripts/validation/Assert-*.ps1` (including `Assert-CoreContracts`, `Assert-AdapterContract`, `Assert-RuntimeCopyDrift`, `Assert-O3ReceiptValidation`, `Assert-DevelopSessionGate`), `scripts/validation/validate-core.ps1` (in-process runner with `-Only` / `-Skip`), `scripts/validation/Invoke-AdapterCiSmoke.ps1 -Adapter <id>` | contract and CI validation of toolkit sources; none reads a `features/` tree | internal | not published |
@@ -43,7 +43,7 @@ Runtime scripts must receive explicit `{{TOOLKIT_ROOT}}/scripts/...` references 
 
 ## Session helper
 
-`Invoke-DevelopSessionGate.ps1` remains available to `document-implement`, whose contract explicitly uses session state. Classic SDD and O1/O2/O3 do not use session flags or claims as execution prerequisites. When the helper's consumer calls it, use `-File` and retain the host's ordinary explicit Shell authorization:
+`Invoke-DevelopSessionGate.ps1` remains available to `adt-document-implement`, whose contract explicitly uses session state. Classic SDD and O1/O2/O3 do not use session flags or claims as execution prerequisites. When the helper's consumer calls it, use `-File` and retain the host's ordinary explicit Shell authorization:
 
 `scripts/session/Invoke-DevelopSessionGate.ps1`
 
@@ -59,7 +59,7 @@ These scripts are independent utilities, not a required sequence or approval pip
 | `Invoke-SiblingReadinessGate.ps1` | Optional readiness diagnostic for consumers that request it |
 | `Invoke-TraceHarvest.ps1` | Explicit summary of `features/NNN-slug/TRACE.jsonl` |
 
-Contracts (do not paste full schema here): [TRACE archive](core.md#trace-archive-living-loop), [readiness](core.md#clarification-readiness-b--i--minor), [VALIDATION.md](../VALIDATION.md).
+Contracts (do not paste full schema here): [TRACE archive](core.md#trace-archive-living-loop), [standalone requirement-review readiness](core.md#requirement-review-readiness-standalone-backlog-contract), [VALIDATION.md](../VALIDATION.md).
 
 ### Memory-bank inventory
 
@@ -81,7 +81,7 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-SiblingReadinessGate.ps1 `
   -FeatureRoot features\<NNN-slug>\<story>
 ```
 
-Evaluates open clarification markers (B / I / MINOR) per `readiness-severity.md` under that feature/story root. Open **B**, **I**, or **MINOR** → exit `NEEDS_CLARIFICATION` (blocks O2 / refine handoff as READY). Presence of sibling folders alone is not READY. Domain: [core readiness](core.md#clarification-readiness-b--i--minor).
+Evaluates open clarification markers for the standalone backlog/review contract when that consumer requests it. Its result does not gate Classic SDD, Orchestrated Delivery, or ADT Delivery. Presence of sibling folders alone is not a readiness result. See [requirement-review readiness](core.md#requirement-review-readiness-standalone-backlog-contract).
 
 ### TRACE harvest
 
@@ -92,14 +92,14 @@ pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
 
 Summarizes events from that feature’s `TRACE.jsonl` only (includes `tokens` / `duration` / `spawn` when present). Path escape or sessions-root reads fail explicitly — never dumps `sdd/sessions`.
 
-### Session helper (`document-implement`)
+### Session helper (`adt-document-implement`)
 
 ```powershell
 pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 `
   -PlanPath docs\documentation-plan\plan.md -RepoPath . -SddRoot <sdd-root>
 ```
 
-This example is for the `document-implement` consumer. For published runtime helpers, `-SddRoot` is optional and defaults to the active InstallRoot's `sdd` directory. Pass it explicitly when running from source or selecting a test root.
+This example is for the `adt-document-implement` consumer. For published runtime helpers, `-SddRoot` is optional and defaults to the active InstallRoot's `sdd` directory. Pass it explicitly when running from source or selecting a test root.
 
 Assert: `Assert-DevelopSessionGate.ps1`.
 
@@ -111,12 +111,12 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Validate -Agent cursor
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor -WhatIf
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude -WhatIf
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent codex -UserScope -AllowUserHome -InstallRoot "$env:USERPROFILE\.codex"
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent codex -CodexSkillDistribution Local -AllowUserHome -InstallRoot "$env:USERPROFILE\.codex"
 ```
 
 Interactive menu: Sync / Validate / Sync+Validate / Validate core / Validation lab / Uninstall / Help. Sync / Validate / Uninstall require an explicit agent id (wizard or `-Agent`; no silent home default).
 
-`-Mode` is forwarded to sync, validate, and uninstall. For `-Agent copilot` it is required and must be `user` or `repo`. `-AllowUserHome` is forwarded the same way and is the opt-in when `InstallRoot` resolves under the user profile. Optional `-UserScope` is forwarded to `sync-agent.ps1` for adapters that declare `Publish-Skills -UserScope` (Codex). It is opt-in only.
+`-Mode` is forwarded to sync, validate, and uninstall. For `-Agent copilot` it is required and must be `user` or `repo`. `-AllowUserHome` is forwarded the same way and is the opt-in when `InstallRoot` resolves under the user profile. Optional `-UserScope` is forwarded to `sync-agent.ps1` for adapters that declare `Publish-Skills -UserScope` (Codex). `-CodexSkillDistribution` is forwarded only for Codex Sync and accepts `Both` (default), `Local`, or `Plugin`.
 
 `-WhatIf` forwards to `sync-agent.ps1` for Sync / SyncAndValidate, and to adapter `Uninstall-Toolkit` when that command declares `-WhatIf`.
 
@@ -127,7 +127,7 @@ Backup stays a non-interactive fail-closed stub (`-Action Backup` only; it is no
 ## sync-agent.ps1
 
 ```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent <id> [-InstallRoot <path>] [-Mode user|repo] [-AllowUserHome] [-UserScope] [-WhatIf]
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent <id> [-InstallRoot <path>] [-Mode user|repo] [-AllowUserHome] [-UserScope] [-CodexSkillDistribution Both|Local|Plugin] [-WhatIf]
 ```
 
 | Parameter | Behavior |
@@ -137,6 +137,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent <id> [-InstallRoot <path>]
 | `-Mode` | Required for `-Agent copilot`: `user` \| `repo` (TE02 when missing or invalid). Ignored for other agents |
 | `-AllowUserHome` | Opt-in when `InstallRoot` resolves under the user profile |
 | `-UserScope` | Optional. Forwarded to `Publish-Skills` when the adapter declares `-UserScope` (Codex). Opt-in mirror to `~/.agents/skills`. Leave it off by default: Codex already discovers `InstallRoot/skills` (`~/.codex/skills`); dual mirrors duplicate `$` picks |
+| `-CodexSkillDistribution` | Codex only: `Both` (default), `Local`, or `Plugin`. Controls skill publication only; the plugin shell and hook remain available in Local mode. Existing copies are not removed when the mode changes |
 | `-WhatIf` | Forwarded to `Publish-*` when those commands declare `-WhatIf` |
 
 Publish order: `Publish-Skills` → `Publish-Policy` → `Publish-Router` → `Publish-Agents` → `Publish-Hooks`, then always `Get-SddRoot -Prepare` (sessions directory, and seed `manifest.json` only when missing; never overwrites an existing manifest or clears sessions). A stub module that returns `Implemented = false` makes sync exit non-zero without writing under the user profile.

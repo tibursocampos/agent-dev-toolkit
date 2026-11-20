@@ -122,35 +122,35 @@
         "agents": true
       },
       "sharedConfig": [
-        "plugin/hooks/hooks.json",
+        "plugins/agent-dev-toolkit/hooks/hooks.json",
         "marketplace.json"
       ],
       "state": [
         "sdd/**",
         "scripts/**",
-        "plugin/scripts/**",
+        "plugins/agent-dev-toolkit/scripts/**",
         ".agents/scripts/** (optional user-scope)",
         ".toolkit-managed-skills.json",
         ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [
-        "plugin/hooks/session_start.ps1",
-        "plugin/hooks/guard-pre-tool.ps1",
-        "plugin/hooks/_hook-common.ps1"
+        "plugins/agent-dev-toolkit/hooks/session_start.ps1",
+        "plugins/agent-dev-toolkit/hooks/guard-pre-tool.ps1",
+        "plugins/agent-dev-toolkit/hooks/_hook-common.ps1"
       ],
       "legacyFiles": [
-        "plugin/hooks/session_start.ps1",
-        "plugin/hooks/guard-pre-tool.ps1",
-        "plugin/hooks/_hook-common.ps1"
+        "plugins/agent-dev-toolkit/hooks/session_start.ps1",
+        "plugins/agent-dev-toolkit/hooks/guard-pre-tool.ps1",
+        "plugins/agent-dev-toolkit/hooks/_hook-common.ps1"
       ],
       "legacySource": "adapters/codex/Uninstall-CodexToolkit.ps1",
       "pruneRoots": [
         "skills",
         "rules",
         "agents",
-        "plugin/skills",
-        "plugin/hooks",
-        "plugin"
+        "plugins/agent-dev-toolkit/skills",
+        "plugins/agent-dev-toolkit/hooks",
+        "plugins/agent-dev-toolkit"
       ]
     },
     {

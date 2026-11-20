@@ -2,7 +2,7 @@
 
 Lean skill map for agents after install. **Do not invent skills** — only names listed here exist as skill ids. Invoke by **skill id**; host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full host matrix: sibling `OPERATOR.md`.
 
-**Load via skill `help-skills`** (or Read this path). Operator nuances: sibling `OPERATOR.md` in this folder. Shared packs under `_shared/` are not invocable skills. There is **no** `architect` skill — architect is spawned from `orchestrate-analyze` / the agent roster.
+**Load via skill `adt-help-skills`** (or Read this path). Operator nuances: sibling `OPERATOR.md` in this folder. Shared packs under `_shared/` are not invocable skills. There is **no** `architect` skill — architect is spawned from `adt-orchestrate-analyze` / the agent roster.
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
@@ -12,39 +12,39 @@ Total: **52** kebab skills.
 
 | Track | Skills | When |
 |-------|--------|------|
-| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
-| **Backlog Refine** | `refine-story`, `requirement-review`, `split-story-checklist` | Rough bug/story first; challenge before SDD |
-| **Orchestrated Delivery** | `adt-epic-planner` (optional initiative discovery), `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Optional initiative planning; multi-story / brownfield delivery |
+| **Classic SDD** | `adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`, `adt-read-sdd-artifact` | One clear feature |
+| **Backlog Refine** | `adt-refine-story`, `adt-requirement-review`, `adt-split-story-checklist` | Rough bug/story first; challenge before SDD |
+| **Orchestrated Delivery** | `adt-epic-planner` (optional initiative discovery), `adt-memory-bank`, `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, `adt-orchestrate-implement` | Optional initiative planning; multi-story / brownfield delivery |
 | **ADT Delivery** | `adt-delivery-flow`, `adt-delivery-refine`, `adt-delivery-plan`, `adt-delivery-implement` | One evolving feature plan from refinement through implementation and code review |
 
-**Track choice:** tracks are recommendations only. Classic SDD does **not** require Orchestrated Delivery first. Start with `/sdd-spec` or `/sdd-plan` whenever one feature has a clear path.
+**Track choice:** tracks are recommendations only. Classic SDD does **not** require Orchestrated Delivery first. Start with `/adt-sdd-spec` or `/adt-sdd-plan` whenever one feature has a clear path.
 
 ## Classic SDD
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
-| `sdd-spec` | `sdd-spec` | Create a PRD for a new feature or change |
-| `sdd-plan` | `sdd-plan` | Executable PLAN from a PRD or sufficiently specified demand; one approval before implementation |
-| `sdd-develop` | `sdd-develop` | Execute an approved PLAN step-by-step or continuously, using PLAN as the progress source |
-| `read-sdd-artifact` | `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN → `source_context` envelope |
+| `adt-sdd-spec` | `adt-sdd-spec` | Create a PRD for a new feature or change |
+| `adt-sdd-plan` | `adt-sdd-plan` | Executable PLAN from a PRD or sufficiently specified demand; one approval before implementation |
+| `adt-sdd-develop` | `adt-sdd-develop` | Execute an approved PLAN step-by-step or continuously, using PLAN as the progress source |
+| `adt-read-sdd-artifact` | `adt-read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN → `source_context` envelope |
 
 ## Backlog Refine — backlog prep
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
-| `refine-story` | `refine-story` | Refine bug/story into structured markdown + BDD |
-| `requirement-review` | `requirement-review` | Challenge a feature or story before SDD: `--feature` (functional) or `--tech` (repository-grounded) |
-| `split-story-checklist` | `split-story-checklist` | Dependency-aware task checklist (BE/FE/tests) |
+| `adt-refine-story` | `adt-refine-story` | Refine bug/story into structured markdown + BDD |
+| `adt-requirement-review` | `adt-requirement-review` | Challenge a feature or story before SDD: `--feature` (functional) or `--tech` (repository-grounded) |
+| `adt-split-story-checklist` | `adt-split-story-checklist` | Dependency-aware task checklist (BE/FE/tests) |
 
 ## Orchestrated Delivery — orchestration
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
 | `adt-epic-planner` | `adt-epic-planner` | Discover a multi-feature initiative and persist one navigable `EPIC.md`; optional context for O1 |
-| `memory-bank-init` | `memory-bank-init` | Create/refresh `memory-bank/` at repo or global root (Step 0; never under `features/NNN-slug/`) |
-| `orchestrate-analyze` | `orchestrate-analyze` | Proportional triage, targeted specialist analysis, and justified backlog structure |
-| `orchestrate-deliver` | `orchestrate-deliver` | Prepare PRD + PLAN per selected story; one approval for the complete listed PLAN set |
-| `orchestrate-develop` | `orchestrate-develop` | Serial PLAN-step queue via `sdd-develop`; reconcile each result before dispatch |
+| `adt-memory-bank` | `adt-memory-bank` | Create/refresh `memory-bank/` at repo or global root (Step 0; never under `features/NNN-slug/`) |
+| `adt-orchestrate-analyze` | `adt-orchestrate-analyze` | Proportional triage, targeted specialist analysis, and justified backlog structure |
+| `adt-orchestrate-prepare` | `adt-orchestrate-prepare` | Prepare PRD + PLAN per selected story; one approval for the complete listed PLAN set |
+| `adt-orchestrate-implement` | `adt-orchestrate-implement` | Serial PLAN-step queue via `adt-sdd-develop`; reconcile each result before dispatch |
 
 ## ADT Delivery
 
@@ -55,64 +55,64 @@ Total: **52** kebab skills.
 | `adt-delivery-plan` | `adt-delivery-plan` | Complete the same plan for approval |
 | `adt-delivery-implement` | `adt-delivery-implement` | Execute the approved plan, validate and run code review |
 
-The flow uses one evolving `PLAN.md` and the existing `code-review` skill; it does not use cold review.
+The flow uses one evolving `PLAN.md` and the existing `adt-code-review` skill; it does not use cold review.
 ADT delivery does not use workflow hooks or per-step session gates by design.
 
 ## Developer routing and stack
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
-| `developer` | `developer` | Hybrid router: detect stack or ad-hoc scripts |
-| `dotnet-developer` | `dotnet-developer` | Small/medium .NET without full SDD |
-| `java-developer` | `java-developer` | Small/medium Java / Spring Boot |
-| `react-developer` | `react-developer` | Small/medium React |
-| `react-native-developer` | `react-native-developer` | React Native / Expo |
-| `angular-developer` | `angular-developer` | Angular |
-| `arduino-developer` | `arduino-developer` | Arduino sketches, libraries, and Arduino Core projects |
-| `vue-developer` | `vue-developer` | Vue 3 |
-| `blazor-developer` | `blazor-developer` | Blazor (WASM/Server/Hybrid) |
-| `electron-developer` | `electron-developer` | Electron desktop |
-| `esp-idf-developer` | `esp-idf-developer` | Native ESP-IDF C/C++ firmware |
-| `javascript-developer` | `javascript-developer` | JavaScript/Node |
-| `micropython-developer` | `micropython-developer` | MicroPython device firmware for identified ESP32/ESP8266 targets |
-| `python-developer` | `python-developer` | Python |
+| `adt-developer` | `adt-developer` | Hybrid router: detect stack or ad-hoc scripts |
+| `adt-dotnet-developer` | `adt-dotnet-developer` | Small/medium .NET without full SDD |
+| `adt-java-developer` | `adt-java-developer` | Small/medium Java / Spring Boot |
+| `adt-react-developer` | `adt-react-developer` | Small/medium React |
+| `adt-react-native-developer` | `adt-react-native-developer` | React Native / Expo |
+| `adt-angular-developer` | `adt-angular-developer` | Angular |
+| `adt-arduino-developer` | `adt-arduino-developer` | Arduino sketches, libraries, and Arduino Core projects |
+| `adt-vue-developer` | `adt-vue-developer` | Vue 3 |
+| `adt-blazor-developer` | `adt-blazor-developer` | Blazor (WASM/Server/Hybrid) |
+| `adt-electron-developer` | `adt-electron-developer` | Electron desktop |
+| `adt-esp-idf-developer` | `adt-esp-idf-developer` | Native ESP-IDF C/C++ firmware |
+| `adt-javascript-developer` | `adt-javascript-developer` | JavaScript/Node |
+| `adt-micropython-developer` | `adt-micropython-developer` | MicroPython device firmware for identified ESP32/ESP8266 targets |
+| `adt-python-developer` | `adt-python-developer` | Python |
 
 ## Blip plugins and design
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
-| `blip-plugin-developer` | `blip-plugin-developer` | Scaffold Blip React extensions → `react-developer` |
+| `adt-blip-plugin-developer` | `adt-blip-plugin-developer` | Scaffold Blip React extensions → `adt-react-developer` |
 
 ## Operational
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
-| `help-skills` | `help-skills`, `list skills`, `skill catalog` | Present this catalog + `OPERATOR.md` (static) |
+| `adt-help-skills` | `adt-help-skills`, `list skills`, `skill catalog` | Present this catalog + `OPERATOR.md` (static) |
 | `adt-settings` | `adt-settings` | Show or save the general model and effort for subagents, or return to inheriting |
-| `code-review` | `code-review` | Structured review (quality / acceptance / security) |
-| `implementation-survey` | `implementation-survey` | Describe what changed and how the implementation appears to work |
-| `repair-dotnet-build` | `repair-dotnet-build` | Diagnose/fix .NET build and tests |
-| `test-coverage` | `test-coverage` | .NET Coverlet coverage report |
-| `run-tests` | `run-tests` | Run detected-stack tests; .NET coverage only when the PLAN asks |
-| `commit` | `commit`, `commit changes` | Conventional commit on a valid feature branch |
-| `push` | `push`, `push changes` | Safe git push after confirmation |
-| `open-github-pr` | `open-github-pr` | Create GitHub PR via `gh` |
-| `ef-add-migration` | `ef-add-migration` | EF Core migration discovery |
-| `scaffold-message-handler` | `scaffold-message-handler` | Message consumer scaffold |
-| `refactor` | `refactor` | Safe incremental refactoring |
-| `api-integrate` | `api-integrate` | Typed API clients from OpenAPI |
-| `api-standards` | `api-standards`, `api standards`, `REST conventions` | Agnostic HTTP/API design standards (no company contracts; packing only) |
-| `framework-upgrade` | `framework-upgrade` | Generic framework upgrade orchestrator (audit\|plan\|migrate\|validate; pluggable packs — not a pinned pack) |
-| `performance-profile` | `performance-profile` | Profiling and optimization |
-| `containerize` | `containerize` | Dockerfiles and compose |
-| `i18n-manager` | `i18n-manager` | Extract strings to localization files |
+| `adt-code-review` | `adt-code-review` | Structured review (quality / acceptance / security) |
+| `adt-code-explain` | `adt-code-explain` | Explain existing code or describe how it changed, with evidence from opened files |
+| `adt-repair-dotnet-build` | `adt-repair-dotnet-build` | Diagnose/fix .NET build and tests |
+| `adt-test-coverage` | `adt-test-coverage` | .NET Coverlet coverage report |
+| `adt-run-tests` | `adt-run-tests` | Run detected-stack tests; .NET coverage only when the PLAN asks |
+| `adt-commit` | `adt-commit`, `adt-commit changes` | Conventional commit on a valid feature branch |
+| `adt-push` | `adt-push`, `adt-push changes` | Safe git push after confirmation |
+| `adt-open-github-pr` | `adt-open-github-pr` | Create GitHub PR via `gh` |
+| `adt-ef-add-migration` | `adt-ef-add-migration` | EF Core migration discovery |
+| `adt-scaffold-message-handler` | `adt-scaffold-message-handler` | Message consumer scaffold |
+| `adt-refactor` | `adt-refactor` | Safe incremental refactoring |
+| `adt-api-integrate` | `adt-api-integrate` | Typed API clients from OpenAPI |
+| `adt-api-standards` | `adt-api-standards`, `api standards`, `REST conventions` | Agnostic HTTP/API design standards (no company contracts; packing only) |
+| `adt-framework-upgrade` | `adt-framework-upgrade` | Generic framework upgrade orchestrator (audit\|plan\|migrate\|validate; pluggable packs — not a pinned pack) |
+| `adt-performance-profile` | `adt-performance-profile` | Profiling and optimization |
+| `adt-containerize` | `adt-containerize` | Dockerfiles and compose |
+| `adt-i18n-manager` | `adt-i18n-manager` | Extract strings to localization files |
 
 ## Documentation (RAG)
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
-| `document-plan` | `document-plan`, `doc plan` | Baby-step documentation plan |
-| `document-implement` | `document-implement` | Execute one documentation plan step |
+| `adt-document-plan` | `adt-document-plan`, `doc plan` | Baby-step documentation plan |
+| `adt-document-implement` | `adt-document-implement` | Execute one documentation plan step |
 
 ## Activation contract
 

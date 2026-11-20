@@ -4,15 +4,15 @@ Load this index first. Read only the rows that match the current action. Guardra
 
 | File | Read when | Size |
 |------|-----------|------|
-| `SESSION.md` | Read only for a consumer that explicitly retains session helpers, such as `document-implement`. Not an authorization or execution prerequisite for Classic SDD or Orchestrated Delivery; see the Applicability matrix. | 22 KB |
-| `PIPELINE.md` | **Conditional:** SDD skills (`sdd-spec`, `sdd-plan`, `sdd-develop`) and every `orchestrate-*` skill (required for orchestrate). Start at "Navigation block" and "Canonical paths". Skip for read-only Q&A. | 17 KB |
+| `SESSION.md` | Read only for a consumer that explicitly retains session helpers, such as `adt-document-implement`. Not an authorization or execution prerequisite for Classic SDD or Orchestrated Delivery; see the Applicability matrix. | 22 KB |
+| `PIPELINE.md` | **Conditional:** SDD skills (`adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`) and every `adt-orchestrate-*` skill (required for orchestrate). Start at "Navigation block" and "Canonical paths". Skip for read-only Q&A. | 17 KB |
 | `STORAGE.md` | Resolving or writing canonical `features/` paths, portable paths, or storage modes. | 17 KB |
 | `STORAGE-RESOLUTION.md` | Resolving the global manifest and dynamic storage root (schema v2). Only when `STORAGE.md` points here. | 10 KB |
 | `ARTIFACT-OWNERSHIP.md` | Deciding which skill owns a given artifact, or before writing an artifact outside the owner's scope (resolution rules and gaps). | 3 KB |
 | `ARTIFACT-OWNERSHIP-MATRIX.md` | Looking up the authority, writer, and consumers of one artifact type (the full matrix). | 16 KB |
 | `INVOCATION-CONTEXTS.md` | Deciding `direct` vs `orchestrated` invocation, or the `IC-DIRECT-ORCHESTRATED` rules. | 9 KB |
-| `MEMORY-BANK.md` | Explicit `memory-bank-init` operations or when an existing bank is relevant to the current decision; no Classic/O1/O2/O3 gate. | 14 KB |
-| `LIVE-STAGE-TABLE.md` | Progress-table standard (structure, label map, display points, completeness); governs O1, O2, O3, sdd-spec, sdd-plan, sdd-develop and Backlog Refine. | 14 KB |
+| `MEMORY-BANK.md` | Explicit `adt-memory-bank` operations or when an existing bank is relevant to the current decision; no Classic/O1/O2/O3 gate. | 14 KB |
+| `LIVE-STAGE-TABLE.md` | Progress-table standard (structure, label map, display points, completeness); governs O1, O2, O3, adt-sdd-spec, adt-sdd-plan, adt-sdd-develop and Backlog Refine. | 14 KB |
 | `CHANGE-CONTRACT.md` | Brownfield work that changes current specs (`CHANGE.md`). | 6 KB |
 | `CONTRACT-PROVENANCE.md` | Labelling a contract or assumption as `agreed` or `invented`, or while authoring a PRD with contract claims. | 7 KB |
 | `EVD-STATE-CONTRACT.md` | Evidence levels or the evidence-or-zero rule, when a skill reports evidence or state. | 8 KB |

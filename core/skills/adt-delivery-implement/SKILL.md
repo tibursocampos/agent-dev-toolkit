@@ -24,7 +24,7 @@ Invoke `adt-delivery-implement` (host forms: `/adt-delivery-implement`, `$adt-de
 
 ## Outcome
 
-- Approved steps are implemented within planned paths; criterion tests exist for every acceptance criterion; `PLAN.md` Progress and Closeout hold status and evidence; final validation and the existing `code-review` ran; `CODE-REVIEW.md` sits next to the plan.
+- Approved steps are implemented within planned paths; criterion tests exist for every acceptance criterion; `PLAN.md` Progress and Closeout hold status and evidence; final validation and the existing `adt-code-review` ran; `CODE-REVIEW.md` sits next to the plan.
 - Nothing is committed, pushed, merged or published automatically.
 
 Stage preconditions: Step 0 passed, ledger `plan=approved` and `Mode: full`, approval line present; checked in prose at Step 1, item 3.
@@ -55,10 +55,10 @@ Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATA
 | Approval validity, amendment, resume | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-LIFECYCLE.md` |
 | Progress table rows | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/DISPLAY.md` |
 | Terminal outcomes and handoff | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/HANDOFF.md` |
-| Final validation | `{{TOOLKIT_ROOT}}/skills/run-tests/SKILL.md` |
-| Final review | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
+| Final validation | `{{TOOLKIT_ROOT}}/skills/adt-run-tests/SKILL.md` |
+| Final review | `{{TOOLKIT_ROOT}}/skills/adt-code-review/SKILL.md` |
 | Domain skill named by a step (only that skill) | its own `SKILL.md` under `{{TOOLKIT_ROOT}}/skills/` |
-| Memory-bank offer at the end | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md`; `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
+| Memory-bank offer at the end | `{{TOOLKIT_ROOT}}/skills/adt-memory-bank/SKILL.md`; `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Delegating when available | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Selecting specialists when warranted | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
 
@@ -80,7 +80,7 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 3. **Entry check (prose).** The Stage ledger of the selected plan reads `plan=approved`, `Mode: full` is recorded and the one-line approval note is present. If any is missing, report what is missing and stop. Otherwise set `Stage ledger` to `implement=in_progress` in the Operational record.
 
 ### Step 2 - Guidelines, choices and baseline
-1. **Guidelines (mandatory, before the first edit).** Reuse the `Guidelines:` line of the plan's Evidence. Read only the paths that the steps in scope need and that the line lacks, from the map in `adt-delivery-refine/references/clarify.md`; append each one read to the line. Never re-read a path already on it.
+1. **Guidelines (mandatory, before the first edit).** Use `Guidelines:` in the plan's Evidence as an index. Resolve and read the references for the current scope, including when an earlier session listed them. Inspect the target repository's instructions and nearby conventions. Use `adt-delivery-refine/references/clarify.md` to find applicable references missing from the index. Pass only the applicable pointers to each child, which reads them for its own scope.
 2. Ask the operator for branch (current or new, at each start), cadence (`step_by_step` or `continuous`), review mode (`single` or `multi-angle`), base and focus. Never infer from silence; reuse recorded cadence and review mode.
 3. Record choices, observed branch and baseline (branch, HEAD, existing staged and unstaged changes) in `PLAN.md` per `references/start-choices.md`.
 4. Draw the PLAN-step table at display point 1 (`DISPLAY.md`) before the first edit. When invoked by `adt-delivery-flow`, the flow's table is the only one drawn.
@@ -91,11 +91,11 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 
 ### Step 4 - Criterion tests and closeout
 1. After the last approved step, write or adjust the criterion tests and record the `criterion -> test` map in Progress (`references/execution.md`, "Criterion tests").
-2. Run the closeout in the order of `references/closeout.md`: criterion map, final validation (`run-tests`), `code-review` with the resolved plan path, review mode, focus, base and diff scope, rerun after review changes, security pass when needed, quality checks, and the AI-trace scan. Save findings in `CODE-REVIEW.md` next to the plan. Once that evidence is recorded, set `Stage ledger` to `implement=done`.
+2. Run the closeout in the order of `references/closeout.md`: criterion map, final validation (`adt-run-tests`), `adt-code-review` with the resolved plan path, review mode, focus, base and diff scope, rerun after review changes, security pass when needed, quality checks, and the AI-trace scan. Save findings in `CODE-REVIEW.md` next to the plan. Once that evidence is recorded, set `Stage ledger` to `implement=done`.
 
 ### Step 5 - Report, outcome and memory-bank offer
 1. Report results, evidence and remaining limitations, never claiming completion without evidence; map the result to a terminal outcome per `HANDOFF.md`.
-2. Memory-bank offer (last action, after the report): ask ONCE, in the user's chat language, whether to run `memory-bank-init` on `bank_root` (`STORAGE-FEATURE.md`, "Memory bank root"): create when `memory-bank/` is absent, `refresh-light` when present. Options `confirm` / `skip` per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Wait for the answer. `confirm` runs `memory-bank-init`; `skip` ends here. The offer does not change the outcome and is not a gate.
+2. Memory-bank offer (last action, after the report): ask ONCE, in the user's chat language, whether to run `adt-memory-bank` on `bank_root` (`STORAGE-FEATURE.md`, "Memory bank root"): create when `memory-bank/` is absent, `refresh-light` when present. Options `confirm` / `skip` per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Wait for the answer. `confirm` runs `adt-memory-bank`; `skip` ends here. The offer does not change the outcome and is not a gate.
 
 ## Must not
 
@@ -106,7 +106,7 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 - Claim completion without evidence, or present failed, unavailable or partial validation or review as success.
 - Commit, push, merge or publish automatically.
 - Set `implement=done` before the validation, review and AI-trace evidence is recorded.
-- Modify the `run-tests` or `code-review` skills (call them as other flows do).
+- Modify the `adt-run-tests` or `adt-code-review` skills (call them as other flows do).
 - Fall back from global to local storage.
 - Use cold reviewers (cold-critic, cold-reader) or impose a token budget.
 - Write the chat progress table into `PLAN.md`.
@@ -115,8 +115,8 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 
 | Situation | Next |
 |-----------|------|
-| Implement done | Report the result; commit, push and PR only on the operator's specific request (`commit`, `push`, `open-github-pr`) |
+| Implement done | Report the result; commit, push and PR only on the operator's specific request (`adt-commit`, `adt-push`, `adt-open-github-pr`) |
 | Blocked or failed | State the cause and the exact input or change that resolves it; no automatic retry of the same transition |
 | Open question (branch, cadence, review mode, scope change, approval, memory-bank offer) | Ask once and wait |
 
-Example, only when the operator asks for it: `commit`. Paths in handoffs are portable: `features/NNN-slug/PLAN.md` (global: prefix `sdd/<repo-id>/`).
+Example, only when the operator asks for it: `adt-commit`. Paths in handoffs are portable: `features/NNN-slug/PLAN.md` (global: prefix `sdd/<repo-id>/`).

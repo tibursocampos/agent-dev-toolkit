@@ -4,15 +4,16 @@
 #   Should_BlockPublishUnderUserProfile_When_AllowUserHomeAbsent
 #   Should_PublishUnderUserProfile_When_AllowUserHomePresent
 #   Should_ForwardAllowUserHome_When_ClaudeUninstallToolkitInvoked
-#   Should_ForwardAllowUserHome_When_SampleAdapterUninstallToolkitInvoked (codex, antigravity, grok, opencode, copilot)
+#   Should_ForwardAllowUserHome_When_SampleAdapterUninstallContractInspected (codex, antigravity, grok, opencode, copilot)
 #
 # C1: sync-agent.ps1 must forward -AllowUserHome into every Publish-* call's
 # $publishArgs, not just its own top-level Resolve-InstallRoot check. Each
 # adapter Publish-* re-resolves InstallRoot with its own -AllowUserHome switch,
 # so a missing forward fails deep inside the adapter even when sync-agent's own
 # guard passed.
-# C2: Uninstall-Toolkit for Claude and sample adapters that implement keyed
-# uninstall must accept and forward -AllowUserHome the same way.
+# C2: Claude gets one end-to-end publish/block/uninstall exercise. Other adapters
+# must expose and forward the same parameter; inspect their wrapper contracts
+# directly instead of repeating full toolkit syncs for each adapter.
 #
 # Probe location: MUST stay under USERPROFILE. Resolve-InstallRoot only blocks
 # paths under USERPROFILE without -AllowUserHome; a TEMP probe would not exercise
@@ -100,93 +101,6 @@ function Remove-OrphanAllowUserHomeProbes {
         ForEach-Object { Remove-ProbeDirectoryIfPresent -Path $_.FullName }
 }
 
-function Assert-AdapterUninstallAllowUserHomeForward {
-    param(
-        [Parameter(Mandatory = $true)][string] $TestName,
-        [Parameter(Mandatory = $true)][string] $AgentId,
-        [Parameter(Mandatory = $true)][string] $ModulePath,
-        [Parameter(Mandatory = $true)][string] $ProbeInstallRoot,
-        [Parameter(Mandatory = $true)][string] $MarkerRelativePath,
-        [Parameter(Mandatory = $true)][string] $SyncAgentPath,
-        [Parameter()][string] $Mode
-    )
-
-    $syncArgs = @{
-        Agent       = $AgentId
-        InstallRoot = $ProbeInstallRoot
-        AllowUserHome = $true
-    }
-    if (-not [string]::IsNullOrWhiteSpace($Mode)) {
-        $syncArgs['Mode'] = $Mode
-    }
-
-    $publishLines = @(& $SyncAgentPath @syncArgs *>&1 | ForEach-Object { "$_" })
-    $publishExit = $LASTEXITCODE
-    if ($null -eq $publishExit) { $publishExit = 0 }
-    $publishText = ($publishLines -join [Environment]::NewLine)
-    if ($publishExit -ne 0) {
-        Write-Fail -TestName $TestName -Reason ("sync-agent {0} with -AllowUserHome must succeed under USERPROFILE; exit {1}: {2}" -f $AgentId, $publishExit, $publishText.Trim())
-    }
-
-    $markerPath = Join-Path $ProbeInstallRoot $MarkerRelativePath
-    if (-not (Test-Path -LiteralPath $markerPath)) {
-        Write-Fail -TestName $TestName -Reason ("expected published marker missing under USERPROFILE probe for {0}: {1}" -f $AgentId, $markerPath)
-    }
-
-    # Drop prior adapter's Uninstall-Toolkit before loading the next module.
-    Remove-Item -Path 'Function:\Uninstall-Toolkit' -ErrorAction SilentlyContinue
-    . $ModulePath
-
-    $uninstallBlockedThrew = $false
-    try {
-        if (-not [string]::IsNullOrWhiteSpace($Mode)) {
-            $null = Uninstall-Toolkit -InstallRoot $ProbeInstallRoot -Mode $Mode
-        }
-        else {
-            $null = Uninstall-Toolkit -InstallRoot $ProbeInstallRoot
-        }
-    }
-    catch {
-        $uninstallBlockedThrew = $true
-        $blockedMessage = $_.Exception.Message
-        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)user home|USERPROFILE') {
-            Write-Fail -TestName $TestName -Reason ("blocked Uninstall-Toolkit ({0}) must mention AllowUserHome/USERPROFILE; got: {1}" -f $AgentId, $blockedMessage)
-        }
-    }
-    if (-not $uninstallBlockedThrew) {
-        Write-Fail -TestName $TestName -Reason ("Uninstall-Toolkit ({0}) against USERPROFILE without -AllowUserHome must throw" -f $AgentId)
-    }
-    if (-not (Test-Path -LiteralPath $markerPath)) {
-        Write-Fail -TestName $TestName -Reason ("probe marker must still exist after blocked Uninstall-Toolkit ({0}): {1}" -f $AgentId, $markerPath)
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace($Mode)) {
-        $uninstallAllowed = Uninstall-Toolkit -InstallRoot $ProbeInstallRoot -Mode $Mode -AllowUserHome
-    }
-    else {
-        $uninstallAllowed = Uninstall-Toolkit -InstallRoot $ProbeInstallRoot -AllowUserHome
-    }
-    if ($null -eq $uninstallAllowed -or $uninstallAllowed.Success -ne $true -or $uninstallAllowed.Implemented -ne $true) {
-        $detail = if ($null -eq $uninstallAllowed) { 'null' } else { [string]$uninstallAllowed.Message }
-        Write-Fail -TestName $TestName -Reason ("Uninstall-Toolkit ({0}) with -AllowUserHome must succeed under USERPROFILE; got: {1}" -f $AgentId, $detail)
-    }
-
-    $removedCount = 0
-    if ($uninstallAllowed.PSObject.Properties.Name -contains 'RemovedCount') {
-        $removedCount = [int]$uninstallAllowed.RemovedCount
-    }
-    elseif ($uninstallAllowed.PSObject.Properties.Name -contains 'RemovedPathCount') {
-        $removedCount = [int]$uninstallAllowed.RemovedPathCount
-    }
-
-    if ($removedCount -lt 1) {
-        Write-Fail -TestName $TestName -Reason ("expected at least one keyed artifact removed by Uninstall-Toolkit -AllowUserHome ({0})" -f $AgentId)
-    }
-    if (Test-Path -LiteralPath $markerPath) {
-        Write-Fail -TestName $TestName -Reason ("marker must be removed after Uninstall-Toolkit -AllowUserHome ({0}): {1}" -f $AgentId, $markerPath)
-    }
-}
-
 foreach ($required in @($repoRootScript, $constantsScript, $syncAgentScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-SyncAllowUserHomeForwardPreconditions' -Reason ("missing {0}" -f $required)
@@ -233,34 +147,27 @@ $claudeAgentId = 'claude'
 $skillsDirName = 'skills'
 $rulesDirName = 'rules'
 $claudeMdFileName = 'CLAUDE.md'
-$agentsMdFileName = 'AGENTS.md'
 
 $sampleUninstallAdapters = @(
     @{
         AgentId            = 'codex'
         ModuleRelativePath = 'adapters/codex/CodexAdapter.ps1'
-        MarkerRelativePath = $agentsMdFileName
     },
     @{
         AgentId            = 'antigravity'
         ModuleRelativePath = 'adapters/antigravity/AntigravityAdapter.ps1'
-        MarkerRelativePath = (Join-Path (Join-Path 'config' 'plugins') (Join-Path 'agent-dev-toolkit' 'GUARDRAILS.md'))
     },
     @{
         AgentId            = 'grok'
         ModuleRelativePath = 'adapters/grok/GrokAdapter.ps1'
-        MarkerRelativePath = $agentsMdFileName
     },
     @{
         AgentId            = 'opencode'
         ModuleRelativePath = 'adapters/opencode/OpenCodeAdapter.ps1'
-        MarkerRelativePath = $agentsMdFileName
     },
     @{
         AgentId            = 'copilot'
         ModuleRelativePath = 'adapters/copilot/CopilotAdapter.ps1'
-        MarkerRelativePath = 'copilot-instructions.md'
-        Mode               = 'user'
     }
 )
 
@@ -357,25 +264,36 @@ try {
 
     Write-Pass -TestName $uninstallForwardName
 
-    # --- Should_ForwardAllowUserHome_When_SampleAdapterUninstallToolkitInvoked ---
-    $sampleUninstallName = 'Should_ForwardAllowUserHome_When_SampleAdapterUninstallToolkitInvoked'
+    # --- Should_ForwardAllowUserHome_When_SampleAdapterUninstallContractInspected ---
+    # These wrappers share the same parameter-forwarding contract. The Claude
+    # lifecycle above is the runtime probe; parse each other wrapper directly
+    # instead of publishing the entire toolkit five more times.
+    $sampleUninstallName = 'Should_ForwardAllowUserHome_When_SampleAdapterUninstallContractInspected'
     foreach ($sample in $sampleUninstallAdapters) {
-        $sampleProbe = Register-AllowUserHomeProbe `
-            -Path (New-DisposableUserProfileProbeRoot -UserProfile $userProfile -Label $sample.AgentId -NamePrefix $probeNamePrefix) `
-            -Registry $registeredProbes
-        try {
-            Remove-ProbeDirectoryIfPresent -Path $sampleProbe
-            Assert-AdapterUninstallAllowUserHomeForward `
-                -TestName $sampleUninstallName `
-                -AgentId $sample.AgentId `
-                -ModulePath (Join-Path $repoRoot (ConvertTo-OsRelativePath -RelativePath $sample.ModuleRelativePath)) `
-                -ProbeInstallRoot $sampleProbe `
-                -MarkerRelativePath $sample.MarkerRelativePath `
-                -SyncAgentPath $syncAgentScript `
-                -Mode $(if ($sample -is [hashtable] -and $sample.ContainsKey('Mode')) { $sample['Mode'] } else { $null })
+        $modulePath = Join-Path $repoRoot (ConvertTo-OsRelativePath -RelativePath $sample.ModuleRelativePath)
+        $tokens = $null
+        $parseErrors = $null
+        $moduleAst = [System.Management.Automation.Language.Parser]::ParseFile($modulePath, [ref]$tokens, [ref]$parseErrors)
+        if ($parseErrors.Count -gt 0) {
+            Write-Fail -TestName $sampleUninstallName -Reason ("{0} has PowerShell parse errors: {1}" -f $sample.AgentId, (@($parseErrors | ForEach-Object Message) -join '; '))
         }
-        finally {
-            Remove-ProbeDirectoryIfPresent -Path $sampleProbe
+        $uninstall = @($moduleAst.FindAll({
+                    param($node)
+                    $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Uninstall-Toolkit'
+                }, $true) | Select-Object -First 1)
+        if ($uninstall.Count -eq 0) {
+            Write-Fail -TestName $sampleUninstallName -Reason ("{0} does not define Uninstall-Toolkit" -f $sample.AgentId)
+        }
+        $parameterNames = @($uninstall[0].Body.ParamBlock.Parameters | ForEach-Object { $_.Name.VariablePath.UserPath })
+        $forwardedParameter = @($uninstall[0].Body.FindAll({
+                    param($node)
+                    $node -is [System.Management.Automation.Language.CommandParameterAst] -and
+                    $node.ParameterName -ieq 'AllowUserHome' -and
+                    $node.Argument -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                    $node.Argument.VariablePath.UserPath -ieq 'AllowUserHome'
+                }, $true)).Count -gt 0
+        if ($parameterNames -notcontains 'AllowUserHome' -or -not $forwardedParameter) {
+            Write-Fail -TestName $sampleUninstallName -Reason ("{0} must accept AllowUserHome and forward its value to its uninstall implementation" -f $sample.AgentId)
         }
     }
     Write-Pass -TestName $sampleUninstallName

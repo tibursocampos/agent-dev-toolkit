@@ -9,8 +9,8 @@ Other files point here. Gate wording and blocking rules are not restated elsewhe
 ## Order rule
 
 1. If the host offers a question component (see the host mechanism table) **and** the selected answer is returned to the agent in an observable form, use the component and wait.
-2. If the component cannot open, or its answer does not reach the agent, ask in text in the conversation language with numbered options.
-3. In both cases the flow blocks. The question stays `open_question` until its state is `answered` (see States). Silence, a timeout, or the end of the turn is never an answer.
+2. If the component cannot open, disappears, expires, or stops delivering observable answers, keep the same question pending and present it in text in the conversation language with numbered options when applicable.
+3. Keep the affected work paused. Independent work may continue within the active workflow. The question stays `open_question` until its state is `answered` (see States). Silence, a timeout, or the end of the turn is never an answer.
 
 A host **offers** a question component when the host mechanism table names a tool for it, or the row is explicitly `operator-confirmed component`, and the selected answer is returned to the agent. No other signal counts as an offer.
 
@@ -59,14 +59,14 @@ Common ids:
 | `cancel` | Stop. Do not perform the gated action. |
 | `skip` | Leave an optional step undone and continue. |
 | `decline` | Refuse an optional offer. |
-| `feature`, `tech` | Requirement-review mode (`requirement-review`). |
+| `feature`, `tech` | Requirement-review mode (`adt-requirement-review`). |
 | `split` | Divide a story before drafting. |
 | `manual`, `orchestrated` | Execution route for one PLAN step. |
 | `series`, `parallel` | Orchestrated Delivery drafting mode. |
 
 Domain ids are added per gate. They are still English and must be listed in the owning skill's contract.
 
-`series` / `parallel` (orchestrate-deliver drafting mode) and `serial` / `parallel` / `manual` (orchestrate-develop queue mode) are distinct id sets for distinct questions.
+`series` / `parallel` (adt-orchestrate-prepare drafting mode) and `serial` / `parallel` / `manual` (adt-orchestrate-implement queue mode) are distinct id sets for distinct questions.
 
 ## Answer to id mapping
 
@@ -78,7 +78,7 @@ Domain ids are added per gate. They are still English and must be listed in the 
 
 ## Legitimate free text
 
-Open questionnaires take free text on purpose. Example: the intake questions in `sdd-spec`. Those questions have no fixed id set. The answer is recorded as text, and the question still blocks until it is answered.
+Open questionnaires take free text on purpose. Example: the intake questions in `adt-sdd-spec`. Those questions have no fixed id set. The answer is recorded as text, and the question still blocks until it is answered.
 
 ## States
 
@@ -89,9 +89,9 @@ Open questionnaires take free text on purpose. Example: the intake questions in 
 | `answered` | The agent has received and parsed an allowed answer for this question and can name the selected id. | Only the branch that answer authorizes |
 | `resumed` | After an interruption or a new turn, the agent reloaded the pending question and confirmed which one is still active. | No, until the question becomes `answered` |
 
-`orchestrate-deliver/references/approval-gates.md` uses these same states and points here.
+`adt-orchestrate-prepare/references/approval-gates.md` uses these same states and points here.
 
-Record the question id or scope, the accepted answer form, and the resulting transition in the current turn or in the persistent workflow artifact where one exists. On resume, repeat the active question or present its current status. Never infer an answer from earlier unrelated text.
+Record a material question in the owning durable workflow artifact when one exists. Include the question, options when useful and affected work. When the answer is observable, record the decision and its source. On resume, use that record to show the active question or its current status. Never infer an answer from earlier unrelated text.
 
 A host displaying, queuing, retrying, or redelivering a message is not proof that the agent processed it. When the surface cannot expose processing events, report that boundary and keep the state `pending` until an answer reaches the agent. Toolkit instructions cannot force a host UI to show, retain, or retract a prompt.
 
@@ -114,7 +114,7 @@ Children never ask the operator. Only the parent asks. This is a toolkit rule, n
 | File | Use |
 |------|-----|
 | `core/policy/guardrails.md` | Blocking rule and the git and write gates that point here |
-| `core/skills/orchestrate-deliver/references/approval-gates.md` | Gate prompts for Orchestrated Delivery; uses the states defined here |
+| `core/skills/adt-orchestrate-prepare/references/approval-gates.md` | Gate prompts for Orchestrated Delivery; uses the states defined here |
 | `LANGUAGE.md` | Which language each surface uses; the gate text in the user's language |
 | `SPAWN.md` | When to spawn; children report questions through the receipt |
 | `RECEIPT.md` | Receipt schema and the `needs-confirm.` refusal token |

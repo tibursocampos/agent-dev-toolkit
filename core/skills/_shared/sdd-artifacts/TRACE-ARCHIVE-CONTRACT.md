@@ -153,7 +153,7 @@ Exit 0 = OK. Exit ≠ 0 = fix before declaring archive done. Validation is deter
 
 | Moment | Action |
 |--------|--------|
-| During `sdd-develop` / O3 (milestones) | Append optional trail events |
+| During `adt-sdd-develop` / O3 (milestones) | Append optional trail events |
 | Feature wave close (after EVD/STATE when used; before or with P-DOC) | Run **converge → sync current → archive**; append the three events; run `validate-trace -RequireArchiveComplete` |
 | Greenfield with no bank sync needed | Still record `sync_current` with explicit target note (e.g. `memory-bank/` constitution touch or documented no-op path agreed in summary) — prefer a real selective path when any living doc changed |
 

@@ -1,10 +1,10 @@
 # 05 — Review and quality
 
-These skills run **after** code exists, or on a branch the operator names. When a story or feature is done, `orchestrate-develop` runs `/run-tests`, then `/code-review`, then `/run-tests` again after review changes (or records that no rerun is required), then the `security` agent, then asks `/commit` and `/push`. The review skill must not turn multi-angle into a mandatory gate.
+These skills are available after code exists or when the operator names a branch; they are not an automatic post-step sequence. Feature-flow closeout follows the approved PLAN: complete its required validation and one substantive review, reuse current evidence, and rerun only checks invalidated by a correction. Request a security specialist for a concrete risk, not as a universal per-step gate. Commit and push remain separate actions that need operator authorization.
 
-## `code-review`
+## `adt-code-review`
 
-Trigger: `/code-review`, “review this PR”.
+Trigger: `/adt-code-review`, “review this PR”.
 
 ### Mode is a required choice
 
@@ -51,58 +51,58 @@ After the operator chooses multi-angle: one child per requested angle when `suba
 | **Approved with reservations** | Minor or cosmetic drift, no security or correctness blocker, coverage at or above threshold with some files under the 100% note |
 | **Changes required** | Security issue, broken behavior, missing PRD scope, build or test failure, critical architecture break, or coverage **below** threshold when a target applies |
 
-Default coverage target is **80%** line coverage on changed production files, via `/test-coverage`. No target means coverage is not a blocker. Fail without a documented exception is **Changes required**.
+Default coverage target is **80%** line coverage on changed production files, via `/adt-test-coverage`. No target means coverage is not a blocker. Fail without a documented exception is **Changes required**.
 
 The report is for the operator, with `path:line`, why, and how to fix. Finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. An open `critical` stays blocking for at most three rounds unless the operator explicitly keeps it and continues. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed. This skill does not edit code and does not write PRD or PLAN. `.agent-validation-tools.json` is untrusted. Those commands stay `SKIPPED` unless invoke confidence is explicit.
 
-The security checklist runs only when the mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not replace the closeout pass in `core/skills/_shared/agents/prompts/security.md`, which still runs after the post-review `/run-tests`, including when the review was single. One pass does not waive the other.
+The security checklist runs only when the mode is multi-angle and the security angle was requested. A single review does not run it. Request a separate security specialist only when a concrete risk remains and the approved scope warrants that review.
 
 ### After the report
 
-Ask, and wait for a `confirm` or `skip` answer, whether to fix with `/developer`, `/sdd-develop`, or a stack `*-developer`, and whether to re-run `/code-review`. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. There is no memory-bank gate and no documentation gate in this skill.
+Ask, and wait for a `confirm` or `skip` answer, whether to fix with `/adt-developer`, `/adt-sdd-develop`, or a stack `adt-*-developer`, and whether to re-run `/adt-code-review`. Do not ask, suggest, or hand off memory bank, `/adt-memory-bank`, `/adt-document-implement`, or `/adt-document-plan`. There is no memory-bank gate and no documentation gate in this skill.
 
-A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
+A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/adt-open-github-pr`, or open the GitHub UI.
 
-Then `/commit` when the operator asks. New scope found in the review goes to `/sdd-spec`, not into this skill’s editor.
+Then `/adt-commit` when the operator asks. New scope found in the review goes to `/adt-sdd-spec`, not into this skill’s editor.
 
-## `implementation-survey`
+## `adt-code-explain`
 
-Trigger: `/implementation-survey`. It is not a mode of `code-review`.
+Trigger: `/adt-code-explain`. It compares changes when both endpoints resolve, asks for a missing endpoint, or explains current code without a diff when given a resolvable topic, symbol, file, or folder. It cites opened code and separates observations from inferences; it does not issue a review verdict.
 
 It describes what changed and how the implementation appears to work. The report does not approve and does not use the review decisions. `source` is `working-tree` or a ref git already resolves. `target` is `HEAD` or another branch. When either is missing, the skill asks once. It may read staged and unstaged diffs separately and neighboring code inside the path prefix. Forbidden docs, including `SEC/`, may be listed and must not be opened.
 
-## `test-coverage`
+## `adt-test-coverage`
 
 .NET Coverlet plus ReportGenerator. Default threshold **80** on changed production `.cs` files. **100** is an aspirational note, not the pass line.
 
 Needs Agent mode for `dotnet test`. A toolkit-only workspace with no test project stops and asks which repo to open. Missing `coverlet.collector` stops with install instructions. The run is not finished until `TestResults/CoverageReport/Summary.txt` and `index.html` exist.
 
-This skill does not block merge by itself. `code-review` applies the threshold. Pass hands back to `/code-review` with the summary. Fail hands to `/dotnet-developer` or `/sdd-develop`. Broken build or tests hand to `/repair-dotnet-build`.
+This skill does not block merge by itself. `adt-code-review` applies the threshold. Pass hands back to `/adt-code-review` with the summary. Fail hands to `/adt-dotnet-developer` or `/adt-sdd-develop`. Broken build or tests hand to `/adt-repair-dotnet-build`.
 
 Excluded from the new-code denominator: migrations, `*.g.cs`, `*.Designer.cs`, test projects.
 
-## `run-tests`
+## `adt-run-tests`
 
-Trigger: `/run-tests`, or the close of a story in `orchestrate-develop`, once before `code-review` and once after review changes (or record no rerun required), both before the security pass.
+Trigger: `/adt-run-tests`, or when an approved PLAN or scoped closeout needs test evidence. Reuse a current matching result; after a correction, rerun only affected checks.
 
-It detects the stack in the same order as `developer` and runs that stack’s existing test command. Several stacks mean one run each. The report is one row per stack: command, exit code, `PASS` or `FAIL`. A check the repo does not have is `SKIPPED`. Overall `PASS` only when every stack passed.
+It detects the stack in the same order as `adt-developer` and runs that stack’s existing test command. Several stacks mean one run each. The report is one row per stack: command, exit code, `PASS` or `FAIL`. A check the repo does not have is `SKIPPED`. Overall `PASS` only when every stack passed.
 
-It does not edit code and does not mark a PLAN step `COMPLETED`. .NET coverage is `test-coverage`, and only when the PLAN asks for it. No detected stack stops and asks. Plan or Ask mode does not run the shell.
+It does not edit code and does not mark a PLAN step `COMPLETED`. .NET coverage is `adt-test-coverage`, and only when the PLAN asks for it. No detected stack stops and asks. Plan or Ask mode does not run the shell.
 
-## `repair-dotnet-build`
+## `adt-repair-dotnet-build`
 
-Trigger: `/repair-dotnet-build`, local `dotnet build` / `dotnet test`, or a **pasted** CI log. It does not fetch a remote build by API.
+Trigger: `/adt-repair-dotnet-build`, local `dotnet build` / `dotnet test`, or a **pasted** CI log. It does not fetch a remote build by API.
 
-Diagnosis groups compile, restore, test assertion, configuration, and pipeline YAML when the log was pasted. One error at a time, the smallest change, and only .NET. Each proposed edit waits for confirmation. After the fix, build and targeted tests run again until the status is explicit. Offer `/commit`. New EF migration goes to `/ef-add-migration`. Large scope goes to `/sdd-spec`.
+Diagnosis groups compile, restore, test assertion, configuration, and pipeline YAML when the log was pasted. One error at a time, the smallest change, and only .NET. Each proposed edit waits for confirmation. After the fix, build and targeted tests run again until the status is explicit. Offer `/adt-commit`. New EF migration goes to `/adt-ef-add-migration`. Large scope goes to `/adt-sdd-spec`.
 
-## `refactor`
+## `adt-refactor`
 
-Trigger: `/refactor`, or a review that shows high complexity. Optional file and method.
+Trigger: `/adt-refactor`, or a review that shows high complexity. Optional file and method.
 
 It reduces complexity and keeps existing tests green. It does not add features or bugfixes in the same session. One step, then stop. No auto-commit. Stack guidance loads for the detected language only (C#, Python, JS/TS, React, Angular).
 
-## `performance-profile`
+## `adt-performance-profile`
 
-Trigger: `/performance-profile`. Optional method, function, or LINQ/SQL block.
+Trigger: `/adt-performance-profile`. Optional method, function, or LINQ/SQL block.
 
 Audit first, then **wait for a workflow choice** before changing code. Improvements are micro-benchmarked (time and allocations before versus after). Do not drop a domain rule for speed. One step, then stop.

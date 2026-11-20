@@ -27,7 +27,7 @@ Invoke `adt-delivery-flow` (host forms: `/adt-delivery-flow`, `$adt-delivery-flo
 
 ## Outcome
 
-The demand is carried through refinement, planning (ONE explicit approval) and implementation (final validation and the existing code review) in one evolving `features/NNN-slug/PLAN.md`, with progress displayed per `_shared/adt-delivery/DISPLAY.md`. The flow stops at every operator decision and never commits, pushes, merges or publishes automatically.
+The demand is carried through refinement, planning (ONE explicit approval) and implementation (final validation and the existing code review) in one evolving `features/NNN-slug/PLAN.md`, with progress displayed per `_shared/adt-delivery/DISPLAY.md`. The flow pauses work that depends on an unresolved material question. Refinement and planning preserve the affected scope and answer source in the PLAN. The flow never commits, pushes, merges or publishes automatically.
 
 ## Stage map
 
@@ -94,7 +94,7 @@ After Step 0: **Read `references/command.md`** for ordered step discovery; then 
 1. **Resolve storage and feature.** Follow `STORAGE-FEATURE.md`; locate existing artifacts before allocating NNN; preserve unrelated work. Then read `DISPLAY.md` now (mandatory) and apply its start display point after Step 0 and before any routing.
 2. **Triage the demand.** `references/routing.md`; `TRIAGE.md` for security signals. Decide full or analysis mode (Analysis-only mode above).
 3. **Route to refinement.** `adt-delivery-refine`. It writes the Operational record first and runs its own entry check (`references/routing.md`).
-4. **Route to planning, one approval.** Only after ledger `refine=done`; otherwise report the missing refinement and stop. Then `adt-delivery-plan`; `references/routing.md`; `PLAN-LIFECYCLE.md`. Continue to planning in the same invocation only when no material decision is pending.
+4. **Route to planning, one approval.** Only after ledger `refine=done`; otherwise report the missing refinement and stop. Then `adt-delivery-plan`; `references/routing.md`; `PLAN-LIFECYCLE.md`. Continue to planning in the same invocation when the scope being handed off has no pending material decision.
 5. **Route to implementation.** Only after ledger `plan=approved`, `Mode: full` and the one-line approval note in the Operational record; otherwise report what is missing and stop. Then `adt-delivery-implement`, which asks branch, cadence and review mode.
 6. **Show progress.** Apply `DISPLAY.md` at its display points.
 7. **Resume and report the outcome.** `references/routing.md`; `HANDOFF.md`.

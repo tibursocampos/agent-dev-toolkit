@@ -1,0 +1,69 @@
+# adt-dotnet-developer — execute flow
+
+Read this file for procedural detail. Do not dump stack guideline packs into chat or child prompts — lazy-load **one** guideline file when that surface is in scope.
+
+### Subagent-first (before implement)
+
+Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Agent unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
+
+### 0. Workspace
+
+Confirm target repo (`*.sln` / `*.csproj`). Read `AGENTS.md` / `README.md`. Summarize the user request and acceptance (from issue text, PRD snippet, or user description).
+
+### 1. Guidelines (step 0.5)
+
+Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load `dotnet-guidelines` files needed for this task only. Before changing tests, inspect project instructions, test projects, dependencies, and representative tests; use the established project test stack and conventions. Only when no baseline is verifiable, use applicable toolkit defaults from `dotnet-test-patterns.md` (xUnit, Moq, Shouldly, and `Should_<Result>_When_<Condition>` naming).
+
+### 2. Branch (step 3)
+
+Baseline branch from user or repo default. Create/checkout `feature/<slug>` or `feat/<id>-<slug>` - never commit on `main` / `master` / `develop`.
+
+### 3. Plan micro-steps
+
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
+
+### 4. Implement
+
+Discover architectural patterns in the touched area first. Follow `structure-and-quality.md` §1: an operator order and the established project style outrank the toolkit style bar. Do not restyle existing members without an explicit yes. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+
+Match existing project patterns (Glob/Read similar types first).
+
+| Layer | Typical work |
+|-------|----------------|
+| Domain | Entities, value objects, domain services |
+| Application | Commands/queries, handlers, validators |
+| Infrastructure | EF, repositories, external clients |
+| API | Endpoints, DTOs, auth filters |
+
+Apply the **one** ARCH-matched architecture overlay (see lazy-load table) and `csharp-patterns.md` from `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` while writing production C#. When creating or changing tests, load `dotnet-test-patterns.md` too - do not paste full bodies into chat. Never glob `architecture/**`.
+
+### 5. Tests
+
+Add or update tests for changed behavior. Prefer integration tests for real flows when the project already uses them; unit tests for isolated logic.
+
+### 6. Build and test
+
+```bash
+dotnet build
+dotnet test --no-build
+```
+
+Fix failures within scope. Ask before running full-solution tests if the repo is very large.
+
+### 7. Pre-commit (step 3.5) and handoff
+
+Run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
+
+Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` and `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md`.
+
+### 8. SDD escalation
+
+If scope grows during work, stop and recommend:
+
+```
+/adt-sdd-spec - [feature description]
+# then
+/adt-sdd-plan - PRD/...
+# then
+/adt-sdd-develop - PLAN/... - Step 1
+```

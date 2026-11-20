@@ -11,7 +11,7 @@ Primary layout and navigation rules for **React Native** / **Expo**. Prefer this
 - Use **one navigation stack**: either **Expo Router** (file routes under `app/`) **or** **React Navigation** (`@react-navigation/*`) as already adopted — do not add a second root navigator.
 - Colocate routes with the existing `app/` (Expo Router) or `navigation/` / stack files (RN Navigation); extend typed params the way the repo already does.
 - Keep auth gates, deep links, and modal stacks inside the existing navigator pattern (nested stacks/tabs as already structured).
-- Route mobile work through `/react-native-developer`. Do **not** treat Blip / web plugin guidelines as mobile defaults.
+- Route mobile work through `/adt-react-native-developer`. Do **not** treat Blip / web plugin guidelines as mobile defaults.
 - Identifiers always **English**; comments/docs/logs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins).
 
 | Signal | Typical markers |

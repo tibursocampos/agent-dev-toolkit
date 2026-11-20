@@ -5,7 +5,7 @@ Used by adt-delivery-flow, adt-delivery-refine, adt-delivery-plan and adt-delive
 ## Storage root
 
 - Use `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` only to resolve the configured repository or global manifest storage root.
-- Call it with `$Workflow = classic`, exactly as `sdd-develop` does. It is the only supported value.
+- Call it with `$Workflow = classic`, exactly as `adt-sdd-develop` does. It is the only supported value.
 - Do not change the rules of that file.
 - Then resolve the actual feature directory under that root, including in global mode.
 - This flow owns its layout (`features/NNN-slug/PLAN.md`). It does not enforce the Classic story layout (USnn/PRD/PLAN folders).
@@ -17,7 +17,7 @@ Used by adt-delivery-flow, adt-delivery-refine, adt-delivery-plan and adt-delive
 
 - `bank_root` follows `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`, section "Path resolution", with the storage root resolved above: repository storage `$Cwd/memory-bank/`; global storage `<classic.path>/memory-bank/`.
 - Never place the bank under `features/NNN-slug/`.
-- Refine and plan read it selectively and never write it. Only `memory-bank-init`, after the operator confirms it at the end of implement, creates or refreshes it.
+- Refine and plan read it selectively and never write it. Only `adt-memory-bank`, after the operator confirms it at the end of implement, creates or refreshes it.
 
 ## Feature directory
 
@@ -42,7 +42,7 @@ Used by adt-delivery-flow, adt-delivery-refine, adt-delivery-plan and adt-delive
   - Independent plans live at `plans/<unit-or-repo-slug>/PLAN.md` inside the feature directory.
   - Each independent plan has its own approval, progress and adjacent `CODE-REVIEW.md`.
   - Shared decisions stay in the primary plan. Independent plans reference them and do not duplicate them.
-- Select the exact plan with the operator. Validate it inside the actual feature directory, including global storage. Reject traversal and escapes.
+- Select the exact plan with the operator. Confirm its portable path with `adt-read-sdd-artifact` in Delivery layout. Validate it inside the actual feature directory, including global storage. Reject traversal and escapes.
 - US sections inside one plan are optional, when they improve clarity. Do not create extra story files by default.
 
 ## Missing plan

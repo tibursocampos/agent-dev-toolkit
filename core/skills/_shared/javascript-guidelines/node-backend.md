@@ -1,8 +1,8 @@
 # Node backend (Express / Fastify)
 
-> Load when the open workspace is a **Node.js HTTP API** (Express, Fastify, Nest, or similar). DOM / `html-css` guidance stays in sibling docs — this file extends `javascript-developer` for **backend**; it does not replace frontend routes.
+> Load when the open workspace is a **Node.js HTTP API** (Express, Fastify, Nest, or similar). DOM / `html-css` guidance stays in sibling docs — this file extends `adt-javascript-developer` for **backend**; it does not replace frontend routes.
 >
-> Route Node backend work through **`/javascript-developer`**. There is **no** `node-developer` skill.
+> Route Node backend work through **`/adt-javascript-developer`**. There is **no** `node-developer` skill.
 
 ---
 

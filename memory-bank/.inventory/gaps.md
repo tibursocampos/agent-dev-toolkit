@@ -27,20 +27,16 @@ When Prior/cited content already has DDL, OpenAPI, or a UI component map, the ma
 - [x] BLOCKING: source drift detected (3 source(s)); reviewed 2026-11-05: capability-first startup, host-specific model/effort option discovery, and inheritance fallback are represented in conventions and known-risks.
 - [x] BLOCKING: source drift detected (11 source(s)); reviewed 2026-11-06: adt-settings model/effort inheritance, Hermes bounded uninstall reporting, and adapter contract checks are represented in architecture, project context, conventions, and known risks. No database, API, or UI contracts were added.
 - [x] BLOCKING: source drift detected (10 source(s)); reviewed 2026-11-07: adaptive orchestration and capability fallback are reflected in conventions; Grok/OpenHands path-boundary checks and OpenCode configuration preservation are recorded with static/live-host evidence limits. No database, API, or UI contracts were added.
+- [x] BLOCKING: source drift detected (11 source(s)); reviewed 2026-11-20: documentation, router and flow-closeout claims were compared with current workflow contracts; updated entry maps and removed stale mandatory-gate descriptions.
+- [x] BLOCKING: source drift detected (1 source(s)); reviewed 2026-11-20: local documentation plan records the completed strict MkDocs build and review; no source or stack additions.
 
 ## Notes
 
 Preserved content records provenance only; its current validity is unverified until reviewed against its source.
-Preserved note (validity unverified): - [x] project-context filled from evidence
-Preserved note (validity unverified): - [x] tech-stack.json matches detected manifests (markdown, powershell)
-Preserved note (validity unverified): - [x] architecture entry points verified
-Preserved note (validity unverified): - [x] domain-knowledge has at least one evidenced area (or N/A noted)
-Preserved note (validity unverified): - [x] conventions aligned with AGENTS/README
-Preserved note (validity unverified): - [x] known-risks reviewed once
 Preserved note (validity unverified): - [x] api-contracts (OpenAPI/Swagger detected: no)
 Preserved note (validity unverified): - [x] database-schema (EF/Prisma/SQL migrations detected: no)
 Preserved note (validity unverified): - [x] component-catalog (design system / large UI kit detected: no)
-Preserved note (validity unverified): Review basis: inventory is `ready` at hash `9da86d44882663a19460d6c0f04c24b7d331fe44d1f005a66881ae51e8a10551` (144 sources; Markdown and PowerShell). MVP coverage was reviewed on 2026-11-06. The 11 changed sources were reviewed and their subagent settings, Hermes uninstall, and adapter validation implications are represented in the bank.
+Preserved note (validity unverified): Review basis: inventory is `ready` at hash `fb07cb6220b3a73b1db80888222f17cc0e77c9aeb49d4654afa0b176d4450bcc` (144 sources; Markdown, PowerShell, and YAML). MVP coverage was reviewed on 2026-11-20 against the current project context, stack signals, architecture entry points, domain knowledge, conventions, and known risks. The 11 changed sources were reviewed and their workflow, documentation, and router implications are represented in the bank.
 Preserved note (validity unverified): No DDL/SQL migrations, OpenAPI/Swagger specification, or UI component map were detected; phase-2 files are not currently required.
 Preserved note (validity unverified): ## Open gaps
 Preserved note (validity unverified): - [ ] Configure `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions with the required narrow permissions; verify live token mint and ancestry reconciliation. No secret values are stored here.

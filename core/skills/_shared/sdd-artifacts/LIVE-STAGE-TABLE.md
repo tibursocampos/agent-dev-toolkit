@@ -8,10 +8,10 @@ Only the owner below renders the contextual progress table. Internal skills and 
 
 | Invocation | Table owner |
 |---|---|
-| O1 (`orchestrate-analyze`) | O1 |
-| O2 (`orchestrate-deliver`) with internal spec/plan | O2, across all selected stories and phases |
-| O3 (`orchestrate-develop`) with internal develop | O3, across PLAN steps and any requested closeout |
-| Direct Classic `sdd-spec`, `sdd-plan`, or `sdd-develop` | The directly invoked skill, or its delegating parent after reconciliation |
+| O1 (`adt-orchestrate-analyze`) | O1 |
+| O2 (`adt-orchestrate-prepare`) with internal spec/plan | O2, across all selected stories and phases |
+| O3 (`adt-orchestrate-implement`) with internal develop | O3, across PLAN steps and any requested closeout |
+| Direct Classic `adt-sdd-spec`, `adt-sdd-plan`, or `adt-sdd-develop` | The directly invoked skill, or its delegating parent after reconciliation |
 | ADT flow with internal stages | ADT flow |
 | Direct ADT stage | The directly invoked stage |
 
@@ -40,21 +40,21 @@ Do not repeat an identical table for adjacent events in one response. A question
 
 Use clear state labels appropriate to the chat language (`pending`, `in progress`, `blocked`, `completed`). Evidence states what happened or points to the relevant artifact. A blocked row names the cause and affected work. Do not imply success when a step is blocked or validation is unavailable.
 
-## O1 — `orchestrate-analyze`
+## O1 — `adt-orchestrate-analyze`
 
 Show one stage table with rows for understanding the demand, targeted investigation (when needed), story division and synthesis, and handoff/readiness for planning. Do not add a cumulative checkpoint table. Optional analysis artifacts appear as evidence in the relevant row.
 
-## O2 — `orchestrate-deliver`
+## O2 — `adt-orchestrate-prepare`
 
 Show one cumulative table for the full O2 run. Repeat story rows for each eligible US/TS, identifying the story and its current phase: read/reconcile context, draft and substantively review PRD, plan, present the complete explicitly listed PLAN set for one approval, and reconcile readiness/handoff. Include conditional work only when it applies. Drafting/writing artifacts is preparation; do not show a separate write-approval gate. Approval does not recur for every story or document. Do not pair this table with a second cumulative checkpoint.
 
 In continuous story preparation, reconcile a completed story and continue to the next eligible independent story without asking an extra continue question. Stop for a material blocker or decision that affects the next work.
 
-## Classic `sdd-spec` and `sdd-plan`
+## Classic `adt-sdd-spec` and `adt-sdd-plan`
 
-Each direct invocation shows one stage table for that skill. Drafting, review, persistence, and handoff can be represented as relevant phases, but document writing is not a separate approval gate. `sdd-plan` ends at handoff; it does not start implementation automatically. If invoked inside O2, suppress this table and update O2's story row.
+Each direct invocation shows one stage table for that skill. Drafting, review, persistence, and handoff can be represented as relevant phases, but document writing is not a separate approval gate. `adt-sdd-plan` ends at handoff; it does not start implementation automatically. If invoked inside O2, suppress this table and update O2's story row.
 
-## O3 and direct Classic `sdd-develop`
+## O3 and direct Classic `adt-sdd-develop`
 
 Show one row for every PLAN step, with ID, step, dependencies, state, evidence/validation, and blocker/next action. Never omit completed rows or collapse ranges. Start from a re-read PLAN. After a child returns, reconcile its result and persisted PLAN state before redrawing or dispatching the next serial step. When closeout is requested/in scope, add its activities as rows to the same table; do not display a second closeout progress table.
 
@@ -62,11 +62,11 @@ Show one row for every PLAN step, with ID, step, dependencies, state, evidence/v
 
 The remaining sections preserve tables used by Backlog Refine and other direct skills; they do not create a second table for the flows above.
 
-### requirement-review: open questions
+### adt-requirement-review: open questions
 
 Columns: `id`, `severity`, `owner`, `question`, matching the skill and report template. One row per question. Resolved items stay in the Q&A history, not in the table once closed by the operator; pending and blocked questions appear. Render the full table at a stop and at close.
 
-### refine-story (feature, tech, split): stage table
+### adt-refine-story (feature, tech, split): stage table
 
 Columns: `stage`, `status`, `what_happened`.
 
@@ -84,7 +84,7 @@ Columns: `stage`, `status`, `what_happened`.
 
 At close, render the scorecard with each criterion (`criterion`, `status`, `evidence`) in all three modes.
 
-### split-story-checklist: groups
+### adt-split-story-checklist: groups
 
 Columns: `group`, `step_ids` (Steps), `wave`, `status`. Render in chat when the checklist is summarized and at its redraw points. Never collapse groups.
 

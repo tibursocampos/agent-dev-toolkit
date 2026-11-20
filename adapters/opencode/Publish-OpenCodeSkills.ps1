@@ -23,6 +23,7 @@ $_opencodeToolkitLibDirectory = Join-Path (
 ) (Join-Path 'scripts' '_lib')
 . (Join-Path $_opencodeToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 . (Join-Path $script:OpenCodeAdapterModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
+. (Join-Path $script:OpenCodeAdapterModuleDirectory '../_shared/OnDemandPolicyReferences.ps1')
 Remove-Variable -Name _opencodeToolkitLibDirectory -ErrorAction SilentlyContinue
 
 function Get-OpenCodePublishAdapterRepoRoot {
@@ -56,11 +57,11 @@ function Get-OpenCodePlaceholderMap {
         Join-Path $InstallRoot $script:OpenCodePathConstant.AgentsFileName
     )
 
-    return [ordered]@{
-        ($script:OpenCodePathConstant.PlaceholderToolkitRoot)    = $toolkitRoot
-        ($script:OpenCodePathConstant.PlaceholderSddRoot)        = $sddRoot
-        ($script:OpenCodePathConstant.PlaceholderGuardrailsPath) = $guardrailsPath
-    }
+    $map = Get-ToolkitOnDemandPolicyReferenceMap -ToolkitRoot $toolkitRoot
+    $map[$script:OpenCodePathConstant.PlaceholderToolkitRoot] = $toolkitRoot
+    $map[$script:OpenCodePathConstant.PlaceholderSddRoot] = $sddRoot
+    $map[$script:OpenCodePathConstant.PlaceholderGuardrailsPath] = $guardrailsPath
+    return $map
 }
 
 function Initialize-OpenCodeToolkitManagedTreeLib {
@@ -201,6 +202,12 @@ function Invoke-OpenCodePublishSkills {
         -UnresolvedMessageFormat $script:OpenCodePublishMessage.PlaceholderUnresolved
 
     $null = Invoke-ToolkitManagedMdcReferenceRewrite -InstallRoot $resolvedInstallRoot -SourceExtension $script:OpenCodePathConstant.CursorRuleExtension -TargetExtension $script:OpenCodePathConstant.MarkdownExtension
+
+    Publish-ToolkitOnDemandPolicyReferences `
+        -RepoRoot $repoRoot `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoot $destinationSkillsRoot `
+        -PlaceholderMap $placeholderMap
 
     return [PSCustomObject]@{
         Success     = $true

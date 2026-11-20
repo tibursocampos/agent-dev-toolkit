@@ -10,8 +10,8 @@
 - Branch: at EVERY implementation start, ask whether to use the current branch or create a new one, unless the operator already selected it for that start.
 - If the current branch is `main`, `master` or `develop`: stop before changing code, say so, and propose `feature/<slug>`. Create it only after explicit confirmation (`guardrails.md`, "Working branch").
 - New branch: agree the name and base; check for name collisions and working-tree conflicts; create it without discarding changes.
-- Cadence (`step_by_step` or `continuous`) and code-review mode (`single` or `multi-angle`): ask ONCE and reuse the recorded choices.
-- Also obtain the base branch and the review focus that the `code-review` skill asks for.
+- Cadence (`step_by_step` or `continuous`) and adt-code-review mode (`single` or `multi-angle`): ask ONCE and reuse the recorded choices.
+- Also obtain the base branch and the review focus that the `adt-code-review` skill asks for.
 - Ask the branch, then the cadence and review mode that are not yet recorded, then the base and the focus, in one message and in that order. On an integration branch the branch confirmation comes first and the remaining choices follow once it is answered.
 - Base and review focus are recorded with the other choices and reused on later starts; ask again only if the operator changes them or they are missing.
 - Normalize answers: accept a clear affirmative or the localized option in the user's language, per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.

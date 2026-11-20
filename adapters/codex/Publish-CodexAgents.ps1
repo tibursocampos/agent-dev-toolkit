@@ -157,7 +157,10 @@ function Invoke-CodexPublishAgents {
         [Parameter()]
         [switch] $WhatIf,
         [Parameter()]
-        [switch] $AllowUserHome
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $CodexSkillDistribution
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
@@ -201,8 +204,14 @@ function Invoke-CodexPublishAgents {
 
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $destAgentsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.CustomAgentsDirectoryName
-    $homeSkillsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
-    $placeholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot -PublishedSkillsRoot $homeSkillsRoot
+    $distribution = Resolve-CodexSkillDistribution -InstallRoot $resolvedInstallRoot -Distribution $CodexSkillDistribution
+    $publishedSkillsRoot = if ($distribution -eq 'Local') {
+        Join-Path $resolvedInstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
+    }
+    else {
+        Join-Path (Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName) $script:CodexPathConstant.SkillsDirectoryName
+    }
+    $placeholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot -PublishedSkillsRoot $publishedSkillsRoot
 
     if (-not (Test-Path -LiteralPath $destAgentsRoot)) {
         New-Item -ItemType Directory -Path $destAgentsRoot -Force | Out-Null

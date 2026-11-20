@@ -84,8 +84,8 @@ try {
         }
     }
 
-    $codeReviewDir = Join-Path $publishedRoot 'code-review'
-    if (-not (Test-Path -LiteralPath (Join-Path $codeReviewDir 'SKILL.md') -PathType Leaf)) { Write-Fail $n 'code-review directory name must stay unchanged on disk' }
+    $codeReviewDir = Join-Path $publishedRoot 'adt-code-review'
+    if (-not (Test-Path -LiteralPath (Join-Path $codeReviewDir 'SKILL.md') -PathType Leaf)) { Write-Fail $n 'adt-code-review directory must be present on disk' }
 
     $publishedDirs = @(Get-ChildItem -LiteralPath $publishedRoot -Directory | Where-Object { $_.Name -ne '_shared' })
     $unchangedSkill = $publishedDirs | Where-Object { $overlay.Keys -notcontains $_.Name } | Select-Object -First 1
@@ -99,10 +99,10 @@ try {
 
     # --- core neutrality: the core tree itself is unchanged by publish ---
     $n = 'Should_KeepCoreSkillFrontmatterNeutral_When_ClaudePublished'
-    $coreCommit = [System.IO.File]::ReadAllText((Join-Path (Join-Path $coreSkillsRoot 'commit') 'SKILL.md'))
-    if ($coreCommit -match '(?m)^disable-model-invocation:') { Write-Fail $n 'core commit SKILL.md was modified by Claude overlay' }
-    if (@(Get-TopLevelFrontmatterLines -Text ([System.IO.File]::ReadAllText((Join-Path (Join-Path $coreSkillsRoot 'code-review') 'SKILL.md'))) -Key 'name') -notcontains 'name: code-review') {
-        Write-Fail $n 'core code-review name must stay code-review'
+    $coreCommit = [System.IO.File]::ReadAllText((Join-Path (Join-Path $coreSkillsRoot 'adt-commit') 'SKILL.md'))
+    if ($coreCommit -match '(?m)^disable-model-invocation:') { Write-Fail $n 'core adt-commit SKILL.md was modified by Claude overlay' }
+    if (@(Get-TopLevelFrontmatterLines -Text ([System.IO.File]::ReadAllText((Join-Path (Join-Path $coreSkillsRoot 'adt-code-review') 'SKILL.md'))) -Key 'name') -notcontains 'name: adt-code-review') {
+        Write-Fail $n 'core adt-code-review name must stay adt-code-review'
     }
     Write-Pass $n
 }

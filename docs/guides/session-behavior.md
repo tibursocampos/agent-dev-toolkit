@@ -29,7 +29,7 @@ adaptive: trivial work (3/6/150 limits) may stay in the parent. always: delegate
 
 Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off. On Claude, the `UserPromptSubmit` hook (`preferences-command.ps1`) handles these commands together with the orchestrator commands, and writes `sdd/preferences.json`.
 
-`help-skills`, `read-sdd-artifact`, `commit`, `push`, and `open-github-pr` never compress. Gates, drafts, paths, and gate labels stay clear. Labels are localized; answers are matched by meaning, not by a fixed word (see `core/skills/_shared/agents/QUESTIONS.md`). Credit for the idea: [CREDITS.md](../CREDITS.md). Policy file: `core/policy/caveman-mode.md`.
+`adt-help-skills`, `adt-read-sdd-artifact`, `adt-commit`, `adt-push`, and `adt-open-github-pr` never compress. Gates, drafts, paths, and gate labels stay clear. Labels are localized; answers are matched by meaning, not by a fixed word (see `core/skills/_shared/agents/QUESTIONS.md`). Credit for the idea: [CREDITS.md](../CREDITS.md). Policy file: `core/policy/caveman-mode.md`.
 
 ## Other preference keys
 
@@ -43,4 +43,4 @@ Created with the defaults object when the file is missing:
 | `artifact_language` | `null` | No locale override |
 | `verify_mode` | `false` | O3 does not spawn a read-only verifier after each implementer |
 
-`verify_mode: true` is a second child after a successful `sdd-develop` step. It is not the evidence script (`validate-evidence`).
+`verify_mode: true` is a second child after a successful `adt-sdd-develop` step. It is not the evidence script (`validate-evidence`).

@@ -49,8 +49,8 @@ When generating an output, consult the guidance or run a diagnostic when useful 
 | Skill | Validator | When |
 |-------|-----------|------|
 | **spec** | `scripts/validation/validate-prd.ps1` | Optional diagnostic when requested or useful for a concrete issue; not a handoff prerequisite |
-| **commit** | `commit-message-validator.md` | Before `git commit` |
-| **code-review** | `commit-message-validator.md`, `pr-comment-validator.md` | When summarizing commits or drafting review comments |
+| **adt-commit** | `commit-message-validator.md` | Before `git commit` |
+| **adt-code-review** | `commit-message-validator.md`, `pr-comment-validator.md` | When summarizing commits or drafting review comments |
 
 See `INTEGRATION-GUIDE.md` for step-by-step wiring.
 

@@ -1,4 +1,4 @@
-﻿# Credits and acknowledgments
+# Credits and acknowledgments
 
 **agent-dev-toolkit** is original software (MIT). Some behaviors and workflows are **inspired by** third-party projects. We are **not** the same products, do not vendor those repositories wholesale, and do not claim affiliation unless stated by those projects.
 
@@ -14,7 +14,7 @@ Operator note (compression is one session preference, default on): [guides/sessi
 
 Distinctive-UI heuristics (signature motif, compact token plan before code, UX writing intent) are **inspired in part by** [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-**Design handoff for product UI in this toolkit:** record visual decisions in `docs/DESIGN-BRIEF.md`, then use the relevant stack `*-developer` skill. General frontend guidance remains in `core/skills/_shared/frontend-guidelines/`. We do **not** ship Anthropic `frontend-design` as a sibling Core skill.
+**Design handoff for product UI in this toolkit:** record visual decisions in `docs/DESIGN-BRIEF.md`, then use the relevant stack `adt-*-developer` skill. General frontend guidance remains in `core/skills/_shared/frontend-guidelines/`. We do **not** ship Anthropic `frontend-design` as a sibling Core skill.
 
 Use the upstream skill only as an **optional external** reference for one-shot Claude.ai / artifact sessions outside the product handoff path. Do not vendor that repository into Core.
 
@@ -22,7 +22,7 @@ Use the upstream skill only as an **optional external** reference for one-shot C
 
 The Orchestrated Delivery `memory-bank/` layout and gate policies are a **toolkit-specific durable workspace map** (PowerShell inventory, no Spec Kit toolchain).
 
-Ideas for durable workspace / structured agent memory are **inspired in part by practices around** [github/spec-kit](https://github.com/github/spec-kit). We **do not** apply Spec Kit, `uv`, or `specify` directly — those paths were removed from this toolkit’s MVP in favor of Orchestrated Delivery and `memory-bank-init`. Classic SDD contracts run inside that path. Internal SDD contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) stay inside the existing skill call flow — not a second OpenSpec/Spec Kit product.
+Ideas for durable workspace / structured agent memory are **inspired in part by practices around** [github/spec-kit](https://github.com/github/spec-kit). We **do not** apply Spec Kit, `uv`, or `specify` directly — those paths were removed from this toolkit’s MVP in favor of Orchestrated Delivery and `adt-memory-bank`. Classic SDD contracts run inside that path. Internal SDD contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) stay inside the existing skill call flow — not a second OpenSpec/Spec Kit product.
 
 ## Product backlog quality (PM themes)
 

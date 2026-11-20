@@ -1,4 +1,4 @@
-﻿---
+---
 title: Get started
 ---
 
@@ -88,10 +88,10 @@ Not sure which flow fits your work? Pick one before you start:
 
 | Flow | Use it when | Entry skill |
 |------|-------------|-------------|
-| Orchestrated Delivery | Feature with several stories, brownfield code, or specialists | `orchestrate-analyze` |
-| Classic SDD | One story already clear, no specialists needed | `sdd-spec` |
-| Refine backlog item | Informal item (bug, user story, technical story) before SDD | `refine-story` |
-| Requirement review | Challenge acceptance criteria or contracts before SDD | `requirement-review` |
+| Orchestrated Delivery | Feature with several stories, brownfield code, or specialists | `adt-orchestrate-analyze` |
+| Classic SDD | One story already clear, no specialists needed | `adt-sdd-spec` |
+| Refine backlog item | Informal item (bug, user story, technical story) before SDD | `adt-refine-story` |
+| Requirement review | Challenge acceptance criteria or contracts before SDD | `adt-requirement-review` |
 
 The flows are not prerequisites for one another. See the full decision guide: [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md).
 

@@ -93,7 +93,7 @@ Gradle:
 - [ ] Diff limited to stated acceptance (YAGNI)
 - [ ] Public API / migrations documented if behavior changed
 - [ ] No Quarkus/Micronaut defaults introduced by mistake
-- [ ] Conventional commit message ready (via `/commit` when requested)
+- [ ] Conventional commit message ready (via `/adt-commit` when requested)
 - [ ] Guideline paths touched: `spring-boot-defaults`, `layered-structure`, `architecture-boundaries`, `resilience`, `java-style`, `build-and-bom`, `configuration`, `testing`, `security-basics` as applicable
 
 ---

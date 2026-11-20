@@ -144,12 +144,12 @@ if ($doc.PSObject.Properties.Name -contains 'complexitySources') {
         $key = "$skill|$mode"
         if ($seenSources.ContainsKey($key)) { $failures.Add(("complexitySources/{0}/mode={1}/rule=duplicate" -f $skill, $mode)) }
         $seenSources[$key] = $true
-        $expected = if ($skill -eq 'sdd-plan' -and $mode -eq 'Classic direct') { 'approved PRD' } elseif ($skill -eq 'sdd-plan' -and $mode -eq 'O2') { 'FEATURE' } else { $null }
+        $expected = if ($skill -eq 'adt-sdd-plan' -and $mode -eq 'Classic direct') { 'approved PRD' } elseif ($skill -eq 'adt-sdd-plan' -and $mode -eq 'O2') { 'FEATURE' } else { $null }
         if ($null -eq $expected -or $source -cne $expected) {
             $failures.Add(("complexitySources/{0}/mode={1}/rule=source expected '{2}', got '{3}'" -f $skill, $mode, $expected, $source))
         }
     }
-    foreach ($requiredRule in @(@{Skill='sdd-plan';Mode='Classic direct'}, @{Skill='sdd-plan';Mode='O2'})) {
+    foreach ($requiredRule in @(@{Skill='adt-sdd-plan';Mode='Classic direct'}, @{Skill='adt-sdd-plan';Mode='O2'})) {
         if (-not $seenSources.ContainsKey("$($requiredRule.Skill)|$($requiredRule.Mode)")) {
             $failures.Add(("complexitySources/{0}/mode={1}/rule=source missing" -f $requiredRule.Skill, $requiredRule.Mode))
         }

@@ -1,6 +1,6 @@
 # Classic SDD — escopo de acesso externo
 
-Este contrato governa operações de implementação no fluxo Classic (`sdd-spec` → `sdd-plan` → `sdd-develop`). Ele é separado do contrato de armazenamento dos artefatos e das referências de evidência de O3.
+Este contrato governa operações de implementação no fluxo Classic (`adt-sdd-spec` → `adt-sdd-plan` → `adt-sdd-develop`). Ele é separado do contrato de armazenamento dos artefatos e das referências de evidência de O3.
 
 ## Referência portátil e escopo pedido
 
@@ -12,19 +12,19 @@ Este contrato governa operações de implementação no fluxo Classic (`sdd-spec
 
 ## Propagação pelo fluxo
 
-### `sdd-spec`
+### `adt-sdd-spec`
 
 Captura o destino externo pedido pelo operador, as operações solicitadas, o efeito esperado e os limites. Não inventa autorização ou mapeamento ausente e não transforma uma referência de evidência em acesso de implementação.
 
-### `sdd-plan`
+### `adt-sdd-plan`
 
-Preserva em cada passo o destino e somente as operações necessárias que já foram aprovadas no PRD. Se, durante o planejamento, o operador pedir outro destino, ampliar um caminho ou acrescentar uma operação, interrompe a aprovação do PLAN, atualiza o PRD pela `sdd-spec` e obtém nova aprovação do conteúdo do PRD antes de aprovar o PLAN. Não amplia o escopo por inferência técnica.
+Preserva em cada passo o destino e somente as operações necessárias que já foram aprovadas no PRD. Se, durante o planejamento, o operador pedir outro destino, ampliar um caminho ou acrescentar uma operação, interrompe a aprovação do PLAN, atualiza o PRD pela `adt-sdd-spec` e obtém nova aprovação do conteúdo do PRD antes de aprovar o PLAN. Não amplia o escopo por inferência técnica.
 
-### `sdd-develop`
+### `adt-sdd-develop`
 
 Recebe o escopo portátil do passo e, separadamente, o mapeamento explícito `alias → raiz` e a autorização de operações fornecidos pelo operador ou coordenador no contexto confiável da invocação. O mapeamento não entra nos artefatos nem em recibos. O executor não amplia destino nem operações. A execução só pode prosseguir quando o boundary de I/O efetivo puder impor esse escopo; sem enforcement verificável, retorna `BLOCKED` antes de acessar o alvo.
 
-`{{TOOLKIT_ROOT}}/scripts/validation/fixtures/Invoke-ClassicExternalAccessFixture.ps1` é somente um fixture `validation-only`. Ele demonstra operações de leitura/escrita e representação portátil em uma raiz temporária, mas recebe contexto JSON do chamador e não comprova enforcement do provider, a origem confiável de grants, I/O sem corrida (TOCTOU), nem interceptação abrangente. Não use o fixture como autorização de produção ou como substituto para operações diretas do executor. Atualmente o toolkit não oferece um boundary de host que controle todas as operações de filesystem e shell; portanto `sdd-develop` deve bloquear antes de qualquer I/O externo até esse boundary existir e receber grants confiáveis por passo.
+`{{TOOLKIT_ROOT}}/scripts/validation/fixtures/Invoke-ClassicExternalAccessFixture.ps1` é somente um fixture `validation-only`. Ele demonstra operações de leitura/escrita e representação portátil em uma raiz temporária, mas recebe contexto JSON do chamador e não comprova enforcement do provider, a origem confiável de grants, I/O sem corrida (TOCTOU), nem interceptação abrangente. Não use o fixture como autorização de produção ou como substituto para operações diretas do executor. Atualmente o toolkit não oferece um boundary de host que controle todas as operações de filesystem e shell; portanto `adt-sdd-develop` deve bloquear antes de qualquer I/O externo até esse boundary existir e receber grants confiáveis por passo.
 
 ## Separação de evidência O3
 

@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 52 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
+  skills/     # 52 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via adt-help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -28,16 +28,16 @@ Top-level folders:
 
 | Group | Folders |
 |-------|---------|
-| SDD | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
-| Backlog shape | `refine-story`, `requirement-review`, `split-story-checklist` |
-| Orchestration | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
-| Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
-| Product / design | `blip-plugin-developer` |
-| Ops | `help-skills`, `code-review`, `implementation-survey`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `run-tests`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
-| Docs | `document-plan`, `document-implement` — Kind **new** (one step ≈ one new file) vs **update** (coalesce existing paths); prefer fewer larger steps (not 5–12 tiny baby-steps); spawn ≤2 only for large greenfield/refactor when `subagents=native` |
+| SDD | `adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`, `adt-read-sdd-artifact` |
+| Backlog shape | `adt-refine-story`, `adt-requirement-review`, `adt-split-story-checklist` |
+| Orchestration | `adt-memory-bank`, `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, `adt-orchestrate-implement` |
+| Stack | `adt-developer`, `adt-dotnet-developer`, `adt-java-developer`, `adt-react-developer`, `adt-react-native-developer`, `adt-angular-developer`, `adt-vue-developer`, `adt-blazor-developer`, `adt-electron-developer`, `adt-javascript-developer`, `adt-python-developer` |
+| Product / design | `adt-blip-plugin-developer` |
+| Ops | `adt-help-skills`, `adt-code-review`, `adt-code-explain`, `adt-commit`, `adt-push`, `adt-open-github-pr`, `adt-framework-upgrade`, `adt-test-coverage`, `adt-run-tests`, `adt-repair-dotnet-build`, `adt-ef-add-migration`, `adt-scaffold-message-handler`, `adt-refactor`, `adt-api-integrate`, `adt-api-standards`, `adt-performance-profile`, `adt-containerize`, `adt-i18n-manager` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
+| Docs | `adt-document-plan`, `adt-document-implement` — Kind **new** (one step ≈ one new file) vs **update** (coalesce existing paths); prefer fewer larger steps (not 5–12 tiny baby-steps); spawn ≤2 only for large greenfield/refactor when `subagents=native` |
 | Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 
-Public catalog: [SKILLS.md](../SKILLS.md). Operator path: [sessions/README.md](../sessions/README.md). Agents: `help-skills` → installed CATALOG + OPERATOR (do not load every `SKILL.md`). The folder names above match the on-disk groups. The feature path is Orchestrated Delivery; `sdd-*` are the contracts it runs; `refine-story` is the standalone shape skill, and O1 uses its scorecard without invoking it. Scope close calls `run-tests`. `test-coverage` stays the .NET Coverlet report.
+Public catalog: [SKILLS.md](../SKILLS.md). Operator path: [sessions/README.md](../sessions/README.md). Agents: `adt-help-skills` → installed CATALOG + OPERATOR (do not load every `SKILL.md`). The folder names above match the on-disk groups. The feature path is Orchestrated Delivery; `adt-sdd-*` are the contracts it runs; `adt-refine-story` is the standalone shape skill, and O1 uses its scorecard without invoking it. Scope close calls `adt-run-tests`. `adt-test-coverage` stays the .NET Coverlet report.
 
 ### Placeholders
 
@@ -110,59 +110,19 @@ Contract: [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md) § Na
 
 This reciprocal-link convention is documented here; automated acceptance fixtures are not retained.
 
-### Clarification readiness (B / I / MINOR)
+### Requirement review readiness (standalone backlog contract)
 
-Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/readiness-severity.md) (WS3 / REQ-004–006).
+`READY` / `NEEDS_CLARIFICATION` and B / I / MINOR severity belong to the standalone `adt-requirement-review` and backlog-refinement contracts. They do not add a universal handoff gate to Classic SDD, Orchestrated Delivery, or ADT Delivery. `Invoke-SiblingReadinessGate.ps1` is a selective diagnostic for consumers that request it; it does not run as a general SDD preflight. See [`adt-requirement-review`](../../core/skills/adt-requirement-review/SKILL.md) and [Backlog shape](../sessions/03-backlog-shape.md).
 
-| Severity | Blocks READY? |
-|----------|---------------|
-| **B** (Blocker) | Yes |
-| **I** (Important) | Yes |
-| **MINOR** | Yes |
+### Delivery flow and closeout
 
-| Status | Meaning |
-|--------|---------|
-| **READY** | No unanswered **B**, **I**, or **MINOR** question |
-| **NEEDS_CLARIFICATION** | Any unanswered **B**, **I**, or **MINOR** question at a handoff boundary → **STOP** Write; typed handoff |
+The canonical workflow contracts are [`PIPELINE.md`](../../core/skills/_shared/sdd-artifacts/PIPELINE.md), [`STORAGE.md`](../../core/skills/_shared/sdd-artifacts/STORAGE.md), and the separate ADT lifecycle under `core/skills/_shared/adt-delivery/`. Choose one of three feature-delivery paths: Classic SDD for a clear feature, Orchestrated Delivery for coordinated multi-story work, or ADT Delivery for refinement through implementation in one evolving feature-root PLAN. Backlog Refine is optional preparation. See the [flow selector](../guides/flow-selection.md) and [session index](../sessions/README.md).
 
-**Dual plane:** clarification readiness differs from implementation progress. Session state applies only to consumers that explicitly retain it, such as `document-implement`; Classic SDD and O1/O2/O3 track implementation in the PLAN. Folder presence of ANALYSIS/ARCH/SEC is not READY (**RN02**). The selective `Invoke-SiblingReadinessGate.ps1` helper reports open **B**, **I**, or **MINOR** questions as `NEEDS_CLARIFICATION`; use remains specific to consumers that request this diagnostic.
+Only an unanswered material decision blocks the work it affects. Classic SDD and O1/O2/O3 use their canonical PLAN as the persisted implementation-progress source; O3 dispatch is serial. ADT Delivery has a separate one-plan lifecycle. Memory Bank, CONTINUITY, CHANGE, TASKS, and separate ANALYSIS/ARCH/SEC notes are context or evidence when useful, not universal prerequisites. Generic document validators are diagnostics unless a specific consumer explicitly requires one.
 
-Four write gates use stop code `open_question`. At each of them, any unanswered question blocks the next artifact, including **MINOR**. A `confirm` answer does not close a question. The gates are: the feature before any story folder (O1), the story files before that story’s PRD (O2), the PRD before the PLAN, and the PLAN before it is saved. A stuck story does not erase the others.
+At closeout, follow the approved plan's required validation and perform one substantive review. Reuse current evidence and rerun only checks invalidated by a correction. Ask for security, data, or architecture review when a concrete risk warrants it. Commit, push, publication, installation, and other external actions need separate authorization.
 
-### Work tracks and internal contracts
-
-| Role | Call flow |
-|------|-----------|
-| **Orchestrated Delivery** | Step 0 → O1 (story folders only after no open question) → O2 (story files, `sdd-spec`, contest the PRD, `sdd-plan`) → O3 (one `sdd-develop` child per PLAN step, then `code-review`, `run-tests`, `security`) |
-| **Classic SDD** | The same three contracts, invoked directly for one clear story |
-| **Backlog shape** | Rubric and sizing inside O1; `/refine-story` → `/split-story-checklist` for a single product item |
-
-Operator narrative: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Skill ids stay the same. Shared backlog contracts (not slash skills): `story-sizing.md`; optional `persona-context.md` for User Stories only; FEATURE **Product intent** column (`templates/features/FEATURE.md`). Orchestrator session: `core/policy/orchestrator-session.md` + prefs `orchestrator_mode` — [guides/08-orchestrator-mode.md](../guides/08-orchestrator-mode.md). Chat language, spawn English, and optional compression: [guides/session-behavior.md](../guides/session-behavior.md).
-
-### Reliability evidence boundaries
-
-Published skills resolve only their declared runtime helpers from the installed toolkit tree. Session helpers reject a persisted repository or PLAN identity mismatch before changing state. Local instructions and configured diagnostic commands are discovered as applicable and reported as `PASS`, `FOUND`, or `SKIPPED`; the latter means unavailable or unrun, never approved. The fixture contracts cover that reporting and publication boundary, not a live host, IDE, Markdownlint, dependency-audit, or analyzer execution.
-
-Before planning, story sizing keeps one verifiable outcome per story and the applicable API-contract check must be observable. O3 uses a full initial review, then may use delta/risk-focused reviews until a relevant contract or scope changes. Token and tool telemetry is compared only when exposed; otherwise it is `SKIPPED` with a reason.
-
-These shared references describe optional diagnostics and retained artifact contracts; they do not add approval gates to Classic SDD or Orchestrated Delivery:
-
-| Contract | Path / script | Role |
-|----------|---------------|------|
-| REQ + AC | PRD/PLAN templates | Stable IDs; PLAN covers REQ |
-| Structural diagnostics | `validate-prd` / `validate-plan` (+ evidence/TRACE tools where used) | Optional deterministic diagnostics; not authorization gates |
-| CHANGE | `features/NNN-slug/CHANGE.md` | Optional context for a substantial delta; not required for brownfield work |
-| EVD + STATE | `features/NNN-slug/{USnn|TSnn}/EVD/`, `features/NNN-slug/{USnn|TSnn}/STATE.md` | Evidence-or-zero (`off`\|`cheap`\|`standard`\|`strict`); feature-root `EVD/` and `STATE.md` paths are legacy compatibility only |
-| TRACE | `features/NNN-slug/TRACE.jsonl` | Living loop events; archive/sync (see below) |
-| Selective retrieval | `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP` | No full memory-bank/PRD dump |
-| Skill lazy-load | `SKILL-REFERENCE-RETRIEVAL.md` | Section-only reference load |
-| Navigation | STORAGE § Navigation | `## Related` + portable paths (see above) |
-| Clarification readiness | `readiness-severity.md` / SiblingReadinessGate | B/I/MINOR → READY \| NEEDS_CLARIFICATION (see above) |
-| Session helpers | `SESSION.md` / `Invoke-DevelopSessionGate.ps1` | Used only by consumers that explicitly retain session state, currently `document-implement` |
-| Invocation contexts | `INVOCATION-CONTEXTS.md` | `direct` vs `orchestrated` (see below) |
-| Contract provenance | `CONTRACT-PROVENANCE.md` | `agreed` vs `invented` (see below) |
-
-**OOS:** SQLite/FTS as deliverable; second toolkit; folders `openspec/`, `.specs/`, `.specify/`.
+Local assertions and fixture smokes validate toolkit contracts and publication boundaries; they do not prove live-host behavior. Repository validation and release jobs are listed in [VALIDATION.md](../VALIDATION.md).
 
 ### Invocation contexts (`direct` vs `orchestrated`)
 
@@ -171,13 +131,13 @@ Contract: [`INVOCATION-CONTEXTS.md`](../../core/skills/_shared/sdd-artifacts/INV
 | Context | Meaning |
 |---------|---------|
 | `direct` | Operator invokes the skill in their session (Classic SDD or standalone slash/skill name). |
-| `orchestrated` | Skill runs under `orchestrate-*` or as a Task/spawn child with a scoped handoff. |
+| `orchestrated` | Skill runs under `adt-orchestrate-*` or as a Task/spawn child with a scoped handoff. |
 
 Do **not** invent a third context. Host IDE mode (Agent/Plan/Ask) is **not** an invocation context.
 
-**Defaults when slash-invoked:** `orchestrate-*` → `orchestrated`; `sdd-spec` / `sdd-plan` / `sdd-develop` / `refine-story` / `requirement-review` / `memory-bank-init` → `direct` unless a parent handoff marks `orchestrated`.
+**Defaults when slash-invoked:** `adt-orchestrate-*` → `orchestrated`; `adt-sdd-spec` / `adt-sdd-plan` / `adt-sdd-develop` / `adt-refine-story` / `adt-requirement-review` / `adt-memory-bank` → `direct` unless a parent handoff marks `orchestrated`.
 
-**Detection (prefer explicit):** handoff/`invocation_context` field → spawn child of orchestrate → any `orchestrate-*` body → else `direct`. Record `invocation_context` on receipts when produced.
+**Detection (prefer explicit):** handoff/`invocation_context` field → spawn child of orchestrate → any `adt-orchestrate-*` body → else `direct`. Record `invocation_context` on receipts when produced.
 
 | Shared (both) | `direct` | `orchestrated` |
 |---------------|----------|----------------|
@@ -192,7 +152,7 @@ Contract: [`CONTRACT-PROVENANCE.md`](../../core/skills/_shared/sdd-artifacts/CON
 | `agreed` | Operator-confirmed, cited Prior context (FEATURE/STORY/REFINE/bank/sibling notes), or an already accepted artifact. |
 | `invented` | Agent fill-in (gap, default, inference) **not** yet accepted. |
 
-Label **per claim** (REQ, CA, assumption, OOS). Ambiguous → `invented`. Never promote `invented` → `agreed` without an operator `confirm` answer or an explicit Prior-context cite. Primary author: `sdd-spec`; consumers `sdd-plan` / `sdd-develop` must not re-label invented as agreed Aceite.
+Label **per claim** (REQ, CA, assumption, OOS). Ambiguous → `invented`. Never promote `invented` → `agreed` without an operator `confirm` answer or an explicit Prior-context cite. Primary author: `adt-sdd-spec`; consumers `adt-sdd-plan` / `adt-sdd-develop` must not re-label invented as agreed Aceite.
 
 ### Language surfaces and spawn lock
 
@@ -216,14 +176,14 @@ Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CON
 
 **Spawn lock (model):** omit Task `model` and `effort` by default (inherit parent). A different pair only through the session choice in [`SUBAGENT-MODEL.md`](../../core/skills/_shared/agents/SUBAGENT-MODEL.md), asked once per session. Human matrix: [SPAWN.md](../SPAWN.md).
 
-### Skill `read-sdd-artifact` (`source_context`)
+### Skill `adt-read-sdd-artifact` (`source_context`)
 
-Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **45**).
+Folder: `core/skills/adt-read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **45**).
 
 | Concern | Behavior |
 |---------|----------|
 | Purpose | Resolve a portable FEATURE/STORY/PRD/PLAN path under `features/` into one `source_context` envelope (kind, path, feature slug, story id when applicable, file name) |
-| When to call | Normalize artifact identity for child handoffs / consumers that need a typed read — **not** a substitute for `sdd-spec` / `sdd-plan` / `sdd-develop` |
+| When to call | Normalize artifact identity for child handoffs / consumers that need a typed read — **not** a substitute for `adt-sdd-spec` / `adt-sdd-plan` / `adt-sdd-develop` |
 | Happy path | Full envelope; consumers that already hold `source_context` for that path **skip** opaque re-read (REQ-005 / orchestrated handoff) |
 | Fail path | **No** partial envelope — reject reasons include `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path` |
 | Out of scope kinds | CONTINUITY, ANALYSIS, ARCH, SEC, CHANGE, memory-bank (and similar) — unsupported |
@@ -248,30 +208,30 @@ When procedural detail outgrows a thin skill body:
 
 **FAIL** if invocable skill lacks Lazy-load / Never-by-default, or if `reference.md` is **>150** lines without a `references/` or `reference/` split. Agents must not glob all section files at skill start. Thin skills may keep a short unsplit `reference.md` (≤150 lines).
 
-#### `requirement-review` modes (`--feature` / `--tech`)
+#### `adt-requirement-review` modes (`--feature` / `--tech`)
 
-Folder: `core/skills/requirement-review/`. Shared base in `SKILL.md`; one mode playbook per run (`references/feature.md` or `references/tech.md`). Output: `REFINE/requirement-review-<mode>.md` beside the story, Q&A in `REFINE/qa-history.md`, status `READY` or `NEEDS_CLARIFICATION` per `readiness-severity.md`. `--tech` applies `api-standards` by reference and never writes code. Called by `refine-story` at step 4a. See [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
+Folder: `core/skills/adt-requirement-review/`. Shared base in `SKILL.md`; one mode playbook per run (`references/feature.md` or `references/tech.md`). Output: `REFINE/requirement-review-<mode>.md` beside the story, Q&A in `REFINE/qa-history.md`, status `READY` or `NEEDS_CLARIFICATION` per `readiness-severity.md`. `--tech` applies `adt-api-standards` by reference and never writes code. Called by `adt-refine-story` at step 4a. See [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
 
-#### `refine-story` modes (`feature` / `tech` / `split`)
+#### `adt-refine-story` modes (`feature` / `tech` / `split`)
 
-Folder: `core/skills/refine-story/`. Modes are mandatory playbooks for a **standalone** invoke (one product item, or open clarification B/I). O1 applies the scorecard rubric without asking for a mode. See [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
+Folder: `core/skills/adt-refine-story/`. Modes are mandatory playbooks for a **standalone** invoke (one product item, or open clarification B/I). O1 applies the scorecard rubric without asking for a mode. See [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
 
 | Mode | Scope | Load only |
 |------|-------|-----------|
 | `feature` | User Story or Bug | `references/feature.md` + one of `user-story.md` / `bug.md` |
 | `tech` | Technical Story (`TSnn`) | `references/tech.md` + `technical-story.md` |
-| `split` | Any type — steps ready for checklist | `references/split.md` + one type file; hand off to `split-story-checklist` |
+| `split` | Any type — steps ready for checklist | `references/split.md` + one type file; hand off to `adt-split-story-checklist` |
 
 No silent default: if the invoke omits a mode, ask once before loading any playbook. Do **not** preload the other two mode files. Persistence stays file-based (`features/.../STORY.md` or `docs/backlog/`) — no remote tracker. Human mirror: [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) · [SKILLS.md](../SKILLS.md) § Backlog shape.
 
-#### `api-standards` vs `api-integrate`
+#### `adt-api-standards` vs `adt-api-integrate`
 
 | Skill | Use when | Out of scope |
 |-------|----------|--------------|
-| `api-standards` | Agnostic HTTP/API design review (REST shape, versioning, errors/pagination, naming, security hygiene) | Typed clients/DTOs; company/vendor contracts; stack implementation |
-| `api-integrate` | OpenAPI (or schema) → typed clients / DTOs | Replacing design-standards review |
+| `adt-api-standards` | Agnostic HTTP/API design review (REST shape, versioning, errors/pagination, naming, security hygiene) | Typed clients/DTOs; company/vendor contracts; stack implementation |
+| `adt-api-integrate` | OpenAPI (or schema) → typed clients / DTOs | Replacing design-standards review |
 
-`api-standards` optional focus args: `rest` \| `versioning` \| `errors` \| `naming` \| `security` — load only that playbook under `core/skills/api-standards/references/`. After standards agree, hand off to `api-integrate` or a stack `*-developer`. Catalog: [SKILLS.md](../SKILLS.md) § Operational · CATALOG / OPERATOR rows.
+`adt-api-standards` optional focus args: `rest` \| `versioning` \| `errors` \| `naming` \| `security` — load only that playbook under `core/skills/adt-api-standards/references/`. After standards agree, hand off to `adt-api-integrate` or a stack `adt-*-developer`. Catalog: [SKILLS.md](../SKILLS.md) § Operational · CATALOG / OPERATOR rows.
 
 ### Product artifact quality (`backlog-item-types`)
 
@@ -296,12 +256,12 @@ Item templates (one at a time): `user-story.md`, `technical-story.md`, `bug.md`;
 
 | Skill | When norms load | Gate / behavior |
 |-------|-----------------|-----------------|
-| `orchestrate-analyze` | Synthesis (`references/story-synthesis.md`) | Gates A–C: FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4; fail → keep `draft`, no human `confirm` answer |
-| `refine-story` | Scorecard Step 4 (+ mode playbook) | Product depth band + AC budget; outcome-shaped titles |
-| `requirement-review` | Atomized criteria (`--feature`); repository grounding and API standards by reference (`--tech`) | Open questions carry B/I/MINOR and one decision owner; technical follow-ups never block READY |
-| `split-story-checklist` | Before Write when titles task-shaped | Emit **SMART tasks** only — never US-per-file (`anti-task-shatter` RN01) |
-| `sdd-spec` | Step 5.5 `references/challenge-vagueness.md` | Product depth on FEATURE/STORY siblings + PRD metrics/MoSCoW/Severity; lazy norms; no how/code |
-| `sdd-plan` | Steps 2–4 when titles task-shaped | Anti file-named PLAN steps (`story-sizing` / `anti-task-shatter`) |
+| `adt-orchestrate-analyze` | Synthesis (`references/story-synthesis.md`) | Gates A–C: FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4; fail → keep `draft`, no human `confirm` answer |
+| `adt-refine-story` | Scorecard Step 4 (+ mode playbook) | Product depth band + AC budget; outcome-shaped titles |
+| `adt-requirement-review` | Atomized criteria (`--feature`); repository grounding and API standards by reference (`--tech`) | Open questions carry B/I/MINOR and one decision owner; technical follow-ups never block READY |
+| `adt-split-story-checklist` | Before Write when titles task-shaped | Emit **SMART tasks** only — never US-per-file (`anti-task-shatter` RN01) |
+| `adt-sdd-spec` | Step 5.5 `references/challenge-vagueness.md` | Product depth on FEATURE/STORY siblings + PRD metrics/MoSCoW/Severity; lazy norms; no how/code |
+| `adt-sdd-plan` | Steps 2–4 when titles task-shaped | Anti file-named PLAN steps (`story-sizing` / `anti-task-shatter`) |
 
 #### Field templates (paths only)
 
@@ -339,7 +299,7 @@ Host emitters (fail-open append) are adapter-owned — honesty matrix in [adapte
 
 Classic SDD and O1/O2/O3 persist implementation progress in the PLAN's single execution table. They do not require a PLAN claim or session flags to authorize, reconcile, or advance work. O3 dispatches one step at a time and the coordinator reconciles each result into the PLAN.
 
-`scripts/session/Invoke-DevelopSessionGate.ps1` remains for `document-implement`, whose own contract explicitly uses session state. It is not a prerequisite for Classic SDD or Orchestrated Delivery. See [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) and [cli-scripts.md](cli-scripts.md#session-helper-document-implement) for current ownership.
+`scripts/session/Invoke-DevelopSessionGate.ps1` remains for `adt-document-implement`, whose own contract explicitly uses session state. It is not a prerequisite for Classic SDD or Orchestrated Delivery. See [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) and [cli-scripts.md](cli-scripts.md#session-helper-document-implement) for current ownership.
 
 ## Code guidelines and architecture selection
 
@@ -362,7 +322,7 @@ Styles under B (load **one** primary file): `concentric-dependency`, `vertical-s
 
 ### Token discipline
 
-After A resolves a style, load **exactly one** B file (plus optional DDD tactical or EDA only when selected). **Never** glob `architecture/**` or preload the whole principles tree. Implementers (`sdd-develop`, `*-developer`) then load the matching C overlay for the active stack.
+After A resolves a style, load **exactly one** B file (plus optional DDD tactical or EDA only when selected). **Never** glob `architecture/**` or preload the whole principles tree. Implementers (`adt-sdd-develop`, `adt-*-developer`) then load the matching C overlay for the active stack.
 
 ### .NET signature MUST (when docs mention C#)
 

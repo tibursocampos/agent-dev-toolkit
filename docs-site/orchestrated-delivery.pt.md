@@ -4,17 +4,19 @@ title: Entrega orquestrada
 
 # Entrega orquestrada
 
-Use Orchestrated Delivery quando a análise entre stories, perguntas para especialistas ou execução coordenada forem úteis. SDD clássico também pode começar diretamente para uma feature clara. Cada skill `orchestrate-*` define seu procedimento detalhado; [Usando skills](using-skills.pt.md) explica como invocá-las.
+Use Orchestrated Delivery quando a análise entre stories, perguntas para especialistas ou execução coordenada forem úteis. SDD clássico também pode começar diretamente para uma feature clara. Cada skill `adt-orchestrate-*` define seu procedimento detalhado; [Usando skills](using-skills.pt.md) explica como invocá-las.
 
 ## Fluxo
 
 | Fase | Skill | Resultado |
 |---|---|---|
-| O1 — Análise | `orchestrate-analyze` | Investigação proporcional e stories justificadas. Especialistas e notas de análise entram apenas para perguntas concretas. |
-| O2 — Entrega | `orchestrate-deliver` | PRD e PLAN executável para cada story selecionada. Escrever rascunhos faz parte da preparação. |
-| O3 — Implementação (opcional) | `orchestrate-develop` | Fila serial de passos do PLAN; um filho por passo, com reconciliação antes do próximo despacho. |
+| O1 — Análise | `adt-orchestrate-analyze` | Investigação proporcional e stories justificadas. Especialistas e notas de análise entram apenas para perguntas concretas. |
+| O2 — Entrega | `adt-orchestrate-prepare` | PRD e PLAN executável para cada story selecionada. Escrever rascunhos faz parte da preparação. |
+| O3 — Implementação (opcional) | `adt-orchestrate-implement` | Fila serial de passos do PLAN; um filho por passo, com reconciliação antes do próximo despacho. |
 
 Antes da implementação, O2 apresenta o PLAN completo ou um conjunto de PLANs explicitamente listado para uma única aprovação. Nova decisão só é necessária quando comportamento, aceite, escopo, acesso ou escolha de implementação mudarem materialmente. Uma questão material bloqueia apenas o trabalho afetado; dúvidas menores ficam visíveis e stories independentes podem avançar.
+
+Especialistas apoiam perguntas concretas de análise. Seus prompts definem o resultado devolvido, e o pai registra achados e decisões relevantes nos artefatos canônicos de feature/story ou no PLAN. Uma recomendação não é uma decisão do operador nem uma aprovação.
 
 ## Contexto e artefatos
 

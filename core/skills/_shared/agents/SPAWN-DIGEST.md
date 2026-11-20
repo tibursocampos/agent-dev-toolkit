@@ -23,4 +23,4 @@ Read the full `SPAWN.md` (caps, fallback when Agent is unavailable, handoff payl
 
 ## Checklist and log
 
-Stay in the parent only in `adaptive`, and only when edited <= 3, read <= 6, lines <= 150 and no exclusion (security, shared contract, full build/suite/batch script, scope not countable in 2 searches). Otherwise delegate. `always` delegates everything except `qa_checklist`. Log one line per decision: `[Spawn] <verb> mode=<m> edited=<n> read=<n> lines=<n> criterion=<code>`. Caps: `*-developer` 2, `orchestrate-*` 4. Continuations: max 2, read-only, same topic and scope. Rules and codes: `SPAWN.md`; roles: `ROSTER.md`.
+Stay in the parent only in `adaptive`, and only when edited <= 3, read <= 6, lines <= 150 and no exclusion (security, shared contract, full build/suite/batch script, scope not countable in 2 searches). Otherwise delegate. `always` delegates everything except `qa_checklist`. Log one line per decision: `[Spawn] <verb> mode=<m> edited=<n> read=<n> lines=<n> criterion=<code>`. Caps: `adt-*-developer` 2, `adt-orchestrate-*` 4. Continuations: max 2, read-only, same topic and scope. Rules and codes: `SPAWN.md`; roles: `ROSTER.md`.

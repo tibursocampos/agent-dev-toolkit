@@ -19,7 +19,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent antigravity -InstallRoot .
 |------|-------|
 | Skills path (live) | `~/.gemini/config/skills` |
 | Explicit form | `use skill id` or `/id` |
-| Examples | `use skill sdd-plan`, `/help-skills` |
+| Examples | `use skill adt-sdd-plan`, `/adt-help-skills` |
 
 Canonical form is the skill **id**.
 

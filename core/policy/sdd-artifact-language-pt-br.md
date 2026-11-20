@@ -21,7 +21,7 @@ This rule does **not** change code language. It does **not** default project doc
 
 Content language for SDD artifact bodies (section titles, labels, prose, acceptance criteria, PLAN steps, implementation notes) is resolved by `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` (CL-CONTENT-LANGUAGE).
 
-- Use templates in `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` and `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` matching the resolved content language.
+- Use templates in `{{TOOLKIT_ROOT}}/skills/adt-sdd-spec/reference.md` and `{{TOOLKIT_ROOT}}/skills/adt-sdd-plan/reference.md` matching the resolved content language.
 - Do **not** hard-code pt-BR when the resolved content language is another language.
 
 **Identifiers in prose:** type names, method names, API routes, file paths, and test names stay in **English** (e.g. `UserService`, `Should_ReturnOk_When_ValidRequest`).
@@ -39,7 +39,7 @@ This rule does not grant an exception for “artifact in English” on identifie
 
 ## Project documentation - ask
 
-When `sdd-spec`, `sdd-plan`, or `sdd-develop` will create or change **product** documentation under `docs/`, README, or similar (not PRD/PLAN agent files), **ask once** before writing, with a question component (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`) that offers these options. If no component is available, ask in numbered text.
+When `adt-sdd-spec`, `adt-sdd-plan`, or `adt-sdd-develop` will create or change **product** documentation under `docs/`, README, or similar (not PRD/PLAN agent files), **ask once** before writing, with a question component (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`) that offers these options. If no component is available, ask in numbered text.
 
 - Header, in the user's conversation language. pt-BR example (example only): `Em qual idioma gravar a documentação do sistema (docs/, README)?`
 - `pt-BR`, label: `Português (pt-BR)`
@@ -63,9 +63,9 @@ Set `artifact_language` to `"en"` in `{{SDD_ROOT}}/<repo-id>/manifest.json` when
 
 | Skill | Behavior |
 |-------|----------|
-| `sdd-spec` | New PRD -> resolved content language |
-| `sdd-plan` | New PLAN -> resolved content language; read existing PRD in any language |
-| `sdd-develop` | Code -> English; update PLAN in **existing file language** |
+| `adt-sdd-spec` | New PRD -> resolved content language |
+| `adt-sdd-plan` | New PLAN -> resolved content language; read existing PRD in any language |
+| `adt-sdd-develop` | Code -> English; update PLAN in **existing file language** |
 
 ## Install path
 

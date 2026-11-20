@@ -1,6 +1,6 @@
 # Persona / JTBD context (optional)
 
-Optional product-intent sections for backlog refinement. English guideline. Lazy-load from `refine-story` and O1 story synthesis only — do **not** load by default for every skill.
+Optional product-intent sections for backlog refinement. English guideline. Lazy-load from `adt-refine-story` and O1 story synthesis only — do **not** load by default for every skill.
 
 **Applicability:**
 
@@ -66,5 +66,5 @@ Omit the entire block when the Objective already states beneficiary and value cl
 | `technical-story.md` | Notes persona out of scope for pure TS |
 | `bug.md` | No persona sections |
 | `FEATURE.md` | Optional **Product intent** near story Rationale |
-| `refine-story` | Lazy-load this file when refining a User Story that needs product context |
-| `orchestrate-analyze` | Lazy-load at FEATURE synthesis for US **Product intent** only (TS/Bug → `n/a`) |
+| `adt-refine-story` | Lazy-load this file when refining a User Story that needs product context |
+| `adt-orchestrate-analyze` | Lazy-load at FEATURE synthesis for US **Product intent** only (TS/Bug → `n/a`) |

@@ -137,7 +137,7 @@ try {
     $userAgentText = "name = 'my-own-agent'`n"
 
     $n = 'Should_PublishCodexAgents_When_FirstRun'
-    $null = Invoke-CodexPublishAgents -InstallRoot $codexRoot
+    $null = Invoke-CodexPublishAgents -InstallRoot $codexRoot -CodexSkillDistribution 'Both'
     foreach ($name in $codexSourceNames) {
         if (-not (Test-Path -LiteralPath (Join-Path $codexAgentsRoot $name))) { Write-Fail $n "current codex agent missing after first publish: $name" }
         if (-not (Test-CodexInventoryHasAgent -InstallRoot $codexRoot -Name $name)) { Write-Fail $n "current codex agent not recorded in inventory: $name" }
@@ -147,14 +147,14 @@ try {
 
     $n = 'Should_DeleteNothing_When_CodexPublishRunsWhatIf'
     Add-CodexRecordedAgent -InstallRoot $codexRoot -Name 'retired-whatif.toml'
-    $null = Invoke-CodexPublishAgents -InstallRoot $codexRoot -WhatIf
+    $null = Invoke-CodexPublishAgents -InstallRoot $codexRoot -WhatIf -CodexSkillDistribution 'Both'
     if (-not (Test-Path -LiteralPath (Join-Path $codexAgentsRoot 'retired-whatif.toml'))) { Write-Fail $n 'WhatIf deleted a retired codex agent file' }
     if (-not (Test-CodexInventoryHasAgent -InstallRoot $codexRoot -Name 'retired-whatif.toml')) { Write-Fail $n 'WhatIf released a retired codex agent from the inventory' }
     Write-Pass $n
 
     $n = 'Should_PruneRetiredCodexAgent_When_CodexSyncRunsAgain'
     Add-CodexRecordedAgent -InstallRoot $codexRoot -Name 'retired-sample.toml'
-    $null = Invoke-CodexPublishAgents -InstallRoot $codexRoot
+    $null = Invoke-CodexPublishAgents -InstallRoot $codexRoot -CodexSkillDistribution 'Both'
     foreach ($retired in @('retired-sample.toml', 'retired-whatif.toml')) {
         if (Test-Path -LiteralPath (Join-Path $codexAgentsRoot $retired)) { Write-Fail $n "retired codex agent survived sync: $retired" }
         if (Test-CodexInventoryHasAgent -InstallRoot $codexRoot -Name $retired) { Write-Fail $n "retired codex agent still recorded after prune: $retired" }
@@ -168,7 +168,7 @@ try {
     $n = 'Should_KeepEditedRetiredCodexAgent_When_CodexSyncPrunesIt'
     Add-CodexRecordedAgent -InstallRoot $codexRoot -Name 'retired-edited-sample.toml'
     [System.IO.File]::WriteAllText((Join-Path $codexAgentsRoot 'retired-edited-sample.toml'), "name = 'retired-edited-sample'`nedited by operator`n", (New-Object System.Text.UTF8Encoding $false))
-    $null = Invoke-CodexPublishAgents -InstallRoot $codexRoot -WarningVariable codexWarnings -WarningAction SilentlyContinue
+    $null = Invoke-CodexPublishAgents -InstallRoot $codexRoot -WarningVariable codexWarnings -WarningAction SilentlyContinue -CodexSkillDistribution 'Both'
     if (-not (Test-Path -LiteralPath (Join-Path $codexAgentsRoot 'retired-edited-sample.toml'))) { Write-Fail $n 'operator-edited retired codex agent was deleted' }
     if (Test-CodexInventoryHasAgent -InstallRoot $codexRoot -Name 'retired-edited-sample.toml') { Write-Fail $n 'edited retired codex agent was not released from the inventory' }
     if (@($codexWarnings | Where-Object { [string]$_ -like 'Kept retired file edited after publish*' }).Count -eq 0) { Write-Fail $n 'no warning emitted for kept edited retired codex agent' }
@@ -198,7 +198,7 @@ try {
     $cleanRoot = Join-Path $codexUninstallWork 'codex-clean'
     New-Item -ItemType Directory -Path $cleanRoot -Force | Out-Null
     $cleanAgentsRoot = Join-Path $cleanRoot 'agents'
-    $null = Invoke-CodexPublishAgents -InstallRoot $cleanRoot
+    $null = Invoke-CodexPublishAgents -InstallRoot $cleanRoot -CodexSkillDistribution 'Both'
     Add-CodexRecordedAgent -InstallRoot $cleanRoot -Name 'retired-uninstall.toml'
     $cleanUserPath = Join-Path $cleanAgentsRoot 'my-own-uninstall-agent.toml'
     [System.IO.File]::WriteAllText($cleanUserPath, "name = 'my-own-uninstall-agent'`n", $utf8)
@@ -227,7 +227,7 @@ try {
     $editedRoot = Join-Path $codexUninstallWork 'codex-edited'
     New-Item -ItemType Directory -Path $editedRoot -Force | Out-Null
     $editedAgentsRoot = Join-Path $editedRoot 'agents'
-    $null = Invoke-CodexPublishAgents -InstallRoot $editedRoot
+    $null = Invoke-CodexPublishAgents -InstallRoot $editedRoot -CodexSkillDistribution 'Both'
     Add-CodexRecordedAgent -InstallRoot $editedRoot -Name 'retired-uninstall-edited.toml'
     [System.IO.File]::WriteAllText((Join-Path $editedAgentsRoot 'retired-uninstall-edited.toml'), "name = 'retired-uninstall-edited'`nedited by operator`n", $utf8)
 

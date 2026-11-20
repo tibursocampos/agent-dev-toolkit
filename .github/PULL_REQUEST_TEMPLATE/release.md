@@ -1,6 +1,6 @@
 <!-- Maintainer-only: this repo does not accept community PRs. -->
 <!-- Release template: develop → master/main. Prefer this over the default feature template for release PRs. -->
-<!-- `/open-github-pr` release mode can auto-fill the Included changes table. -->
+<!-- `/adt-open-github-pr` release mode can auto-fill the Included changes table. -->
 
 ## Summary
 
@@ -23,7 +23,7 @@ Version: N/A
 
 ## Included changes
 
-<!-- Application PRs merged into `develop` since the last release; omit the release promotion and generated reconciliation PRs. `/open-github-pr` release mode can auto-fill this table. -->
+<!-- Application PRs merged into `develop` since the last release; omit the release promotion and generated reconciliation PRs. `/adt-open-github-pr` release mode can auto-fill this table. -->
 
 | PR | Title | Author | Merged |
 | --- | --- | --- | --- |

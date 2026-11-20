@@ -1,22 +1,24 @@
 # 02 — Classic SDD
 
-Classic SDD is a standalone path for one feature with a clear direction. It does not require `orchestrate-analyze`, FEATURE/STORY, or a Memory Bank. The shared contract is [`PIPELINE.md`](../../core/skills/_shared/sdd-artifacts/PIPELINE.md); each skill's `SKILL.md` and references own its detailed behavior.
+Classic SDD is a standalone path for one feature with a clear direction. It does not require `adt-orchestrate-analyze`, FEATURE/STORY, or a Memory Bank. The shared contract is [`PIPELINE.md`](../../core/skills/_shared/sdd-artifacts/PIPELINE.md); each skill's `SKILL.md` and references own its detailed behavior.
 
 ## Flow
 
 | Skill | Purpose | Handoff |
 |-------|---------|---------|
-| `sdd-spec` | Define expected behavior, scope, acceptance, relevant contracts, and material questions in a PRD. | `sdd-plan` |
-| `sdd-plan` | Turn the PRD or a sufficiently specified demand into an executable PLAN with dependencies, acceptance, validation, and one progress table. | Present the complete PLAN for one explicit approval before implementation. |
-| `sdd-develop` | Implement the approved PLAN using its chosen `step_by_step` or `continuous` cadence. | Stop after one step in step-by-step mode; in continuous mode advance through eligible steps until completion or a real blocker. |
+| `adt-sdd-spec` | Define expected behavior, scope, acceptance, relevant contracts, and material questions in a PRD. | `adt-sdd-plan` |
+| `adt-sdd-plan` | Turn the PRD or a sufficiently specified demand into an executable PLAN with dependencies, acceptance, validation, and one progress table. | Present the complete PLAN for one explicit approval before implementation. |
+| `adt-sdd-develop` | Implement the approved PLAN using its chosen `step_by_step` or `continuous` cadence. | Stop after one step in step-by-step mode; in continuous mode advance through eligible steps until completion or a real blocker. |
 
-Direct `sdd-spec` and `sdd-plan` invocations are supported. Drafting and saving the PRD/PLAN are preparation and do not need separate approvals. A direct planning call ends with handoff; it does not automatically begin implementation.
+Direct `adt-sdd-spec` and `adt-sdd-plan` invocations are supported. Drafting and saving the PRD/PLAN are preparation and do not need separate approvals. A direct planning call ends with handoff; it does not automatically begin implementation.
 
 ## PRD and PLAN content
 
-Describe the intended result and material boundaries in usable language. Stable IDs, BDD syntax, exact headings, section order, a fixed number of scenarios, and optional fields help only when they improve traceability; they are not authorization gates. For relevant brownfield changes, capture current behavior, intended change, and concrete risks in the PRD or PLAN.
+Describe the intended result and material boundaries. Write new acceptance criteria in Given / When / Then and accept equivalent existing criteria. Apply the risk-specific content in the shared guidance as appropriate. Each PLAN step should give a fresh executor enough detail to locate the work, apply the agreed behavior and produce the expected evidence. [Authoring content](../../core/skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md)
 
-The PLAN owns implementation sequence, dependencies, acceptance, validation evidence, blockers, and next action. It contains one canonical progress table. `split-story-checklist` may help with independent backlog decomposition, but `TASKS.md` and `REFINE/tasks.md` are optional and never prerequisites for planning.
+Start from the canonical PRD and PLAN templates. Their headings guide the artifact; equivalent existing sections can be preserved. Keep material decisions, risks, contracts, acceptance, and execution progress in the canonical artifacts. Use a separate `ANALYSIS/`, `ARCH/`, or `SEC/` note only when it provides a distinct durable evidence record; these notes do not create another approval or progress gate.
+
+The PLAN owns implementation sequence, dependencies, acceptance, validation evidence, blockers, and next action. It contains one canonical progress table. `adt-split-story-checklist` may help with independent backlog decomposition, but `TASKS.md` and `REFINE/tasks.md` are optional and never prerequisites for planning.
 
 ## Questions and evidence
 

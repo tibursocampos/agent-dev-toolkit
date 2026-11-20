@@ -193,11 +193,14 @@ function Get-HermesPlaceholderMap {
         Join-Path $InstallRoot $script:HermesAdapterConstant.OfficialAgentsFileName
     )
 
-    return [ordered]@{
-        ($script:HermesAdapterConstant.PlaceholderToolkitRoot)    = $toolkitRoot
-        ($script:HermesAdapterConstant.PlaceholderSddRoot)        = $sddRoot
-        ($script:HermesAdapterConstant.PlaceholderGuardrailsPath) = $guardrailsPath
-    }
+    $policyRoot = Join-Path (Get-HermesAdapterRepoRoot) 'core/policy'
+    $map = Get-ToolkitFoldedPolicyReferenceMap `
+        -SourceRules @(Get-ChildItem -LiteralPath $policyRoot -File -Filter '*.md') `
+        -PublishedPolicyPath $guardrailsPath
+    $map[$script:HermesAdapterConstant.PlaceholderToolkitRoot] = $toolkitRoot
+    $map[$script:HermesAdapterConstant.PlaceholderSddRoot] = $sddRoot
+    $map[$script:HermesAdapterConstant.PlaceholderGuardrailsPath] = $guardrailsPath
+    return $map
 }
 
 function Initialize-HermesToolkitManagedTreeLib {

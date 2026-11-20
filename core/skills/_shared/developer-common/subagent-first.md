@@ -1,6 +1,6 @@
-# Subagent-first policy (`*-developer`)
+# Subagent-first policy (`adt-*-developer`)
 
-Shared decision policy for stack `*-developer` skills. Encode RN02–RN04 here once; skills **point** to this file — do not duplicate long bodies.
+Shared decision policy for stack `adt-*-developer` skills. Encode RN02–RN04 here once; skills **point** to this file — do not duplicate long bodies.
 
 **Mandatory:** read `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` and capability `subagents` (`native` | `none` from registry / Get-Capabilities) before spawning.
 
@@ -44,7 +44,7 @@ Classify task complexity
 3. Point to role/skill paths; **do not** paste `_shared/*-guidelines/`, full SKILL bodies, or large policy dumps.
 4. Child prompts and agent receipts: **always en-US** (`LANGUAGE.md`). Pass **paths + excerpt** of user-language artifacts — no full PLAN/PRD dump.
 
-Cap: **≤ 2** children per task wave (`*-developer`).
+Cap: **≤ 2** children per task wave (`adt-*-developer`).
 
 If fallback or in-parent work requires a code edit while the host is in Plan/Ask,
 stop before editing and explicitly ask the operator to switch to Agent. Never
@@ -77,7 +77,7 @@ Canonical spawn contract (limits, enum honesty, orchestrate caps): `SPAWN.md` �
 - Spawn for **trivial** work
 - Exceed **2** developer children without user-approved wave
 - Paste guideline packs into child prompts
-- Wire every `*-developer` SKILL from this file alone — Step 5 adds the pointers
+- Wire every `adt-*-developer` SKILL from this file alone — Step 5 adds the pointers
 
 ---
 

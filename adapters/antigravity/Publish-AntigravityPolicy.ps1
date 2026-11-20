@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $PSScriptRoot '../_shared/MdcReferenceRewrite.ps1')
 
 <#
 .SYNOPSIS
@@ -42,11 +43,14 @@ function Get-AntigravityPlaceholderMap {
         Join-Path $InstallRoot ($script:AntigravityPathConstant.OfficialGuardrailsRelativePath -replace '/', $sep)
     )
 
-    return [ordered]@{
-        ($script:AntigravityPathConstant.PlaceholderToolkitRoot)    = $toolkitRoot
-        ($script:AntigravityPathConstant.PlaceholderSddRoot)        = $sddRoot
-        ($script:AntigravityPathConstant.PlaceholderGuardrailsPath) = $guardrailsPath
-    }
+    $policyRoot = Join-Path $script:ToolkitCopyHelperRepoRoot 'core/policy'
+    $map = Get-ToolkitFoldedPolicyReferenceMap `
+        -SourceRules @(Get-AntigravityGuardrailsSourceFiles -SourcePolicyRoot $policyRoot) `
+        -PublishedPolicyPath $guardrailsPath
+    $map[$script:AntigravityPathConstant.PlaceholderToolkitRoot] = $toolkitRoot
+    $map[$script:AntigravityPathConstant.PlaceholderSddRoot] = $sddRoot
+    $map[$script:AntigravityPathConstant.PlaceholderGuardrailsPath] = $guardrailsPath
+    return $map
 }
 
 function Resolve-AntigravityPlaceholdersInText {

@@ -21,6 +21,8 @@ $_zcodeToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:ZCodeAdapterModuleDirectory)
 ) (Join-Path 'scripts' '_lib')
 . (Join-Path $_zcodeToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $script:ZCodeAdapterModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
+. (Join-Path $script:ZCodeAdapterModuleDirectory '../_shared/OnDemandPolicyReferences.ps1')
 Remove-Variable -Name _zcodeToolkitLibDirectory -ErrorAction SilentlyContinue
 
 function Get-ZCodeAdapterRepoRoot {
@@ -54,11 +56,11 @@ function Get-ZCodePlaceholderMap {
         Join-Path $InstallRoot $script:ZCodePathConstant.AgentsFileName
     )
 
-    return [ordered]@{
-        ($script:ZCodePathConstant.PlaceholderToolkitRoot)    = $toolkitRoot
-        ($script:ZCodePathConstant.PlaceholderSddRoot)        = $sddRoot
-        ($script:ZCodePathConstant.PlaceholderGuardrailsPath) = $guardrailsPath
-    }
+    $map = Get-ToolkitOnDemandPolicyReferenceMap -ToolkitRoot $toolkitRoot
+    $map[$script:ZCodePathConstant.PlaceholderToolkitRoot] = $toolkitRoot
+    $map[$script:ZCodePathConstant.PlaceholderSddRoot] = $sddRoot
+    $map[$script:ZCodePathConstant.PlaceholderGuardrailsPath] = $guardrailsPath
+    return $map
 }
 
 function Get-ZCodeSupportedPlaceholderTokens {
@@ -234,6 +236,12 @@ function Invoke-ZCodePublishSkills {
         -TextFileExtensionPattern $script:ZCodePathConstant.TextFileExtensionPattern `
         -UnresolvedTokens (Get-ZCodeSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:ZCodePublishMessage.PlaceholderUnresolved
+
+    Publish-ToolkitOnDemandPolicyReferences `
+        -RepoRoot $repoRoot `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoot $destinationSkillsRoot `
+        -PlaceholderMap $placeholderMap
 
     return [PSCustomObject]@{
         Success     = $true

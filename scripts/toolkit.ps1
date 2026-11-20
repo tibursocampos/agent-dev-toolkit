@@ -36,6 +36,9 @@
 .PARAMETER Mode
   Forwarded to sync-agent / validate-agent / Uninstall-Toolkit. Required for -Agent copilot (user|repo).
 
+.PARAMETER CodexSkillDistribution
+  Codex skill target: Both, Local, or Plugin. Direct actions default to Both; guided Sync asks when Codex is selected.
+
 .PARAMETER ForceStub
   Acknowledge unimplemented Backup stub and allow a success exit (tooling tests only).
 
@@ -75,6 +78,10 @@ param(
     [string] $Mode,
 
     [Parameter()]
+    [ValidateSet('Both', 'Local', 'Plugin')]
+    [string] $CodexSkillDistribution = 'Both',
+
+    [Parameter()]
     [switch] $AllowUserHome,
 
     [Parameter()]
@@ -95,6 +102,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$script:CodexSkillDistributionExplicit = $PSBoundParameters.ContainsKey('CodexSkillDistribution')
 
 $scriptDir = $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($scriptDir)) {
@@ -294,6 +302,29 @@ function Invoke-ToolkitCopilotModeWizard {
     }
 }
 
+function Invoke-ToolkitCodexSkillDistributionWizard {
+    [CmdletBinding()]
+    param()
+
+    while ($true) {
+        Clear-ToolkitScreen
+        Show-ToolkitHeader -Title $script:ToolkitMessage.ToolkitCodexSkillDistributionTitle -RepoRoot $repoRoot
+        Write-Host $script:ToolkitMessage.ToolkitCodexSkillDistributionBothLine
+        Write-Host $script:ToolkitMessage.ToolkitCodexSkillDistributionLocalLine
+        Write-Host $script:ToolkitMessage.ToolkitCodexSkillDistributionPluginLine
+        Write-Host $script:ToolkitMessage.ToolkitCodexSkillDistributionBackLine
+        Write-Host $script:ToolkitConstant.ToolkitMenuRule -ForegroundColor Cyan
+
+        $choice = Read-ToolkitChoice -Prompt $script:ToolkitMessage.ToolkitMenuPrompt -ValidChoices $script:ToolkitConstant.ToolkitCodexSkillDistributionMenuChoices
+        switch ($choice) {
+            '1' { return 'Both' }
+            '2' { return 'Local' }
+            '3' { return 'Plugin' }
+            default { return $null }
+        }
+    }
+}
+
 function Test-ToolkitPathUnderUserProfile {
     [CmdletBinding()]
     param(
@@ -424,6 +455,9 @@ function Confirm-ToolkitRunPlan {
         [Parameter()]
         [string] $ResolvedMode,
 
+        [Parameter()]
+        [string] $ResolvedCodexSkillDistribution,
+
         [Parameter(Mandatory = $true)]
         [hashtable] $Target,
 
@@ -438,6 +472,9 @@ function Confirm-ToolkitRunPlan {
     Write-Host ($script:ToolkitMessage.ToolkitSummaryAgent -f $AgentId)
     if (-not [string]::IsNullOrWhiteSpace($ResolvedMode)) {
         Write-Host ($script:ToolkitMessage.ToolkitSummaryMode -f $ResolvedMode)
+    }
+    if (-not [string]::IsNullOrWhiteSpace($ResolvedCodexSkillDistribution)) {
+        Write-Host ($script:ToolkitMessage.ToolkitSummaryCodexSkillDistribution -f $ResolvedCodexSkillDistribution)
     }
     Write-Host ($script:ToolkitMessage.ToolkitSummaryTargetKind -f $Target.TargetKind)
     $rootDisplay = if ($Target.UseFixture -or [string]::IsNullOrWhiteSpace([string]$Target.InstallRoot)) {
@@ -476,7 +513,10 @@ function Invoke-ToolkitInteractiveAgentFlow {
 
         [Parameter()]
         [ValidateSet('deploy', 'uninstall')]
-        [string] $ActionKind = 'deploy'
+        [string] $ActionKind = 'deploy',
+
+        [Parameter()]
+        [switch] $PromptCodexSkillDistribution
     )
 
     $agentId = Invoke-ToolkitAgentWizard -Title $FlowTitle
@@ -492,18 +532,34 @@ function Invoke-ToolkitInteractiveAgentFlow {
         }
     }
 
+    if ($PromptCodexSkillDistribution -and $ActionKind -eq 'deploy' -and $agentId -eq 'codex') {
+        $resolvedCodexSkillDistribution = if ($script:CodexSkillDistributionExplicit) {
+            $CodexSkillDistribution
+        }
+        else {
+            Invoke-ToolkitCodexSkillDistributionWizard
+        }
+        if ([string]::IsNullOrWhiteSpace($resolvedCodexSkillDistribution)) {
+            return $null
+        }
+    }
+    else {
+        $resolvedCodexSkillDistribution = $null
+    }
+
     while ($true) {
         $target = Invoke-ToolkitTargetWizard -AgentId $agentId -ResolvedMode $resolvedMode -ActionKind $ActionKind
         if ($null -eq $target) {
             return $null
         }
 
-        $decision = Confirm-ToolkitRunPlan -AgentId $agentId -ResolvedMode $resolvedMode -Target $target -ActionKind $ActionKind
+        $decision = Confirm-ToolkitRunPlan -AgentId $agentId -ResolvedMode $resolvedMode -ResolvedCodexSkillDistribution $(if ($agentId -eq 'codex' -and $ActionKind -eq 'deploy') { $resolvedCodexSkillDistribution } else { $null }) -Target $target -ActionKind $ActionKind
         switch ($decision) {
             'run' {
                 return @{
                     AgentId       = $agentId
                     Mode          = $resolvedMode
+                    CodexSkillDistribution = $(if ($agentId -eq 'codex' -and $ActionKind -eq 'deploy') { $resolvedCodexSkillDistribution } else { $null })
                     InstallRoot   = $target.InstallRoot
                     AllowUserHome = [bool]$target.AllowUserHome
                     UseFixture    = [bool]$target.UseFixture
@@ -571,6 +627,7 @@ function Build-AgentForwardTable {
         [Parameter(Mandatory = $true)][string] $AgentId,
         [Parameter()][string] $OverrideInstallRoot,
         [Parameter()][string] $OverrideMode,
+        [Parameter()][string] $OverrideCodexSkillDistribution,
         [Parameter()][Nullable[bool]] $OverrideAllowUserHome,
         [Parameter()][switch] $ForValidate
     )
@@ -597,6 +654,16 @@ function Build-AgentForwardTable {
     }
     if (-not [string]::IsNullOrWhiteSpace($effectiveMode)) {
         $table['Mode'] = $effectiveMode
+    }
+
+    $effectiveCodexSkillDistribution = if (-not [string]::IsNullOrWhiteSpace($OverrideCodexSkillDistribution)) {
+        $OverrideCodexSkillDistribution
+    }
+    else {
+        $CodexSkillDistribution
+    }
+    if (-not $ForValidate -and $AgentId -eq 'codex' -and -not [string]::IsNullOrWhiteSpace($effectiveCodexSkillDistribution)) {
+        $table['CodexSkillDistribution'] = $effectiveCodexSkillDistribution
     }
 
     $allow = $AllowUserHome.IsPresent
@@ -665,12 +732,13 @@ function Invoke-ToolkitSync {
         [Parameter(Mandatory = $true)][string] $AgentId,
         [Parameter()][string] $OverrideInstallRoot,
         [Parameter()][string] $OverrideMode,
+        [Parameter()][string] $OverrideCodexSkillDistribution,
         [Parameter()][Nullable[bool]] $OverrideAllowUserHome,
         [Parameter()][switch] $PromptInstallPreferences
     )
 
     Write-ToolkitStepBanner -Title ("Sync agent ({0})" -f $AgentId)
-    $syncTable = Build-AgentForwardTable -AgentId $AgentId -OverrideInstallRoot $OverrideInstallRoot -OverrideMode $OverrideMode -OverrideAllowUserHome $OverrideAllowUserHome
+    $syncTable = Build-AgentForwardTable -AgentId $AgentId -OverrideInstallRoot $OverrideInstallRoot -OverrideMode $OverrideMode -OverrideCodexSkillDistribution $OverrideCodexSkillDistribution -OverrideAllowUserHome $OverrideAllowUserHome
     if ($WhatIf.IsPresent) {
         $syncTable[$script:ToolkitConstant.WhatIfParameterName] = $true
     }
@@ -703,12 +771,13 @@ function Invoke-ToolkitValidate {
         [Parameter(Mandatory = $true)][string] $AgentId,
         [Parameter()][string] $OverrideInstallRoot,
         [Parameter()][string] $OverrideMode,
+        [Parameter()][string] $OverrideCodexSkillDistribution,
         [Parameter()][Nullable[bool]] $OverrideAllowUserHome
     )
 
     Write-ToolkitStepBanner -Title ("Validate agent ({0})" -f $AgentId)
     return (Invoke-ToolkitScript -RelativePath $script:ToolkitConstant.ValidateAgentRelativePath -ArgumentTable (
-            Build-AgentForwardTable -AgentId $AgentId -OverrideInstallRoot $OverrideInstallRoot -OverrideMode $OverrideMode -OverrideAllowUserHome $OverrideAllowUserHome -ForValidate
+            Build-AgentForwardTable -AgentId $AgentId -OverrideInstallRoot $OverrideInstallRoot -OverrideMode $OverrideMode -OverrideCodexSkillDistribution $OverrideCodexSkillDistribution -OverrideAllowUserHome $OverrideAllowUserHome -ForValidate
         ))
 }
 
@@ -871,10 +940,12 @@ function Invoke-ToolkitAction {
     $actionKey = [string]$match[0]
     $overrideRoot = $null
     $overrideMode = $null
+    $overrideCodexSkillDistribution = $null
     $overrideAllow = $null
     if ($null -ne $Context) {
         if ($Context.ContainsKey('InstallRoot')) { $overrideRoot = $Context.InstallRoot }
         if ($Context.ContainsKey('Mode')) { $overrideMode = $Context.Mode }
+        if ($Context.ContainsKey('CodexSkillDistribution')) { $overrideCodexSkillDistribution = [string]$Context.CodexSkillDistribution }
         if ($Context.ContainsKey('AllowUserHome')) { $overrideAllow = [bool]$Context.AllowUserHome }
         if ($Context.ContainsKey('AgentId') -and [string]::IsNullOrWhiteSpace($AgentId)) {
             $AgentId = [string]$Context.AgentId
@@ -897,7 +968,10 @@ function Invoke-ToolkitAction {
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionSync } {
             $selected = Resolve-ToolkitAgentSelection -AgentId $AgentId -AllowPrompt:$AllowPrompt
-            return (Invoke-ToolkitSync -AgentId $selected -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow)
+            if ($selected -ne 'codex' -and $CodexSkillDistribution -ne 'Both') {
+                throw ('-CodexSkillDistribution applies only to -Agent codex; received {0} for {1}.' -f $CodexSkillDistribution, $selected)
+            }
+            return (Invoke-ToolkitSync -AgentId $selected -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideCodexSkillDistribution $overrideCodexSkillDistribution -OverrideAllowUserHome $overrideAllow)
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionValidate } {
             $selected = Resolve-ToolkitAgentSelection -AgentId $AgentId -AllowPrompt:$AllowPrompt
@@ -905,7 +979,10 @@ function Invoke-ToolkitAction {
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionSyncAndValidate } {
             $selected = Resolve-ToolkitAgentSelection -AgentId $AgentId -AllowPrompt:$AllowPrompt
-            $syncOk = Invoke-ToolkitSync -AgentId $selected -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow
+            if ($selected -ne 'codex' -and $CodexSkillDistribution -ne 'Both') {
+                throw ('-CodexSkillDistribution applies only to -Agent codex; received {0} for {1}.' -f $CodexSkillDistribution, $selected)
+            }
+            $syncOk = Invoke-ToolkitSync -AgentId $selected -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideCodexSkillDistribution $overrideCodexSkillDistribution -OverrideAllowUserHome $overrideAllow
             if (-not $syncOk) {
                 Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitSkippingValidateAfterSync
                 return $false
@@ -927,17 +1004,18 @@ function Invoke-ToolkitActionFromContext {
     $agentId = [string]$Context.AgentId
     $overrideRoot = $Context.InstallRoot
     $overrideMode = $Context.Mode
+    $overrideCodexSkillDistribution = if ($Context.ContainsKey('CodexSkillDistribution')) { [string]$Context.CodexSkillDistribution } else { $null }
     $overrideAllow = [bool]$Context.AllowUserHome
 
     switch ($ActionName) {
         { $_ -eq $script:ToolkitConstant.ToolkitActionSync } {
-            return (Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow -PromptInstallPreferences)
+            return (Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideCodexSkillDistribution $overrideCodexSkillDistribution -OverrideAllowUserHome $overrideAllow -PromptInstallPreferences)
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionValidate } {
             return (Invoke-ToolkitValidate -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow)
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionSyncAndValidate } {
-            $syncOk = Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow -PromptInstallPreferences
+            $syncOk = Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideCodexSkillDistribution $overrideCodexSkillDistribution -OverrideAllowUserHome $overrideAllow -PromptInstallPreferences
             if (-not $syncOk) {
                 Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitSkippingValidateAfterSync
                 return $false
@@ -1046,7 +1124,7 @@ while ($true) {
                 exit 0
             }
             '1' {
-                $ctx = Invoke-ToolkitInteractiveAgentFlow -FlowTitle $script:ToolkitMessage.ToolkitMenuSyncLine
+                $ctx = Invoke-ToolkitInteractiveAgentFlow -FlowTitle $script:ToolkitMessage.ToolkitMenuSyncLine -PromptCodexSkillDistribution
                 if ($null -eq $ctx) { $ran = $false; break }
                 $null = Invoke-ToolkitActionFromContext -ActionName $script:ToolkitConstant.ToolkitActionSync -Context $ctx
             }
@@ -1056,7 +1134,7 @@ while ($true) {
                 $null = Invoke-ToolkitActionFromContext -ActionName $script:ToolkitConstant.ToolkitActionValidate -Context $ctx
             }
             '3' {
-                $ctx = Invoke-ToolkitInteractiveAgentFlow -FlowTitle $script:ToolkitMessage.ToolkitMenuSyncValidateLine
+                $ctx = Invoke-ToolkitInteractiveAgentFlow -FlowTitle $script:ToolkitMessage.ToolkitMenuSyncValidateLine -PromptCodexSkillDistribution
                 if ($null -eq $ctx) { $ran = $false; break }
                 $null = Invoke-ToolkitActionFromContext -ActionName $script:ToolkitConstant.ToolkitActionSyncAndValidate -Context $ctx
             }

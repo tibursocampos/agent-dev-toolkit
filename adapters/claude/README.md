@@ -13,7 +13,7 @@ Publish surfaces for **Claude Code**. InstallRoot defaults to an in-repo fixture
 |------|-------|
 | Skills path (live) | `~/.claude/skills/<id>/SKILL.md` (or project `.claude/`) |
 | Explicit form | `/id` |
-| Examples | `/help-skills`, `/sdd-spec`, `/sdd-plan` |
+| Examples | `/adt-help-skills`, `/adt-sdd-spec`, `/adt-sdd-plan` |
 
 Canonical form is the skill **id**; `/` is the Claude host prefix.
 

@@ -1,6 +1,6 @@
 # Backlog item type: Bug
 
-Templates and writing rules for `refine-story`. Output is **markdown in chat** (optional save under `docs/backlog/` in the target repo). No external tracker API.
+Templates and writing rules for `adt-refine-story`. Output is **markdown in chat** (optional save under `docs/backlog/` in the target repo). No external tracker API.
 
 **Persona / JTBD:** Not required. Do not add Who / Job / Outcome for bugs. Scorecard must not penalize absence of persona (`persona-context.md`).
 
