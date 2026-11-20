@@ -2,7 +2,7 @@
 
 These pages are the operator map of the **52** invocable skills. Counts and ids come from `core/skills/*/SKILL.md` and `core/skills/_shared/skills-catalog/CATALOG.md`. Shared folders under `core/skills/_shared/` are packs, not skills.
 
-Classic SDD and Orchestrated Delivery are coexisting tracks. Start with Classic SDD for one clear feature; use Orchestrated Delivery when multi-story analysis and coordination help. Backlog refinement is optional preparation, not a delivery prerequisite. To choose a flow, see [guides/flow-selection.md](../guides/flow-selection.md).
+Classic SDD, Orchestrated Delivery, and ADT Delivery are coexisting feature paths with different artifact shapes. Backlog refinement is optional preparation, not a delivery prerequisite. To choose a flow, see [guides/flow-selection.md](../guides/flow-selection.md).
 
 | Session | What it explains | Skills |
 |---------|------------------|--------|
@@ -15,6 +15,7 @@ Classic SDD and Orchestrated Delivery are coexisting tracks. Start with Classic 
 | [07 APIs, i18n, containers, messaging, EF](07-platform-skills.md) | Adjacent implementation skills and where they hand back | `adt-api-standards`, `adt-api-integrate`, `adt-i18n-manager`, `adt-containerize`, `adt-ef-add-migration`, `adt-scaffold-message-handler` |
 | [08 Git and repo docs](08-git-and-docs.md) | Commit, push, pull request, documentation plan | `adt-commit`, `adt-push`, `adt-open-github-pr`, `adt-document-plan`, `adt-document-implement`, `adt-help-skills` |
 | [09 Every skill](09-every-skill.md) | One section per skill id, with the session that expands it | all 52 |
+| [10 ADT Delivery](10-adt-delivery.md) | One evolving feature plan from refinement through approved implementation and review | `adt-delivery-flow`, `adt-delivery-refine`, `adt-delivery-plan`, `adt-delivery-implement` |
 | [Session behavior](../guides/session-behavior.md) | Chat language, parent orchestrator, optional response compression | policy, not a skill |
 
 Install and CI stay in [INSTALL.md](../INSTALL.md) and [VALIDATION.md](../VALIDATION.md). Agent publish stays in [ADAPTERS.md](../ADAPTERS.md).

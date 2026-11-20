@@ -16,6 +16,8 @@ Use Orchestrated Delivery when analysis across stories, specialist questions, or
 
 Before implementation, O2 presents the complete PLAN or explicitly listed PLAN set for one approval. New approval is needed only when behavior, acceptance, scope, access, or an implementation decision changes materially. A material open question blocks only affected work; minor questions remain visible and independent stories can continue.
 
+Specialists support concrete analysis questions. Their prompts define the result they return, and the parent records relevant findings and decisions in the canonical feature/story artifacts or PLAN. A recommendation is not an operator decision or an approval.
+
 ## Context and artifacts
 
 Memory Bank, CONTINUITY, CHANGE, TASKS, and specialist sidecars are optional context. New work does not require creating them; resumed work does not require converting, synchronizing, or deleting them. Brownfield classification alone does not require mirrored architecture notes. Record material decisions in FEATURE/STORY/PRD/PLAN, or create a separate analysis artifact when it adds useful evidence.

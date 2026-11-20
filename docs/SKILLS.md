@@ -10,6 +10,12 @@ Present both via skill **`adt-help-skills`** (all adapters) — do not load ever
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `adt-help-skills`).
 
+## Agent and specialist results
+
+Canonical prompts live under `core/skills/_shared/agents/prompts/`. Each has one `## Output` section that names what its caller receives and where that result is consumed. Results are role-specific: specialist findings, design recommendations, a complete STORY draft, or a bounded execution/command receipt. `core/skills/_shared/agents/RECEIPT.md` defines transport schemas; `core/skills/adt-refine-story/references/finding-format.md` defines finding blocks. These formats are distinct and must not be collapsed into one universal payload.
+
+Caveman affects conversational framing only. It never authorizes shortening or omitting required analysis, evidence, limitations, artifact content, or receipt fields. See [SPAWN.md](SPAWN.md) for the caller-facing crosswalk.
+
 **Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and [SPAWN.md](SPAWN.md). Language: user chat + artifacts match chat; spawn/receipts **en-US** (`LANGUAGE.md`). Operator norms: `needs_*` → `ROSTER.md` spawn map; Task `model` omit (inherit parent) unless `SUBAGENT-MODEL.md` gate + `confirm` answer; `adt-orchestrate-*` parents coordinate / receipts only — **no** application code. Orchestrator charter + `orchestrator_mode` prefs (default `adaptive` for every adapter; existing preferences files keep their value): [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md).
 
 **Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `adt-orchestrate-analyze` / the agent roster — there is **no** `architect` skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
@@ -30,17 +36,18 @@ Contract: `core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md` (enfo
 
 ## Work tracks
 
-Classic SDD and Orchestrated Delivery are coexisting tracks. O1/O2/O3 coordinate multi-story work; Classic SDD can start directly for one clear feature. Both use one explicit PLAN approval before implementation, and O3 implementation is serial.
+The catalog defines four tracks: three feature-delivery paths plus optional Backlog Refine. Classic SDD supports direct spec → plan → develop for a clear feature. Orchestrated Delivery coordinates multi-story analysis and execution. ADT Delivery keeps refinement, planning, and implementation in one evolving feature-root PLAN. Choose by scope and handoff needs; none is a prerequisite for another.
 
 | Role | Skills | When |
 |------|--------|------|
-| **Orchestrated Delivery** | `adt-epic-planner` (optional), `adt-memory-bank`, `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, `adt-orchestrate-implement` | Optional initiative planning; default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md) |
-| **Classic SDD contracts** | `adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`, `adt-read-sdd-artifact` | Loaded by O2/O3. Also a direct start when one story is already clear. Detail: [sessions/02-classic-sdd.md](sessions/02-classic-sdd.md) |
-| **Backlog shape** | `adt-refine-story`, `adt-requirement-review`, `adt-split-story-checklist` | Inside O1 as rules and rubric. Standalone when a product person shapes one item, or when O2 hits open clarification B/I. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md) |
+| **Classic SDD** | `adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`, `adt-read-sdd-artifact` | Direct path for a clear feature; PRD and PLAN per story. Detail: [sessions/02-classic-sdd.md](sessions/02-classic-sdd.md) |
+| **Orchestrated Delivery** | `adt-epic-planner` (optional), `adt-memory-bank`, `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, `adt-orchestrate-implement` | Multi-story coordination; O2 prepares PRD/PLAN per selected story and one approval for the complete PLAN set. Detail: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md) |
+| **ADT Delivery Flow** | `adt-delivery-flow`, `adt-delivery-refine`, `adt-delivery-plan`, `adt-delivery-implement` | One evolving feature-root `PLAN.md`, one approval before implementation. Detail: [sessions/10-adt-delivery.md](sessions/10-adt-delivery.md) |
+| **Backlog Refine** | `adt-refine-story`, `adt-requirement-review`, `adt-split-story-checklist` | Optional shaping or requirement challenge before selecting a delivery path. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md) |
 
-Every skill, with the session that expands it: [sessions/09-every-skill.md](sessions/09-every-skill.md). Catalog on disk (`CATALOG.md`) still lists the three names as recommendations so an agent may start at `/adt-sdd-spec` for one clear story. That direct start does not replace the orchestrated path for multi-story or specialist work.
+Every skill, with the session that expands it: [sessions/09-every-skill.md](sessions/09-every-skill.md). The installed catalog under `core/skills/_shared/skills-catalog/` is the source of truth for ids and workflow recommendations.
 
-Use these track names only (no legacy Forma aliases). Each flow keeps its own skill boundaries while sharing the simplified approval and progress contracts.
+Use these track names only (no legacy Forma aliases). Each flow keeps its own artifact shape, approval point, cadence, and progress contract. Shared SDD recommendations do not make their files or validators universal gates.
 
 **Invocation / provenance / `source_context`:** `direct` vs `orchestrated`, `agreed` vs `invented`, language/spawn lock, and when to call `adt-read-sdd-artifact` — [domains/core.md](domains/core.md) § Invocation contexts / Contract provenance / Language / `adt-read-sdd-artifact`.
 

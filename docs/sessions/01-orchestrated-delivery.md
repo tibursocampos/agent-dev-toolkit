@@ -16,11 +16,13 @@ Classic SDD can also start directly from a sufficiently clear demand. O1/O2 are 
 
 O1 and O2 may draft and save working artifacts as part of preparation. O2 presents the complete implementation PLAN, or an explicitly listed set of PLANs, for one approval before implementation. A new decision is needed only if behavior, acceptance, scope, access, or an implementation choice changes materially.
 
-Only unanswered questions that prevent behavior, acceptance, scope, required access, or implementation decisions block the affected work. Minor questions and optional improvements remain visible. Independent stories may proceed when another story is blocked.
+Only unanswered questions that prevent behavior, acceptance, scope, required access, or implementation decisions block the affected work. Record the question, affected work and the source of its answer in the owning artifact. If a question component expires, the decision remains pending and can be asked in text. Independent stories may proceed when another story is blocked.
 
 ## Analysis and context
 
-Investigate in proportion to the demand. A brownfield label alone does not require architecture mirroring, analysis folders, or validation artifacts. Use specialists when a concrete question needs them; record relevant findings in the canonical FEATURE/STORY or in a justified analysis note. Distinguish observed facts, inferences, suggestions, and decisions. Suggestions do not expand approved scope by themselves.
+Investigate in proportion to the demand. A brownfield label alone does not require architecture mirroring, analysis folders, or validation artifacts. Use specialists when a concrete question needs them; record relevant findings in the canonical FEATURE/STORY or in a justified analysis note. Distinguish observed facts, inferences, suggestions, and decisions. Suggestions do not expand approved scope by themselves. Use the applicable investigation and authoring guidance to close technical choices before O2 approval. [Authoring content](../../core/skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md)
+
+Each specialist prompt defines its expected result in `## Output`. Finding specialists use the finding-block contract; implementation children, command runners, and O3 use distinct receipts; `generate-story` returns a complete STORY draft. See [`RECEIPT.md`](../../core/skills/_shared/agents/RECEIPT.md) and the caller crosswalk in [`SPAWN.md`](../SPAWN.md). Caveman can compress conversational framing, not the required findings, evidence, analysis, artifact content, or receipt fields.
 
 Memory Bank, CONTINUITY, CHANGE, and TASKS files are optional context. New work does not require creating them; resumed work does not require conversion, synchronization, or deletion. Prefer the canonical current requirements and PLAN. If older records conflict and the evidence does not resolve a material ambiguity, describe that conflict and ask only for the decision needed to proceed.
 

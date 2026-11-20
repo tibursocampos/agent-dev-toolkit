@@ -12,7 +12,7 @@ Host routing is adapter-specific: Copilot has `router=false`, so the `core/route
 
 Codex `/hooks` and Grok `/hooks-trust` are hooks-trust screens. They are not skill shortcuts. Codex has no `$skill --menu` flag. The `$` / `/skills` picker is the product menu.
 
-Install: [Get started](get-started.md). One example of each skill: [First use](first-use.md). The feature path: [Orchestrated Delivery](orchestrated-delivery.md). Commands for sync, validate, and uninstall: [CLI](cli.md).
+Install: [Get started](get-started.md). One example of each skill: [First use](first-use.md). Choose a feature path: [Choosing a delivery flow](delivery-flow.md). Commands for sync, validate, and uninstall: [CLI](cli.md).
 
 ## Prerequisites
 
@@ -28,18 +28,15 @@ The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode 
 
 ## Which skill
 
-Choose the flow first: [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md).
+Choose the path that fits the demand: [Choosing a delivery flow](delivery-flow.md).
 
-```text
-Feature
-  └─ adt-orchestrate-analyze
-        ├─ understands the outcome, asks material questions, investigates proportionally
-        ├─ trivial one-file → /adt-developer (only if you pick that shortcut)
-        ├─ one already-clear story → adt-sdd-spec
-        └─ selected stories → adt-orchestrate-prepare → one complete PLAN approval before implementation
-              └─ PRD + PLAN per selected story → one approval of the complete PLAN set
-                    └─ one adt-sdd-develop step per child → adt-run-tests, adt-code-review, adt-run-tests (after review changes), security
-```
+| Situation | Start here | Working shape |
+|-----------|------------|---------------|
+| One feature with a clear direction | [Classic SDD](delivery-flow.md#classic-sdd) | PRD → PLAN → implementation; one PLAN approval before implementation. |
+| Multi-story, brownfield, or needs coordinated specialist analysis | [Orchestrated Delivery](delivery-flow.md#orchestrated-delivery) | O1 analysis → O2 prepares the selected stories' PRDs and PLANs → one approval of the complete PLAN set → optional serial O3. |
+| End-to-end refinement, planning and implementation in one feature plan | [ADT Delivery](delivery-flow.md#adt-delivery) | One evolving feature-root `PLAN.md`; one approval before implementation. |
+
+These tracks are recommendations, not prerequisites. For a small isolated change, `adt-developer` or a stack skill is also available when you choose that shortcut. See [the workflow guide](delivery-flow.md) for path and approval details.
 
 ### Orchestrated Delivery
 
@@ -51,11 +48,13 @@ adt-orchestrate-implement - features/NNN-slug/
 
 Analyze investigates proportionally and uses specialists for concrete questions. Deliver prepares PRDs and PLANs for selected stories and presents the complete, explicitly listed PLAN set for one approval before implementation. Develop dispatches serially, one PLAN step per child, reconciling each result before the next. Memory Bank and sidecars are optional context. Details: [Orchestrated Delivery](orchestrated-delivery.md).
 
+Each specialist prompt states the result its caller should receive. Findings, design advice, story drafts, and implementation results serve different purposes; a specialist recommendation does not approve a decision or expand scope. Caveman may shorten conversational framing, but required agent results and evidence remain complete.
+
 Gate legend (id = Portuguese label shown in the pt-BR install): `confirm` = sim, `adjust` = ajustar, `cancel` = cancelar, `skip` = pular, `decline` = não. Labels are localized; ids stay English. Details: [Questions and confirmations](questions.md).
 
 Use the **architect** roster role when a concrete architecture question needs specialist input. Resolve a decision with the operator only when it materially affects behavior, acceptance, scope, or implementation. Greenfield, missing style, or brownfield classification alone does not require an ARCH approval or mirror. The parent stays coordinator.
 
-For Classic SDD and O1/O2/O3, only an unanswered material question blocks affected work. Minor questions remain visible, and independent stories may continue. The PLAN is the only persisted implementation progress source. Backlog Refine and other skills keep their own contracts.
+For Classic SDD and O1/O2/O3, only an unanswered material question blocks affected work. Minor questions remain visible, and independent stories may continue. The PLAN is the only persisted implementation progress source for these tracks. ADT Delivery uses its own one-plan lifecycle. Backlog Refine and other skills keep their own contracts.
 
 ### Direct Classic SDD
 
@@ -183,18 +182,19 @@ When a concrete architecture choice materially affects behavior or implementatio
 
 ### After implementation
 
-```text
-adt-run-tests
-adt-code-review
-adt-run-tests (after review changes, or record no rerun required)
-security
-adt-test-coverage
-adt-commit
-adt-push
-adt-open-github-pr
-```
+Feature-flow closeout is defined by the selected flow and approved plan. One current validation result and one substantive review can cover the closeout; reuse current evidence and rerun only checks affected by a correction. These adjacent skills are independently invoked when they fit the scope:
 
-`adt-code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Finding bands are `critical`, `important`, and `nice-to-have`. Decisions: **Approved**, **Approved with reservations**, **Changes required**. The skill does not edit code. After the report it asks **sim** / **pular** only for a fix and a re-review. It does not ask about a memory bank, project docs, or a pull request. `adt-code-explain` is separate: it compares changes when both endpoints resolve, asks for a missing endpoint, or explains existing code from a resolvable topic, symbol, file, or folder without a diff. It cites opened code and separates observations from inferences; it does not issue a review verdict. When an O3 scope closes, the order is `adt-run-tests`, `adt-code-review`, `adt-run-tests` after review changes (or record no rerun required), the `security` pass, then `/adt-commit` and `/adt-push`.
+| Need | Skill |
+|------|-------|
+| Current test evidence (reuse it or run once when absent/stale); targeted rerun after affected changes | `adt-run-tests` |
+| Substantive code review | `adt-code-review` |
+| Coverage target stated by the plan | `adt-test-coverage` |
+| Concrete security risk needing specialist analysis | Security specialist role |
+| Commit, push, or pull request | `adt-commit`, `adt-push`, `adt-open-github-pr` (separate authorization) |
+
+`adt-code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Finding bands are `critical`, `important`, and `nice-to-have`. Decisions: **Approved**, **Approved with reservations**, **Changes required**. The skill does not edit code. After the report it asks **sim** / **pular** only for a fix and a re-review. It does not ask about a memory bank, project docs, or a pull request. `adt-code-explain` is separate: it compares changes when both endpoints resolve, asks for a missing endpoint, or explains existing code from a resolvable topic, symbol, file, or folder without a diff. It cites opened code and separates observations from inferences; it does not issue a review verdict.
+
+For a feature flow, closeout follows the approved PLAN's required validation and one substantive review. Reuse current evidence and rerun only checks invalidated by a correction. Security review is not a universal per-step gate, and commit, push, and pull-request actions need their own authorization.
 
 `adt-run-tests` runs the test command of each detected stack and returns `PASS` or `FAIL`. It does not edit code. A check the repo does not have is `SKIPPED`.
 

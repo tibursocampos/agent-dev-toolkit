@@ -15,6 +15,11 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 ## ORCHESTRATOR CHARTER
 
+### Workspace and branch handling
+
+- Work in the repository directory already opened by the operator. Do not create another clone, worktree, or repository folder to implement a task unless the operator explicitly requests it.
+- When asked to create a branch, create and use it in the current repository directory. Preserve and integrate pre-existing working-tree changes; do not relocate them or create an isolated checkout by default.
+
 1. **Parent orchestrator-only:** this chat does **not** write application code, run builds, execute scripts/batches, or perform heavy multi-file analysis — specialists do that, except a task that "Modes" lets `adaptive` keep in the parent; the parent never implements an O3 step.
 2. **Delegate in parallel:** when work is independent, spawn specialist subagents in parallel; pass **minimal handoff** (scoped paths + receipt requirement + role).
 3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user (a focused post-edit test of a trivial task may run in the parent in `adaptive`).
@@ -37,19 +42,20 @@ Language surfaces (chat, persisted artifacts, spawn prompts and receipts) are de
 
 ## Tracks (workflows)
 
-Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land under `features/NNN-slug/` (see `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: skill `adt-help-skills` + CATALOG Tracks section.
+Four coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land under `features/NNN-slug/` (see `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`). ADT Delivery has a separate one-plan lifecycle (see `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/`). Decision tree: skill `adt-help-skills` + CATALOG Tracks section.
 
 | Track | When | Pipeline |
 |-------|------|----------|
 | **Classic SDD** | One feature, clear path | `adt-sdd-spec` → `adt-sdd-plan` → `adt-sdd-develop` |
 | **Backlog Refine** | Informal item before SDD | `adt-refine-story` → `adt-split-story-checklist` → Classic SDD or Orchestrated Delivery |
 | **Orchestrated Delivery** | Multi-story / brownfield / specialists | `adt-orchestrate-analyze` → `adt-orchestrate-prepare` → (`adt-orchestrate-implement` \| `adt-sdd-develop`) |
+| **ADT Delivery** | End-to-end refinement, planning and implementation in one evolving feature plan | `adt-delivery-flow` → `adt-delivery-refine` → `adt-delivery-plan` → `adt-delivery-implement` |
 
 ### Operator track choice
 
-Tracks are **recommendations**, never prerequisites between each other. Classic SDD may start from chat, the host's planning mode, a host plan file, or manual analysis, without `adt-orchestrate-analyze` first. Do **not** tell the user they must run Orchestrated Delivery before Classic SDD. Suggest `adt-orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it. Detail: `sdd-pipeline-guards`.
+Tracks are **recommendations**, never prerequisites between each other. Classic SDD may start from chat, the host's planning mode, a host plan file, or manual analysis, without `adt-orchestrate-analyze` first. Do **not** tell the user they must run Orchestrated Delivery before Classic SDD. Suggest it when multi-story coordination, brownfield investigation, or concrete specialist analysis will help; folder presence or a brownfield label alone does not require it. Detail: `sdd-pipeline-guards`.
 
-**Checkpoint:** Classic `adt-sdd-develop` uses the approved PLAN cadence (`step_by_step` or `continuous`) and checks PLAN approval, dependencies, scope, and acceptance before each step. O3 remains serial, one PLAN step per child, reconciled before the next dispatch. The PLAN is the only implementation progress source for Classic/O1/O2/O3; do not require SESSION flags, claims, CONTINUITY, CHANGE, or TASKS as progress gates. Only material questions block affected work. O1 investigation and sidecars are proportional; O2 prepares PRDs/PLANs and obtains one approval for the complete explicitly listed PLAN set. Closeout follows `PIPELINE.md` and the caller's approved scope. Memory Bank, CONTINUITY, CHANGE, and TASKS are optional context for these flows. O3 parent does **not** implement; children reuse `adt-sdd-develop`. Skill identifiers use the approved map; workflow semantics remain unchanged. Detail stays in `PIPELINE.md`.
+**Checkpoint:** Classic `adt-sdd-develop` uses the approved PLAN cadence (`step_by_step` or `continuous`) and checks PLAN approval, dependencies, scope, and acceptance before each step. O3 remains serial, one PLAN step per child, reconciled before the next dispatch. The PLAN is the only implementation progress source for Classic/O1/O2/O3; do not require SESSION flags, claims, CONTINUITY, CHANGE, or TASKS as progress gates. Only material questions block affected work. O1 investigation and sidecars are proportional; O2 prepares PRDs/PLANs and obtains one approval for the complete explicitly listed PLAN set. Closeout follows `PIPELINE.md` and the caller's approved scope. Memory Bank, CONTINUITY, CHANGE, and TASKS are optional context for these flows. ADT Delivery keeps its own one-plan lifecycle and approval contract. O3 parent does **not** implement; children reuse `adt-sdd-develop`. Skill identifiers use the approved map; workflow semantics remain unchanged. Detail stays in `PIPELINE.md` and the ADT Delivery contracts.
 
 **Enforcement:** `{{GUARDRAILS_PATH}}`, `sdd-pipeline-guards.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`.
 

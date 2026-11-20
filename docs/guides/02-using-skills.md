@@ -12,7 +12,7 @@ After any agent sync, invoke **`adt-help-skills`** for the installed static cata
 |------|-----------------------------|----------------|---------|
 | Cursor | `~/.cursor/skills` | `/id` | `/adt-help-skills` |
 | Claude | `~/.claude/skills` | `/id` | `/adt-sdd-spec` |
-| Codex | `~/.codex/skills` (+ optional `~/.agents/skills`) | `$id` | `$adt-help-skills` |
+| Codex | `~/.codex/skills` and/or the Agent Dev Toolkit plugin (+ optional `~/.agents/skills`) | `$id` | `$adt-help-skills` |
 | Copilot | `~/.copilot/skills` or `<repo>/.github/skills` | `/id` (+ `/skills reload` after sync) | `/adt-dotnet-developer` |
 | OpenCode | `~/.config/opencode/skills` | `skill` tool | `skill({ name: "adt-help-skills" })` |
 | Antigravity | `~/.gemini/config/skills` | `use skill id` or `/id` | `use skill adt-sdd-plan` |
@@ -78,13 +78,16 @@ Codex is **dual-root** for packaging vs rules — do not treat skills and rules 
 
 | Surface | Location |
 |---------|----------|
-| Plugin skills + CATALOG + OPERATOR (plugin packaging) | Under `InstallRoot/plugin` (bundled skills tree) |
-| **`$` discovery** (InstallRoot skills mirror) | Live `~/.codex/skills` (after sync that mirrors for `$`) |
+| Plugin skills + CATALOG + OPERATOR | Package source under `InstallRoot/plugins/agent-dev-toolkit`; published for `Both` (default) or `Plugin` |
+| Codex-installed plugin copy | `InstallRoot/plugins/cache/<marketplace>/<plugin>/<version>`; managed by Codex, not by toolkit sync |
+| Local-file skills | Live `~/.codex/skills`; published for `Both` (default) or `Local` |
 | Rules / guardrails (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) |
 | Optional UserScope (opt-in) | Fixture: `InstallRoot/.agents/skills` · Live: `~/.agents/skills` (duplicates `$` if used with home skills) |
 
-- **Plugin path alone does not feed `$`.** Plugin/marketplace packaging stays separate; `$id` discovery uses the InstallRoot `skills/` mirror (and UserScope `~/.agents/skills` when enabled).
+- When the same skill is installed locally and in the plugin, both appear as separate entries in the `$` picker. The guided Sync offers `Both`, `Local`, and `Plugin`; direct commands accept `-CodexSkillDistribution` and default to `Both`.
+- Changing the distribution does not delete prior copies, so switching from `Both` may leave earlier entries visible until those copies are removed manually.
+- The former singular `InstallRoot/plugin` package source is left untouched by sync for manual cleanup.
 - Invoke skills with **`$id`** (e.g. `$adt-help-skills`, `$adt-sdd-spec`). The native `$` or `/skills` picker is the product skills menu — **not** a `--menu` CLI flag.
 - After sync, invoke **`adt-help-skills`** for the installed catalog — do **not** load every `SKILL.md` to list skills. The same skill id works on **all** adapters.
 - Trust plugin hooks with Codex `/hooks` **manually** after a real install — that is trust UI, not skill invoke. Smoke never requires it.
@@ -143,17 +146,17 @@ adt-orchestrate-prepare - features/NNN-slug/
 adt-orchestrate-implement - features/NNN-slug/
 ```
 
-Analyze classifies the request, asks, sets `needs_*`, calls specialists when flags require them, and waits for a backlog `confirm` answer. Story folders wait until the feature has no open question. Deliver then checks each story’s files, runs `adt-sdd-spec`, contests that PRD, and runs `adt-sdd-plan`. O3 develop runs one `adt-sdd-develop` step per child and reconciles before each next spawn. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
+O1 investigates concrete questions, then drafts the feature and its justified stories. O2 runs `adt-sdd-spec` and `adt-sdd-plan` for each eligible story and reconciles the resulting contracts across the set. It presents the complete set for one approval before implementation. O3 hands one PLAN step to each `adt-sdd-develop` child and reconciles its evidence before the next dispatch. [Orchestrated Delivery](../sessions/01-orchestrated-delivery.md)
 
-When analyze sets greenfield or `needs_domain` and no established ARCH style exists, the **architect** roster role (not a skill id) returns an ARCH **draft**. You give a `confirm` answer before the style is approved. Brownfield mirrors the existing style. Other specialists follow `needs_*` in `ROSTER.md`. The parent stays coordinator and writes no application code. Task `model` is omitted unless a gated approval says otherwise ([SPAWN.md](../SPAWN.md)).
+Specialists answer questions where their expertise can change the outcome. The coordinator records evidence and material decisions in the canonical artifacts. A separate architecture or security note is useful when the investigation warrants one. [Specialist dispatch](../SPAWN.md)
 
-Before the backlog `confirm` answer, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). READY needs no unanswered **B**, **I**, or **MINOR** question at any handoff. Readiness is not `step_confirmed`. Rule owner: [core readiness](../domains/core.md#clarification-readiness-b--i--minor). Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
+Only unresolved material questions pause dependent work. Record them with the affected scope and continue any independent stories. [Questions and approval](../sessions/01-orchestrated-delivery.md#approval-and-open-questions)
 
 Classic and Orchestrated Delivery use the approved PLAN, its scope, dependencies, acceptance, required validation, and selected cadence to guide implementation. SESSION flags and PLAN claims are not execution prerequisites for these flows. Stack `adt-*-developer` skills still follow the current [toolkit guardrails](../../core/policy/guardrails.md), including explicit task authorization, path safety, and the host's ordinary Shell authorization; a skill reference does not grant broad Shell access.
 
 ### Classic SDD contracts (direct)
 
-Use when one story is already clear. The same three skills run inside deliver and develop.
+Use when one story is already clear. O2 reuses spec and plan. O3 delegates individual implementation steps to develop.
 
 ```text
 adt-sdd-spec
@@ -162,11 +165,11 @@ adt-sdd-develop - <plan-path> - Step N
 adt-read-sdd-artifact - <portable-features-path>   # optional: normalize → source_context
 ```
 
-One develop session = **one** PLAN step. Detail: [sessions/02-classic-sdd.md](../sessions/02-classic-sdd.md).
+Use `step_by_step` to pause after one step or `continuous` to advance through eligible steps. [Classic SDD](../sessions/02-classic-sdd.md)
 
 ### One product item (`adt-refine-story`)
 
-Not the feature path. O1 already applies the scorecard. Invoke this when shaping a single backlog item, or when deliver stopped on open **B**/**I**.
+Invoke this when shaping a single backlog item. O1 handles feature-level discovery.
 
 ```text
 adt-refine-story - feature    # User Story / Bug
@@ -230,6 +233,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 - Installed map (agents): `adt-help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**52** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Language, orchestrator, optional compression: [session-behavior.md](session-behavior.md)
+- Caveman may shorten conversational framing but never required specialist analysis, evidence, artifact content, or receipt fields: [ENFORCEMENT.md](../ENFORCEMENT.md) and [SPAWN.md](../SPAWN.md)
 - Credits: [CREDITS.md](../CREDITS.md)
 - Which skill: [guides/README.md](README.md) and [sessions/README.md](../sessions/README.md)
 - First-time path: [01-getting-started.md](01-getting-started.md)

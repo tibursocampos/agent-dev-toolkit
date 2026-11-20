@@ -12,7 +12,7 @@ O roteamento depende do adaptador: o Copilot tem `router=false`, então a orient
 
 `/hooks` do Codex e `/hooks-trust` do Grok são telas de confiança de hooks. Não são atalhos de skill. O Codex não tem a flag `$skill --menu`. O seletor `$` / `/skills` é o menu do produto.
 
-Instalação: [Começar](get-started.md). Um exemplo de cada skill: [Primeiro uso](first-use.md). O caminho da feature: [Entrega orquestrada](orchestrated-delivery.md). Comandos de sync, validação e desinstalação: [CLI](cli.md).
+Instalação: [Começar](get-started.md). Um exemplo de cada skill: [Primeiro uso](first-use.md). Escolha o fluxo da feature: [Escolher um fluxo de entrega](delivery-flow.pt.md). Comandos de sync, validação e desinstalação: [CLI](cli.md).
 
 ## Pré-requisitos
 
@@ -28,17 +28,15 @@ O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode 
 
 ## Qual skill
 
-Escolha o fluxo antes com [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md) (guia ainda só em inglês).
+Escolha o caminho que combina com a demanda: [Escolher um fluxo de entrega](delivery-flow.pt.md).
 
-```text
-Feature
-  └─ adt-orchestrate-analyze
-        ├─ entende o resultado, pergunta decisões materiais e investiga proporcionalmente
-        ├─ um arquivo trivial → /adt-developer (só se você escolher esse atalho)
-        ├─ uma story já clara → adt-sdd-spec
-        └─ stories selecionadas → PRD + PLAN por story → uma aprovação do conjunto completo
-                    └─ um passo adt-sdd-develop por filho → adt-run-tests, adt-code-review, adt-run-tests (após mudanças da revisão), security
-```
+| Situação | Comece por | Como funciona |
+|-----------|------------|---------------|
+| Uma feature com direção clara | [Classic SDD](delivery-flow.pt.md#classic-sdd) | PRD → PLAN → implementação; uma aprovação do PLAN antes de implementar. |
+| Várias stories, brownfield ou análise coordenada de especialistas | [Orchestrated Delivery](delivery-flow.pt.md#orchestrated-delivery) | Análise O1 → O2 prepara PRDs e PLANs das stories selecionadas → uma aprovação do conjunto completo de PLANs → O3 serial opcional. |
+| Refinamento, planejamento e implementação de ponta a ponta em um plano da feature | [ADT Delivery](delivery-flow.pt.md#adt-delivery) | Um único `PLAN.md` evolutivo na raiz da feature; uma aprovação antes da implementação. |
+
+Esses fluxos são recomendações, não pré-requisitos entre si. Para uma mudança pequena e isolada, `adt-developer` ou uma skill de stack também pode ser usada como atalho escolhido por você. Consulte o [guia dos fluxos](delivery-flow.pt.md) para ver caminhos e aprovações.
 
 ### Orchestrated Delivery
 
@@ -50,11 +48,13 @@ adt-orchestrate-implement - features/NNN-slug/
 
 Analyze investiga proporcionalmente e usa especialistas para perguntas concretas. Deliver prepara PRDs e PLANs das stories selecionadas e apresenta o conjunto completo, explicitamente listado, para uma aprovação antes da implementação. Develop despacha serialmente, um passo do PLAN por filho, reconciliando cada resultado antes do próximo. Memory Bank e arquivos auxiliares são contexto opcional. Detalhes: [Entrega orquestrada](orchestrated-delivery.pt.md).
 
+Cada prompt de especialista declara o resultado que seu chamador deve receber. Achados, recomendações de desenho, rascunhos de story e resultados de implementação têm finalidades diferentes; a recomendação de um especialista não aprova uma decisão nem amplia o escopo. Caveman pode encurtar a conversa ao redor, mas resultados obrigatórios dos agentes e suas evidências permanecem completos.
+
 Legenda dos gates (rótulo em português = id): `sim` = confirm, `ajustar` = adjust, `cancelar` = cancel, `pular` = skip, `não` = decline. Os rótulos são localizados; os ids ficam sempre em inglês. Detalhes: [Perguntas e confirmações](questions.md).
 
 Use o papel **architect** do roster quando uma pergunta concreta de arquitetura precisar de análise especializada. Peça uma decisão ao operador somente quando ela afetar materialmente comportamento, aceite, escopo ou implementação. Ser greenfield, não ter estilo definido ou ser brownfield não exige aprovação ou espelhamento de ARCH. O pai permanece coordenador.
 
-Em Classic SDD e O1/O2/O3, somente uma questão material sem resposta bloqueia o trabalho afetado. Dúvidas menores ficam visíveis; stories independentes podem avançar. O PLAN é a única fonte persistida de progresso. Backlog Refine e outras skills mantêm seus próprios contratos.
+Em Classic SDD e O1/O2/O3, somente uma questão material sem resposta bloqueia o trabalho afetado. Dúvidas menores ficam visíveis; stories independentes podem avançar. O PLAN é a única fonte persistida de progresso desses fluxos. ADT Delivery tem seu próprio ciclo de plano único. Backlog Refine e outras skills mantêm seus próprios contratos.
 
 ### Classic SDD direto
 
@@ -182,18 +182,19 @@ Quando uma escolha concreta de arquitetura afetar materialmente comportamento ou
 
 ### Depois da implementação
 
-```text
-adt-run-tests
-adt-code-review
-adt-run-tests (após mudanças da revisão, ou registre que não foi necessário repetir)
-security
-adt-test-coverage
-adt-commit
-adt-push
-adt-open-github-pr
-```
+O fechamento de cada fluxo de feature segue o plano aprovado. Uma validação atual e uma revisão substantiva podem cobrir o fechamento; reutilize evidências atuais e rode novamente somente verificações afetadas por uma correção. Estas skills adjacentes são invocadas separadamente quando fizerem sentido no escopo:
 
-`adt-code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Faixas de achado: `critical`, `important` e `nice-to-have`. Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** só para uma correção e uma nova revisão. Não pergunta sobre memory bank, docs do projeto ou pull request. `adt-code-explain` é separada: compara mudanças quando os dois endpoints resolvem, pergunta pelo endpoint faltante ou explica código existente a partir de tópico, símbolo, arquivo ou pasta resolvível, sem diff. Cita o código aberto e separa observação de inferência; não emite veredito de revisão. Quando um escopo do O3 fecha, a ordem é `adt-run-tests`, `adt-code-review`, `adt-run-tests` após mudanças da revisão (ou registre que não foi necessário repetir), a passagem de `security`, depois `/adt-commit` e `/adt-push`.
+| Necessidade | Skill |
+|-------------|-------|
+| Evidência de teste atual (reutilize ou rode uma vez quando ausente/desatualizada); repetição direcionada após mudança afetada | `adt-run-tests` |
+| Revisão substantiva do código | `adt-code-review` |
+| Meta de cobertura definida pelo plano | `adt-test-coverage` |
+| Risco concreto de segurança que exige análise especializada | Papel security do roster |
+| Commit, push ou pull request | `adt-commit`, `adt-push`, `adt-open-github-pr` (autorização separada) |
+
+`adt-code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Faixas de achado: `critical`, `important` e `nice-to-have`. Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** só para uma correção e uma nova revisão. Não pergunta sobre memory bank, docs do projeto ou pull request. `adt-code-explain` é separada: compara mudanças quando os dois endpoints resolvem, pergunta pelo endpoint faltante ou explica código existente a partir de tópico, símbolo, arquivo ou pasta resolvível, sem diff. Cita o código aberto e separa observação de inferência; não emite veredito de revisão.
+
+Em um fluxo de feature, o fechamento segue as validações exigidas pelo PLAN aprovado e uma revisão substantiva. Reutilize evidências atuais e rode novamente somente verificações invalidadas por uma correção. Revisão de segurança não é um gate universal por passo; commit, push e pull request precisam de autorização própria.
 
 `adt-run-tests` roda o comando de teste de cada stack detectada e devolve `PASS` ou `FAIL`. Não edita código. Uma checagem que o repositório não tem fica `SKIPPED`.
 

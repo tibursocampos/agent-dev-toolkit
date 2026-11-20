@@ -14,7 +14,9 @@ Direct `adt-sdd-spec` and `adt-sdd-plan` invocations are supported. Drafting and
 
 ## PRD and PLAN content
 
-Describe the intended result and material boundaries in usable language. Stable IDs, BDD syntax, exact headings, section order, a fixed number of scenarios, and optional fields help only when they improve traceability; they are not authorization gates. For relevant brownfield changes, capture current behavior, intended change, and concrete risks in the PRD or PLAN.
+Describe the intended result and material boundaries. Write new acceptance criteria in Given / When / Then and accept equivalent existing criteria. Apply the risk-specific content in the shared guidance as appropriate. Each PLAN step should give a fresh executor enough detail to locate the work, apply the agreed behavior and produce the expected evidence. [Authoring content](../../core/skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md)
+
+Start from the canonical PRD and PLAN templates. Their headings guide the artifact; equivalent existing sections can be preserved. Keep material decisions, risks, contracts, acceptance, and execution progress in the canonical artifacts. Use a separate `ANALYSIS/`, `ARCH/`, or `SEC/` note only when it provides a distinct durable evidence record; these notes do not create another approval or progress gate.
 
 The PLAN owns implementation sequence, dependencies, acceptance, validation evidence, blockers, and next action. It contains one canonical progress table. `adt-split-story-checklist` may help with independent backlog decomposition, but `TASKS.md` and `REFINE/tasks.md` are optional and never prerequisites for planning.
 

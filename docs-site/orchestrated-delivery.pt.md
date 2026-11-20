@@ -16,6 +16,8 @@ Use Orchestrated Delivery quando a análise entre stories, perguntas para especi
 
 Antes da implementação, O2 apresenta o PLAN completo ou um conjunto de PLANs explicitamente listado para uma única aprovação. Nova decisão só é necessária quando comportamento, aceite, escopo, acesso ou escolha de implementação mudarem materialmente. Uma questão material bloqueia apenas o trabalho afetado; dúvidas menores ficam visíveis e stories independentes podem avançar.
 
+Especialistas apoiam perguntas concretas de análise. Seus prompts definem o resultado devolvido, e o pai registra achados e decisões relevantes nos artefatos canônicos de feature/story ou no PLAN. Uma recomendação não é uma decisão do operador nem uma aprovação.
+
 ## Contexto e artefatos
 
 Memory Bank, CONTINUITY, CHANGE, TASKS e arquivos auxiliares de especialistas são contexto opcional. Trabalho novo não exige criá-los; retomadas não exigem conversão, sincronização ou exclusão. A classificação brownfield, sozinha, não exige espelhamento de arquitetura. Registre decisões materiais em FEATURE/STORY/PRD/PLAN ou crie uma análise separada quando ela trouxer evidência útil.
