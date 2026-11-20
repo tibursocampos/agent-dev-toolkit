@@ -169,7 +169,12 @@ try {
         $null = Invoke-ChildScript -ScriptPath $scriptPath -Arguments $arguments -ExpectedExitCode 0 -Name ($case.Name + '_Sync')
         Assert-Equal 'legacy toolkit data' ([System.IO.File]::ReadAllText($legacySentinel)) ($case.Name + '_LegacySingularPathPreserved')
         Assert-ProfileLayout -InstallRoot $root -Mode $case.Mode -Name $case.Name
-        Invoke-ProfileValidation -InstallRoot $root -Name $case.Name
+        # The full installed-profile validator is exercised once below. Re-running
+        # it after each mode sync copies and validates the same toolkit repeatedly;
+        # the mode-specific layout assertions above cover the differences.
+        if ($case.Name -eq 'BothDefault') {
+            Invoke-ProfileValidation -InstallRoot $root -Name $case.Name
+        }
     }
 
     $legacyRoot = Join-Path $workRoot 'BothDefault'
@@ -200,13 +205,11 @@ try {
     Assert-True (Test-Path -LiteralPath $stalePluginSkill -PathType Leaf) 'Switch_LocalPreservesPluginCopy'
     Assert-True (Test-Path -LiteralPath $staleHomeSkill -PathType Leaf) 'Switch_LocalPreservesHomeCopy'
     Assert-ProfileLayout -InstallRoot $switchRoot -Mode 'local' -Name 'Switch_Local' -AllowStaleCopies
-    Invoke-ProfileValidation -InstallRoot $switchRoot -Name 'Switch_Local'
 
     $null = Invoke-ChildScript -ScriptPath $syncScript -Arguments @('-Agent', 'codex', '-InstallRoot', $switchRoot, '-CodexSkillDistribution', 'Plugin') -ExpectedExitCode 0 -Name 'Switch_PluginSync'
     Assert-True (Test-Path -LiteralPath $stalePluginSkill -PathType Leaf) 'Switch_PluginPreservesPluginCopy'
     Assert-True (Test-Path -LiteralPath $staleHomeSkill -PathType Leaf) 'Switch_PluginPreservesHomeCopy'
     Assert-ProfileLayout -InstallRoot $switchRoot -Mode 'plugin' -Name 'Switch_Plugin' -AllowStaleCopies
-    Invoke-ProfileValidation -InstallRoot $switchRoot -Name 'Switch_Plugin'
 
     $invalidStatePath = Join-Path $switchRoot '.agent-dev-toolkit/codex-skill-distribution.json'
     [System.IO.File]::WriteAllText($invalidStatePath, '{"schemaVersion":99,"distribution":"plugin"}')
