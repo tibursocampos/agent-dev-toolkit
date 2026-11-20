@@ -70,9 +70,9 @@ Then [observable outcome]
 
 Registre decisões necessárias para entender o comportamento ou iniciar implementação. Uma pergunta bloqueia somente o trabalho que depende de sua resposta; dúvidas menores permanecem visíveis e não interrompem trabalho independente.
 
-| Questão / decisão e opções | Estado ou resposta | Trabalho afetado | Fonte da decisão |
+| Question or decision and options | Status or answer | Affected work | Decision source |
 |-------------------|-------------------|----------------------------------|--------------------------|
-| [texto ou omitir] | [aberta / decisão e fonte] | [impacto] | [caminho portátil ou omitir] |
+| [question or omit] | [open / decision and source] | [impact] | [portable path or omit] |
 
 ## Expected validation
 

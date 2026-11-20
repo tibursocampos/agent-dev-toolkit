@@ -2058,7 +2058,7 @@ foreach ($marker in @('value', 'consumer', 'delivery independence', 'Endpoint co
 }
 $prdTemplateText = Get-Content -LiteralPath $prdTemplatePath -Raw -Encoding UTF8
 $planTemplateText = Get-Content -LiteralPath $planTemplatePath -Raw -Encoding UTF8
-foreach ($marker in @('Resultado esperado', 'Comportamento e aceite', 'Impacto brownfield (quando aplicável)', 'Decisões e perguntas materiais')) {
+foreach ($marker in @('Expected outcome', 'Behavior and acceptance', 'Brownfield impact (when applicable)', 'Material decisions and questions')) {
     if ($prdTemplateText -notmatch [regex]::Escape($marker)) {
         Write-Fail -TestName 'Should_Pass_When_TemplatesRepresentBehaviorAndSingleProgressTable' -Reason ("PRD template missing useful behavior section '{0}'" -f $marker)
     }
@@ -3020,10 +3020,10 @@ $planTemplateRel = 'core/skills/_shared/templates/sdd/PLAN.md'
 $prdTemplate = Get-Content -LiteralPath (Join-Path $repoRoot $prdTemplateRel) -Raw -Encoding UTF8
 $planTemplate = Get-Content -LiteralPath (Join-Path $repoRoot $planTemplateRel) -Raw -Encoding UTF8
 
-if ($prdTemplate -notmatch '(?i)Resultado esperado' -or $prdTemplate -notmatch '(?i)Comportamento e aceite' -or $prdTemplate -notmatch '(?i)Impacto brownfield \(quando aplicável\)') {
+if ($prdTemplate -notmatch '(?i)Expected outcome' -or $prdTemplate -notmatch '(?i)Behavior and acceptance' -or $prdTemplate -notmatch '(?i)Brownfield impact \(when applicable\)') {
     Write-Fail -TestName 'Should_Pass_When_PrdTemplateHasReqAcOos' -Reason 'PRD template missing outcome, acceptance, or conditional brownfield context'
 }
-if ($prdTemplate -notmatch '(?i)```gherkin' -or $prdTemplate -notmatch '(?i)mantenha critérios equivalentes' -or $prdTemplate -notmatch '(?i)Fonte da decisão') {
+if ($prdTemplate -notmatch '(?i)```gherkin' -or $prdTemplate -notmatch '(?i)Preserve equivalent criteria' -or $prdTemplate -notmatch '(?i)Decision source') {
     Write-Fail -TestName 'Should_Pass_When_PrdTemplateHasReqAcOos' -Reason 'PRD scaffold should model observable scenarios, preserve equivalent existing criteria, and capture the decision source'
 }
 Write-Pass -TestName 'Should_Pass_When_PrdTemplateHasReqAcOos'
