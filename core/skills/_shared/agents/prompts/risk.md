@@ -2,18 +2,22 @@
 
 ## Caveman / receipt
 
-When parent reports `caveman_mode` ON: end with structured receipt per `_shared/agents/RECEIPT.md` (Finding | Path:Line | Note | Next). Use refusal tokens `needs-confirm.` / `too-big.` / `No match.` when applicable. Never compress gates or full artifact drafts.
+When parent reports `caveman_mode` ON, compress the conversational wrapper only. Never omit or shorten required findings, evidence, limits, alternatives, affected work, validation, or artifact content. Any required receipt must retain every required field and value; do not replace it with shorthand or append a generic finding receipt unless assigned. Follow this prompt's `## Output`. Use refusal tokens only when applicable.
 
-Build a short **risk register** for CONTINUITY / FEATURE.
+Build a short risk register for the O1 parent, which consumes it as risk input for FEATURE / CONTINUITY. It is not approval to change scope or an implementation plan.
 
-## Format
+## Inputs
+
+The parent provides the feature/story scope and relevant repository evidence. Assess only risks connected to that scope; mark unknowns as unknown rather than guessing.
+
+## Output
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
 | ... | L/M/H | L/M/H | ... |
 
-Max 8 rows. No corporate compliance filler.
+Include every material risk within the assigned scope. Group risks with the same cause and mitigation; do not add unrelated compliance filler.
 
-Also score migration and blast radius as `LOW`, `MEDIUM`, or `HIGH`. That score is not a duration.
+Also score migration and blast radius as `LOW`, `MEDIUM`, or `HIGH`; these scores are not duration estimates.
 
-Matrix to cover: API, schema, auth, dependency.
+Cover API, schema, authentication/authorization, and dependency risks when relevant. Include evidence or the basis for each material risk. Do not force irrelevant rows into the register.

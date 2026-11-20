@@ -78,14 +78,14 @@ Need specialist work?
   │  script-batch / long build-test / deep investigation / non-trivial planning
   │    ├─ subagents == native → prefer Agent / host equivalent (table above)
   │    └─ else                → fallback by consumer contract; NEVER hard-fail only because Agent is absent
-  │                             O1 flags: in-parent ANALYSIS/ARCH/SEC work (never CONTINUITY substitute)
+  │                             O1: in-parent investigation and canonical evidence
   │                             O3: manual `/adt-sdd-develop` handoff; parent stops and does not implement
   └─ adt-*-developer trivial path → follow the mode (see "## Delegation checklist")
 ```
 
 | Consumer | Prefer when `native` | Fallback when `none` |
 |----------|----------------------|----------------------|
-| `adt-orchestrate-analyze` | Agent (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
+| `adt-orchestrate-analyze` | Agent (or host equivalent) per roster when expertise is needed for a concrete material question | In-parent investigation. Record evidence in FEATURE/STORY or a distinct ANALYSIS/ARCH/SEC note when useful. A flag or brownfield classification alone does not require a note. |
 | `adt-orchestrate-prepare` | Agent (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
 | `adt-sdd-plan` required-checklist acquisition | One bounded `adt-split-story-checklist` specialist when required checklist is missing | Execute the owner skill workflow in the current flow; never hard-fail or transfer checklist authorship |
 | `adt-orchestrate-implement` (O3) | Agent (or host equivalent) per roster/caps | Manual `/adt-sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
@@ -93,7 +93,7 @@ Need specialist work?
 | `adt-*-developer` medium/complex | Cap in "## Limits" | Same outcome in-parent |
 | Parent general chat (analysis / multi-file / long build-test) | Specialist Agent when independent work is heavy | Same work in-parent |
 
-`needs_frontend` / `needs_devops` stay CONTINUITY-only (no Agent, no specialist folder). Required O1 folders missing → do **not** approve the backlog.
+For `needs_frontend` and `needs_devops`, record material findings in the canonical artifact. O1 does not require a CONTINUITY note or a separate backlog approval.
 
 ## Delegation checklist
 
@@ -174,7 +174,7 @@ When spawning (native path):
 1. Pass **scoped paths** (files/dirs the child may read/write).
 2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body). Prefer receipt even when Caveman OFF.
 3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery roster applies.
-4. Pass the **role, one bounded objective, scoped paths, relevant references, expected result, and receipt requirement**. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `{{SDD_ROOT}}/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
+4. Pass the **role, one bounded objective, scoped paths, relevant references, expected result, and receipt requirement**. Conversational framing may follow Caveman intensity from `{{SDD_ROOT}}/preferences.json`; required deliverables and receipt fields remain complete and uncompressed (`skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail — Auto-Clarity / never-compress still apply.
 5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 6. Agent `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
 7. **Language:** child prompts, specialist context, and agent receipts are **always en-US**. Do not dump a full user-language PLAN/PRD — **paths + excerpt** only. Contract: `LANGUAGE.md` (lazy-load).
@@ -199,7 +199,7 @@ Model selection on a native subagent spawn: follow `SUBAGENT-MODEL.md` (omit `mo
 
 ## Receipt and synthesis
 
-- Child I/O is Caveman-scoped: prompts, style, and returns honor Caveman when ON; end with receipt rows (Caveman ON: required; OFF: still prefer receipt / tight bullets).
+- Child conversational framing may be Caveman-scoped. The assigned result and required receipt fields are always complete; Caveman never removes analytical content. End with the role-specific receipt when required.
 - Parent synthesizes into CONTINUITY / chat — **facts and paths only**.
 - Do not dump full specialist transcripts into CONTINUITY.
 - A child's return never replaces the owning flow's progress table. After reconciling the receipt with the canonical state, the parent renders the flow's complete table per `sdd-artifacts/LIVE-STAGE-TABLE.md`.
@@ -221,7 +221,7 @@ Model selection on a native subagent spawn: follow `SUBAGENT-MODEL.md` (omit `mo
 |------|------|
 | `core/policy/orchestrator-session.md` | Always-on parent/orchestrator policy |
 | `ROSTER.md` | Which specialist roles / `needs_*` |
-| `RECEIPT.md` | Receipt schema + refusal tokens (Caveman-scoped child returns) |
+| `RECEIPT.md` | Role-specific receipt schemas; complete deliverables in every Caveman mode |
 | `SUBAGENT-MODEL.md` | Agent `model` parameter policy (default = parent session model) |
 | `ROUTING.md` | Stack → `adt-*-developer` |
 | `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |

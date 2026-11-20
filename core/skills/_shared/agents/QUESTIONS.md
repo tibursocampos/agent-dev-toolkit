@@ -9,8 +9,8 @@ Other files point here. Gate wording and blocking rules are not restated elsewhe
 ## Order rule
 
 1. If the host offers a question component (see the host mechanism table) **and** the selected answer is returned to the agent in an observable form, use the component and wait.
-2. If the component cannot open, or its answer does not reach the agent, ask in text in the conversation language with numbered options.
-3. In both cases the flow blocks. The question stays `open_question` until its state is `answered` (see States). Silence, a timeout, or the end of the turn is never an answer.
+2. If the component cannot open, disappears, expires, or stops delivering observable answers, keep the same question pending and present it in text in the conversation language with numbered options when applicable.
+3. Keep the affected work paused. Independent work may continue within the active workflow. The question stays `open_question` until its state is `answered` (see States). Silence, a timeout, or the end of the turn is never an answer.
 
 A host **offers** a question component when the host mechanism table names a tool for it, or the row is explicitly `operator-confirmed component`, and the selected answer is returned to the agent. No other signal counts as an offer.
 
@@ -91,7 +91,7 @@ Open questionnaires take free text on purpose. Example: the intake questions in 
 
 `adt-orchestrate-prepare/references/approval-gates.md` uses these same states and points here.
 
-Record the question id or scope, the accepted answer form, and the resulting transition in the current turn or in the persistent workflow artifact where one exists. On resume, repeat the active question or present its current status. Never infer an answer from earlier unrelated text.
+Record a material question in the owning durable workflow artifact when one exists. Include the question, options when useful and affected work. When the answer is observable, record the decision and its source. On resume, use that record to show the active question or its current status. Never infer an answer from earlier unrelated text.
 
 A host displaying, queuing, retrying, or redelivering a message is not proof that the agent processed it. When the surface cannot expose processing events, report that boundary and keep the state `pending` until an answer reaches the agent. Toolkit instructions cannot force a host UI to show, retain, or retract a prompt.
 

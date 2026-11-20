@@ -34,7 +34,7 @@ Cross-PLAN: every spawn omits `model` and `effort` unless the session choice sel
 2. Child uses the **same model as the parent session** (whatever the user selected for this chat).
 3. Do **not** ask about model choice per spawn; the one session question below is the only model question.
 4. Do **not** pick a model or effort on your own.
-5. If Caveman is ON: require end-of-pass **receipt** per `RECEIPT.md`; inherit parent intensity; keep gates/drafts clear (Auto-Clarity). Child I/O remains Caveman-scoped per `SPAWN.md`.
+5. If Caveman is ON: require end-of-pass **receipt** per `RECEIPT.md`; inherit parent intensity only for conversational framing. Keep assigned deliverables and required receipt fields complete and uncompressed; keep gates/drafts clear (Auto-Clarity). See `SPAWN.md`.
 
 ## Session choice (once per session)
 

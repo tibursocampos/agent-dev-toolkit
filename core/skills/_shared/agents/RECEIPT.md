@@ -2,11 +2,11 @@
 
 When/how to spawn children (native vs fallback, limits): `SPAWN.md` — do not paste spawn policy here. Parent orchestrator policy: `core/policy/orchestrator-session.md`.
 
-**Subagent I/O is Caveman-scoped:** child prompts, execution style, and returns honor `skills/_shared/caveman/CAVEMAN.md` + parent prefs intensity. Parent passes scoped paths + receipt requirement + role — not guideline dumps.
+**Subagent conversational style may be Caveman-scoped; deliverables are not.** Child prompts, execution style, and conversational framing may honor parent prefs. The assigned deliverable and every required receipt field must remain complete: never omit or shorten findings, evidence, limits, alternatives, affected work, validation, artifact content, or receipt values. Parent passes scoped paths + receipt requirement + role — not guideline dumps.
 
 When `caveman_mode` is true in `{{SDD_ROOT}}/preferences.json`, every Orchestrated Delivery specialist pass must end with a **structured receipt** (ultra style). Parent chat may stay Full/Lite per skill cap; the **reinjected** specialist summary uses this schema.
 
-When caveman is OFF: still prefer a compact receipt / tight bullets (token control); schema recommended.
+When Caveman is OFF or ON, use the complete role-specific contract. Keep wording clear and avoid unrelated filler; never impose a brevity cap that removes required information.
 
 ## Canonical relay receipt
 
@@ -79,8 +79,7 @@ specialists must not wrap their finding blocks in the O3 relay allowlist.
 The fields above are the complete top-level relay allowlist. Role and
 stage semantics are expressed through their values and the scoped assignment;
 they do not add top-level keys. `status` reports the observed outcome of that
-assignment, while the parent separately verifies the persisted PLAN/session/
-claim state before changing progress.
+assignment, while the coordinator separately verifies the approved PLAN step, actual changes and required evidence before updating progress.
 
 | Role / stage | `done` means | `blocked` means | `failed` means | Acceptance / persisted-state source |
 |--------------|--------------|-----------------|----------------|-------------------------------------|
@@ -88,7 +87,7 @@ claim state before changing progress.
 | `architect` / design | The scoped architecture artifact or requested design result was delivered; `files[]` identifies it when written. | A required design decision or confirmation is missing; name it in `blockedReason`. | The assigned design work failed; state the cause in `blockedReason`. | Parent checks the assignment acceptance and any applicable approval gate. |
 | `security` / security review | The scoped security review was delivered at its assigned path. | Review cannot reach a required conclusion because evidence or scope is missing. | The review attempt failed; state the cause. | Parent checks the assigned review scope and artifact. |
 | `database` / data design | The assigned database slice or migration work was delivered as scoped. | Required schema, vendor, or dependency input is unavailable. | The assigned work failed; state the cause. | Parent checks the step acceptance and applicable migration/build/test evidence. |
-| `adt-sdd-develop` / PLAN step | The exact step acceptance passed; `files[]` and optional `deletedFiles[]` are in scope and non-conflicting, and `testsSummary` reports PASS when tests are declared, otherwise explicit deferred/skipped. | A required gate, input, or acceptance condition is unresolved. | Implementation or its required validation ran and failed. | Parent checks the exact PLAN step, applicable scoped session gates, and claim; only parent persistence/re-read establishes the next persisted state. |
+| `adt-sdd-develop` / PLAN step | The exact step acceptance passed; `files[]` and optional `deletedFiles[]` are in scope and non-conflicting, and `testsSummary` reports PASS when tests are declared, otherwise explicit deferred/skipped. | A required gate, input, or acceptance condition is unresolved. | Implementation or its required validation ran and failed. | For O3, the coordinator checks the exact PLAN step, scoped changes and required evidence. Only the coordinator persists and re-reads the updated row. |
 
 `qa_checklist` is not an Agent role and does not emit this relay receipt. Its
 checklist bullets are parent-owned context in CONTINUITY or STORY, as defined
@@ -126,7 +125,7 @@ receipt; a textual contract check does not replace this guard.
 
 Rules:
 
-- Max **12** rows unless user asked for exhaustive list.
+- Include every material finding within the assigned scope; do not impose a row cap that can omit relevant evidence. Group duplicate manifestations under one finding when they share cause and action.
 - Path:Line when grounded in a file; otherwise `—`.
 - Note = one fact; no preamble; no invented abbrevs (`cfg`/`impl`); no prose `→`.
 - Never compress confirmation gates or proposed artifact bodies — put those **outside** the receipt.

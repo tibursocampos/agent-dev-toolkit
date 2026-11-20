@@ -126,8 +126,8 @@ Resume caveman after the clear part is done.
 | `adt-delivery-implement` | **FULL** (or prefs level if lower) |
 | `adt-split-story-checklist`, `adt-code-review`, `adt-developer`, `adt-repair-dotnet-build`, `adt-test-coverage`, `adt-run-tests` | **FULL** |
 | `adt-*-developer`, ops (`adt-api-integrate`, `adt-containerize`, `adt-i18n-manager`, `adt-performance-profile`, `adt-refactor`) | **FULL** |
-| Orchestrated Delivery specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |
-| Subagent child prompts, execution style, and returns | Same as parent intensity; Caveman-scoped I/O per `SPAWN.md` / `RECEIPT.md` / `orchestrator-session` policy |
+| Orchestrated Delivery specialist passes / agent prompts | **FULL** chat; complete role-specific deliverable and required receipt when mode ON |
+| Subagent child prompts, execution style, and returns | Conversational wrapper may follow parent intensity; assigned deliverables and required receipt fields remain complete and uncompressed |
 | General chat | **FULL** (or prefs `caveman_level`) |
 
 **Skill cap vs prefs:** effective level = min(skill cap, prefs `caveman_level`) with NEVER winning. Lite skills never escalate to full/ultra from prefs.
@@ -135,6 +135,7 @@ Resume caveman after the clear part is done.
 **Always protected (never compressed under any mode):**
 - Confirmation gates: `(sim / ajustar / cancelar)` blocks
 - **Product drafts** and other artifact drafts shown in chat (FEATURE, STORY, PRD, PLAN, CONTINUITY, commit suggestions) — never compress product prose (ARCH / REQ-008)
+- **Agent deliverables and receipts:** never omit or shorten required findings, evidence, limits, alternatives, affected work, validation, artifact content, or receipt fields. Caveman may compress only conversational framing around the complete deliverable.
 - Technical identifiers: file paths, function/type names, CLI commands, error messages
 - Security guardrails and Git blocking notices
 
@@ -201,7 +202,7 @@ When mode ON, agents may propose compacting prose in `CONTINUITY.md` or memory-b
 | Participating skills (see table) | Step -1, if `caveman_mode` true |
 | `rules/caveman-mode.md` (alwaysApply) | Global toggle + preference check every session |
 | `rules/guardrails.md` / `AGENTS.md` | Never-compress + command UX pointers |
-| Orchestrated Delivery agent prompts / subagent I/O | Receipt schema when mode ON; child prompts/returns Caveman-scoped (`SPAWN.md`, `RECEIPT.md`) |
+| Orchestrated Delivery agent prompts / subagent I/O | Complete role-specific deliverables and receipt schema when required; only conversational framing may be Caveman-compressed (`SPAWN.md`, `RECEIPT.md`) |
 
 ### Canonical Step -1 block (copy into skills)
 
