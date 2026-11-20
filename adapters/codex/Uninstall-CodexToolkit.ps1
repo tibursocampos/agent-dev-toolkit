@@ -5,10 +5,10 @@
 
 .DESCRIPTION
   Removes only known toolkit-managed paths under InstallRoot:
-  - plugin/.codex-plugin/plugin.json (and empty .codex-plugin dir)
-  - plugin/skills/<id> matching core/skills
+  - plugins/agent-dev-toolkit/.codex-plugin/plugin.json (and empty .codex-plugin dir)
+  - plugins/agent-dev-toolkit/skills/<id> matching core/skills
   - InstallRoot/skills/<id> matching core/skills (Codex $ discovery home mirror)
-  - plugin/hooks/hooks.json + guard-pre-tool.ps1 (+ GuardCommon/_hook-common; legacy session_start.ps1 cleaned if present)
+  - plugins/agent-dev-toolkit/hooks/hooks.json + guard-pre-tool.ps1 (+ GuardCommon/_hook-common; legacy session_start.ps1 cleaned if present)
   - marketplace entry named agent-dev-toolkit (rewrite or remove catalog)
   - USER-scope skills/<id> matching core/skills (fixture InstallRoot/.agents/skills,
     or live $HOME/.agents/skills when InstallRoot is ~/.codex with -AllowUserHome)
@@ -20,7 +20,7 @@
 
   Operator-edited or drifted AGENTS.md is preserved.
 
-  Does not wipe InstallRoot, plugin/, .agents/, skills/, or alien files (RN07 / CU03).
+  Does not wipe InstallRoot, plugins/, .agents/, skills/, or alien files (RN07 / CU03).
   Live ~/.codex requires -AllowUserHome. Uses Resolve-InstallRoot (USERPROFILE guard).
 #>
 

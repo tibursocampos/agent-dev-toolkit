@@ -7,14 +7,14 @@
   Exposes the stable adapter contract for agent id `codex`.
   Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Policy /
   Publish-Router / Publish-Hooks / Get-SddRoot (-Prepare) are implemented
-  (optional InstallRoot maps plugin/marketplace/home skills/USER skills/AGENTS.md/rules
-  under the fixture; Publish-Skills writes plugin.json + plugin/skills + InstallRoot/skills
+  (optional InstallRoot maps plugins/agent-dev-toolkit/marketplace/home skills/USER skills/AGENTS.md/rules
+  under the fixture; Publish-Skills writes plugin.json + plugins/agent-dev-toolkit/skills + InstallRoot/skills
   ($ discovery) + marketplace; optional -UserScope mirrors core/skills under
   InstallRoot/.agents/skills for fixtures, or real $HOME/.agents/skills when
   InstallRoot is live ~/.codex with -AllowUserHome; Publish-Policy copies
   core/policy -> InstallRoot/rules/*.md; Publish-Router materializes core/router ->
   AGENTS.md (dual-root absolute paths); Publish-Hooks writes
-  plugin/hooks/hooks.json). Invoke-SmokeValidate is filesystem-only (TE01-TE04
+  plugins/agent-dev-toolkit/hooks/hooks.json). Invoke-SmokeValidate is filesystem-only (TE01-TE04
   plus plugin + home adt-help-skills/CATALOG, rules/, materialized AGENTS.md, optional
   UserScope; no /hooks trust UI). Uninstall-Toolkit removes keyed toolkit artifacts
   only (plugin skills, home skills, marketplace entry, hooks files, USER-scope
@@ -74,11 +74,11 @@ $script:CodexAdapterConstant = @{
     OfficialUserSkillsRelativePath       = '.agents/skills'
     OfficialUserSkillsDescription        = 'Official Codex USER skills discovery root is under the user home as .agents/skills (equivalent to ~/.agents/skills) — dual-root with ~/.codex.'
     OfficialHomeSkillsRelativePath       = 'skills'
-    OfficialHomeSkillsDescription        = 'Codex $ skill discovery reads InstallRoot/skills (live ~/.codex/skills). Publish-Skills always mirrors core/skills here; TOOLKIT_ROOT is InstallRoot.'
+    OfficialHomeSkillsDescription        = 'Local Codex skills live in InstallRoot/skills (live ~/.codex/skills). Both and Local publish here; the skill picker can also show plugin-provided entries.'
     OfficialMarketplaceRelativePath      = '.agents/plugins'
     OfficialMarketplaceDescription       = 'Official Codex marketplace catalog lives under .agents/plugins (marketplace.json modeled in fixture).'
-    OfficialPluginRootRelativePath       = 'plugin'
-    OfficialPluginRootDescription        = 'Toolkit Codex plugin root is modeled under InstallRoot/plugin (contains .codex-plugin, skills, hooks).'
+    OfficialPluginRootRelativePath       = 'plugins/agent-dev-toolkit'
+    OfficialPluginRootDescription        = 'Toolkit Codex plugin source is under InstallRoot/plugins/agent-dev-toolkit; Codex installs its managed copy under plugins/cache.'
     OfficialPluginManifestRelativePath   = '.codex-plugin/plugin.json'
     OfficialPluginManifestDescription    = 'Codex plugin packaging uses .codex-plugin/plugin.json at the plugin root; skills and hooks live beside that folder.'
     OfficialPluginSkillsRelativePath     = 'skills'
@@ -277,11 +277,12 @@ function Get-InstallRoots {
 function Publish-Skills {
     <#
     .SYNOPSIS
-      Publish core/skills into InstallRoot/plugin and InstallRoot/skills (Codex $ discovery).
+       Publish core/skills to the selected Codex skill destination(s).
 
     .DESCRIPTION
-      Always: plugin-bundled skills + marketplace under InstallRoot, plus home skills
-      mirror at InstallRoot/skills (live ~/.codex/skills) for Codex `$<skill-id>` discovery.
+       Distribution: Both (default), Local, or Plugin. The plugin manifest/catalog
+       remains available in every mode so its hooks remain usable.
+       Local-only omits bundled plugin skills while keeping the plugin package.
       -UserScope: also mirrors core/skills — fixture InstallRoot/.agents/skills, or
       real $HOME/.agents/skills when InstallRoot is live ~/.codex with -AllowUserHome.
     #>
@@ -294,6 +295,9 @@ function Publish-Skills {
         [Parameter()]
         [switch] $UserScope,
         [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $CodexSkillDistribution = 'Both',
+        [Parameter()]
         [switch] $WhatIf
     )
 
@@ -301,7 +305,7 @@ function Publish-Skills {
         throw $script:CodexAdapterMessage.InstallRootRequired
     }
 
-    return Invoke-CodexPublishSkills -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -UserScope:$UserScope -WhatIf:$WhatIf
+    return Invoke-CodexPublishSkills -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -UserScope:$UserScope -CodexSkillDistribution $CodexSkillDistribution -WhatIf:$WhatIf
 }
 
 function Publish-Policy {
@@ -338,6 +342,9 @@ function Publish-Router {
         [Parameter()]
         [switch] $AllowUserHome,
         [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $CodexSkillDistribution = 'Both',
+        [Parameter()]
         [switch] $WhatIf
     )
 
@@ -345,7 +352,7 @@ function Publish-Router {
         throw $script:CodexAdapterMessage.InstallRootRequired
     }
 
-    return Invoke-CodexPublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+    return Invoke-CodexPublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -CodexSkillDistribution $CodexSkillDistribution -WhatIf:$WhatIf
 }
 
 function Publish-Agents {
@@ -360,6 +367,9 @@ function Publish-Agents {
         [Parameter()]
         [switch] $AllowUserHome,
         [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $CodexSkillDistribution = 'Both',
+        [Parameter()]
         [switch] $WhatIf
     )
 
@@ -367,13 +377,13 @@ function Publish-Agents {
         throw $script:CodexAdapterMessage.InstallRootRequired
     }
 
-    return Invoke-CodexPublishAgents -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+    return Invoke-CodexPublishAgents -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -CodexSkillDistribution $CodexSkillDistribution -WhatIf:$WhatIf
 }
 
 function Publish-Hooks {
     <#
     .SYNOPSIS
-      Publish hooks files under InstallRoot/plugin/hooks (filesystem only; trust /hooks is manual).
+      Publish hooks files under InstallRoot/plugins/agent-dev-toolkit/hooks (filesystem only; trust /hooks is manual).
     #>
     [CmdletBinding()]
     param(
@@ -452,7 +462,7 @@ function Uninstall-Toolkit {
     <#
     .SYNOPSIS
       Remove keyed toolkit artifacts under InstallRoot (plugin/home/marketplace/hooks/USER skills/rules/AGENTS.md).
-      Does not wipe plugin/, skills/, or .agents/ wholesale or touch alien files (RN07 / CU03).
+      Does not wipe plugins/, skills/, or .agents/ wholesale or touch alien files (RN07 / CU03).
       Live ~/.codex + prior UserScope also removes managed skills under $HOME/.agents/skills.
     #>
     [CmdletBinding()]

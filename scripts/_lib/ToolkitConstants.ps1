@@ -366,6 +366,7 @@ $script:ToolkitConstant = @{
     CopilotWorkFixtureUserRel      = 'scripts/validation/fixtures/copilot-user-ci-smoke'
     CopilotWorkFixtureRepoRel      = 'scripts/validation/fixtures/copilot-repo-ci-smoke'
     ModeParameterName              = 'Mode'
+    CodexSkillDistributionParameterName = 'CodexSkillDistribution'
     ReparsePointResolverTypeName   = 'ToolkitReparsePointResolver'
     ExtendedLengthPathPrefix       = '\\?\'
     ExtendedLengthUncPrefix        = '\\?\UNC\'
@@ -437,6 +438,7 @@ $script:ToolkitConstant = @{
     ExpectedCiSmokeScriptCount     = 10
     ToolkitHelpMenuChoices         = @('0', '1', '2', '3')
     ToolkitCopilotModeMenuChoices  = @('0', '1', '2')
+    ToolkitCodexSkillDistributionMenuChoices = @('0', '1', '2', '3')
     ToolkitConfirmRunChoices       = @('0', 'y', 'n', 'yes', 'no')
     OfficialUserRootPathProperty   = 'OfficialUserRootPath'
     OfficialUserRootRelativeProperty = 'OfficialUserRootRelativePath'
@@ -654,7 +656,7 @@ $script:ToolkitMessage = @{
     ToolkitTargetCustomLine            = '[3] Custom InstallRoot path (review the path before confirming)'
     ToolkitTargetBackLine              = '[0] Back'
     ToolkitTargetLiveUnknown           = 'official user root'
-    ToolkitTargetLiveCodexDualLine     = '    Codex note: config/AGENTS under ~/.codex; USER skills also at ~/.agents/skills; default sync writes plugin/ under InstallRoot'
+    ToolkitTargetLiveCodexDualLine     = '    Codex note: default sync publishes skills locally and in the plugin; the skill picker can show both entries'
     ToolkitTargetMenuDefaultChoice     = '1'
     ToolkitTargetMenuPromptWithDefault = 'Select option [0-3] (Enter = live home)'
     ToolkitCustomPathPrompt            = 'Enter InstallRoot path'
@@ -667,10 +669,16 @@ $script:ToolkitMessage = @{
     ToolkitCopilotModeUserLine         = '[1] user  — personal Copilot root (~/.copilot)'
     ToolkitCopilotModeRepoLine         = '[2] repo  — consumer app .github layout'
     ToolkitCopilotModeBackLine         = '[0] Back'
+    ToolkitCodexSkillDistributionTitle      = 'Codex skill destinations'
+    ToolkitCodexSkillDistributionBothLine   = '[1] Both   — local skills and plugin skills (current default)'
+    ToolkitCodexSkillDistributionLocalLine  = '[2] Local  — local skills only; keep plugin hooks'
+    ToolkitCodexSkillDistributionPluginLine = '[3] Plugin — plugin skills only'
+    ToolkitCodexSkillDistributionBackLine   = '[0] Back'
     ToolkitSummaryTitle                = 'Plan summary'
     ToolkitUninstallSummaryTitle       = 'Uninstall plan summary'
     ToolkitSummaryAgent                = '  Agent:        {0}'
     ToolkitSummaryMode                 = '  Mode:         {0}'
+    ToolkitSummaryCodexSkillDistribution = '  Codex skills: {0}'
     ToolkitSummaryInstallRoot          = '  InstallRoot:  {0}'
     ToolkitSummaryAllowUserHome        = '  AllowUserHome:{0}'
     ToolkitSummaryTargetKind           = '  Target:       {0}'
@@ -693,7 +701,8 @@ Menu actions
 ------------
 [1] Sync agent
     Publishes core skills/policy/router/agents/hooks into an agent InstallRoot via sync-agent.ps1.
-    Wizard: pick agent -> fixture | live home | custom path -> confirm.
+    Wizard: pick agent -> optional agent mode / Codex skill destination -> fixture | live home | custom path -> confirm.
+    Codex destinations: Both publishes local and plugin skills; Local publishes local skills and keeps plugin hooks; Plugin publishes plugin skills only. Existing copies are not removed when changing destinations.
     Fixture: temporary test target; no profile files are written. Live home: installs toolkit-managed files under that
     agent's root. Custom: choose an InstallRoot yourself; profile paths need explicit confirmation. Review the plan
     summary and target path before choosing y.

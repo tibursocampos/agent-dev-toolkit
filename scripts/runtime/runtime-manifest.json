@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "destinationRoot": "scripts",
   "additionalToolkitRoots": [
-    { "adapter": "codex", "path": "plugin", "when": "always", "reason": "Codex marketplace plugin skills resolve TOOLKIT_ROOT to InstallRoot/plugin." },
+    { "adapter": "codex", "path": "plugins/agent-dev-toolkit", "when": "always", "reason": "Codex marketplace plugin skills resolve TOOLKIT_ROOT to InstallRoot/plugins/agent-dev-toolkit." },
     { "adapter": "codex", "path": ".agents", "when": "user-scope", "reason": "Codex optional USER-scope skills resolve TOOLKIT_ROOT to InstallRoot/.agents." },
     { "adapter": "openhands", "path": ".agents", "when": "project", "reason": "OpenHands project skills resolve TOOLKIT_ROOT to InstallRoot/.agents." }
   ],
@@ -17,6 +17,7 @@
     { "source": "scripts/validation/validate-plan.ps1", "destination": "validation/validate-plan.ps1", "class": "runtime", "caller": "optional PLAN structure diagnostic" },
     { "source": "scripts/validation/validate-change.ps1", "destination": "validation/validate-change.ps1", "class": "runtime", "caller": "optional CHANGE structure diagnostic" },
     { "source": "scripts/validation/Invoke-O3ReceiptValidation.ps1", "destination": "validation/Invoke-O3ReceiptValidation.ps1", "class": "runtime", "caller": "adt-orchestrate-implement receipt reconciliation" },
+    { "source": "scripts/runtime/Resolve-SddSourceContext.ps1", "destination": "runtime/Resolve-SddSourceContext.ps1", "class": "runtime", "caller": "adt-read-sdd-artifact canonical path resolution" },
     { "source": "scripts/runtime/Test-AdtDeliveryPreflight.ps1", "destination": "runtime/Test-AdtDeliveryPreflight.ps1", "class": "runtime", "caller": "adt-delivery-flow start gate (Step 0)" },
     { "source": "scripts/_lib/ToolkitConstants.ps1", "destination": "_lib/ToolkitConstants.ps1", "class": "support", "caller": "published runtime scripts above" },
     { "source": "scripts/_lib/Get-ToolkitRepoRoot.ps1", "destination": "_lib/Get-ToolkitRepoRoot.ps1", "class": "support", "caller": "session, inventory, and validation runtime scripts above" },

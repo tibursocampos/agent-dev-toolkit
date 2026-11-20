@@ -5,7 +5,7 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
 
 <#
 .SYNOPSIS
-  Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json + emit-trace.ps1).
+  Helpers for Codex Publish-Hooks (plugins/agent-dev-toolkit/hooks/hooks.json + emit-trace.ps1).
 
 .DESCRIPTION
   Writes one SubagentStop trace hook (emit-trace.ps1). No PreToolUse guard is registered.

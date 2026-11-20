@@ -100,6 +100,7 @@ $coreChecks = @(
     @{ Name = 'hook-activation'; Script = 'Assert-HookActivation.ps1'; Isolated = $true },
     @{ Name = 'validate-agent-exit'; Script = 'Assert-ValidateAgentExit.ps1'; Isolated = $true },
     @{ Name = 'codex-user-scope-smoke'; Script = 'Assert-CodexUserScopeSmoke.ps1'; Isolated = $true },
+    @{ Name = 'codex-skill-distribution'; Script = 'Assert-CodexSkillDistribution.ps1'; Isolated = $true },
     @{ Name = $constant.AdapterPublishCheckName; Script = $constant.AssertAdapterPublishScriptName; Isolated = $true }
 )
 
