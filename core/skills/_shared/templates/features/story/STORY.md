@@ -38,13 +38,13 @@ Required when **Tipo** = `US`. For pure TS/Bug, set each field to `n/a`.
 
 See `skills/_shared/backlog-item-types/persona-context.md`. Optional Evidence under persona follows **omit > fabricate** (`product-evidence-lite.md`).
 
-## Descrição
+## Description
 
 {{DESCRIPTION}}
 
-Supporting narrative; does not replace Objective or Who/Job/Outcome.
+Describe the current behavior, what is in scope, and the intended change.
 
-## Fora de escopo (OOS)
+## Out of scope (OOS)
 
 | Item | Motivo |
 |------|--------|
@@ -52,7 +52,7 @@ Supporting narrative; does not replace Objective or Who/Job/Outcome.
 
 Explicit exclusions for this story. Use `N/A` / empty table only when truly none known — prefer naming known non-goals.
 
-## Critérios de aceite
+## Acceptance criteria
 
 Describe the observable outcomes that define this story. Include edge or failure behavior when relevant to the outcome and risk; do not require a fixed number or category of scenarios.
 
@@ -76,15 +76,19 @@ Então {{OBSERVABLE_OUTCOME}}
 
 Add another scenario only for a distinct outcome, boundary, or failure that matters to this story.
 
-## Dependências (quando houver)
+## Dependencies (when applicable)
 
 - {{DEP_STORY_AND_REASON}}
 
-## Decisão em aberto (quando material)
+## Definition of Done
 
-Record a concrete unresolved decision here only when it affects this story's behavior, acceptance, scope, required access, or implementation choice. Use a separate analysis note only when the evidence or decision needs its own record.
+[Evidence that demonstrates story completion. Reference the steps and their checks where available; progress remains in the PLAN.]
 
-## Artefatos da história (conforme necessidade)
+## Open decision (when material)
+
+Record the question, affected work, and alternatives where useful. When answered, cite the decision source. Use the ANALYSIS, ARCH or SEC scaffolds under this template tree when the investigation needs its own durable note.
+
+## Story artifacts (as needed)
 
 | Pasta | Uso |
 |-------|-----|

@@ -2795,7 +2795,7 @@ $o3 = Read-Contract 'core/skills/adt-orchestrate-implement/SKILL.md'
 $table = Read-Contract 'core/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md'
 $receipt = Read-Contract 'core/skills/_shared/agents/RECEIPT.md'
 Assert-Has 'O1ProportionalAnalysis' $o1 @('proportionally', 'Suggestions do not enter scope without an operator decision', 'Do not create `ANALYSIS/`, `ARCH/`, or `SEC/` solely because')
-Assert-Has 'O2SingleApproval' $o2 @('one explicit approval', 'Structural validators and cross-artifact tools may help diagnose', 'not authorization or release gates', 'Minor questions do not block unrelated work')
+Assert-Has 'O2SingleApproval' $o2 @('one explicit approval', 'Keep independent eligible stories moving', 'Reconcile the resulting PRD/PLAN set once', 'Equivalent document wording is an editorial concern')
 Assert-Has 'O3SerialPlanProgress' $o3 @('Implementation is always serial', 'The PLAN is the sole persisted implementation-progress source', 'One live progress table is owned by O3')
 Assert-Has 'SingleTableOwnership' $table @('Only the owner below renders the contextual progress table', 'Internal skills and delegated children return their result to that owner', 'O2 (`adt-orchestrate-prepare`) with internal spec/plan | O2', 'O3 (`adt-orchestrate-implement`) with internal develop | O3')
 Assert-Has 'ReceiptProjectionAndPathSafety' $receipt @('Additional', 'ignored and omitted from the canonical projection', 'including reparse points', 'focused')
@@ -3023,8 +3023,8 @@ $planTemplate = Get-Content -LiteralPath (Join-Path $repoRoot $planTemplateRel) 
 if ($prdTemplate -notmatch '(?i)Resultado esperado' -or $prdTemplate -notmatch '(?i)Comportamento e aceite' -or $prdTemplate -notmatch '(?i)Impacto brownfield \(quando aplicável\)') {
     Write-Fail -TestName 'Should_Pass_When_PrdTemplateHasReqAcOos' -Reason 'PRD template missing outcome, acceptance, or conditional brownfield context'
 }
-if ($prdTemplate -notmatch '(?i)não exija uma nomenclatura' -or $prdTemplate -notmatch '(?i)formato BDD' -or $prdTemplate -notmatch '(?i)quantidade fixa') {
-    Write-Fail -TestName 'Should_Pass_When_PrdTemplateHasReqAcOos' -Reason 'PRD template must avoid fixed IDs, BDD format, and criterion-count gates'
+if ($prdTemplate -notmatch '(?i)```gherkin' -or $prdTemplate -notmatch '(?i)mantenha critérios equivalentes' -or $prdTemplate -notmatch '(?i)Fonte da decisão') {
+    Write-Fail -TestName 'Should_Pass_When_PrdTemplateHasReqAcOos' -Reason 'PRD scaffold should model observable scenarios, preserve equivalent existing criteria, and capture the decision source'
 }
 Write-Pass -TestName 'Should_Pass_When_PrdTemplateHasReqAcOos'
 

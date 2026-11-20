@@ -78,7 +78,7 @@ Record the resolved id in the session report / child receipt when one is produce
 |------------|-------------------|
 | Parent owns wave | Parent `adt-orchestrate-*` owns its one live progress table and multi-story / multi-step queue; Memory Bank and CONTINUITY are optional context |
 | Child scope | O3 dispatch is serial: one PLAN step per child, never multiple concurrent implementation children |
-| Handoff input | Prefer scoped paths + receipt; when `source_context` is present, **skip** opaque re-read of the same artifact (`adt-read-sdd-artifact` / `RSA-SOURCE-CONTEXT`) |
+| Handoff input | Prefer scoped paths + receipt; when `source_context` is present, reuse its verified identity (`adt-read-sdd-artifact` / `RSA-SOURCE-CONTEXT`). Read current PLAN instructions or progress when the task needs their content |
 | No parent duties | Child **must not** re-run O1/O2/O3 parent orchestration or expand the approved step scope; parent reconciles the result into PLAN before dispatching another child |
 | Chat vs receipt | Operator-facing prompts mirror user chat language; child receipts / Agent summaries stay **en-US** (`LANGUAGE.md`) |
 | Spawn (Eixo A) | Parent decides spawn vs in-parent per `SPAWN.md`; children do not flip that policy |

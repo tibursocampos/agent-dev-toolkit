@@ -19,7 +19,7 @@ Describe the user or business need when it helps explain the intended outcome. D
 - {{GOAL_1}}
 - {{GOAL_2}}
 
-Observable outcomes for the initiative. Include goals that clarify scope; omit this section when the outcome is already clear elsewhere.
+Observable outcomes for the initiative. Use measurable targets when there is a basis for them.
 
 ## Non-goals
 
@@ -39,6 +39,10 @@ Filled prose in this file follows the chat language (`LANGUAGE.md`). Ids and sev
 Use only for initiative-level outcomes that help divide or assess the work. Keep outcomes observable where possible; omit conditions or failure details that do not apply. Do not put a file checklist here.
 
 Use links or stable IDs when they make a material behavior easier to trace. Keep decisions and unresolved material questions in their own sections; do not duplicate them here.
+
+## Definition of Done
+
+[Integrated verification across stories, including the behavior at their shared boundaries and the expected evidence. Individual story closure is recorded in its own PLAN.]
 
 ## Evidence (when useful)
 
@@ -66,7 +70,7 @@ Omit the table when unknown — do not fabricate numbers (`product-evidence-lite
 
 ## Decisions
 
-| question_id | decision_id | Decision | Affected normative artifact/section (REQ/CA) | Status | Superseded by |
+| question_id | decision_id | Decision and source | Affected normative artifact/section (REQ/CA) | Status | Superseded by |
 |-------------|-------------|----------|---------------------------------------------|--------|--------------|
 | {{Q-001}} | {{D-001}} | {{DECISION_PROSE}} | {{PORTABLE_PATH_AND_SECTION; REQ-### / CA# WHEN APPLICABLE}} | resolved | — |
 
@@ -74,7 +78,7 @@ Keep stable IDs when they help refer to material decisions. Record only decision
 
 ## Open questions
 
-| Id | Severity | Impact | Owner | Question |
+| Id | Severity | Impact / affected work | Owner | Question and options |
 |----|----------|--------|-------|----------|
 | Q-001 | B \| I \| MINOR | {{IMPACT}} | Product \| Engineering \| UX | {{QUESTION}} |
 
@@ -114,6 +118,6 @@ Use only to identify a concrete question that may need specialist investigation.
 
 Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Portable paths only. Omit-if-absent — do not stub siblings only for links.
 
-Norms: `skills/_shared/backlog-item-types/feature-altitude.md`, `product-evidence-lite.md`.
+Norms: `skills/_shared/backlog-item-types/feature-altitude.md`, `product-evidence-lite.md`, and `skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md`.
 
 Existing `CONTINUITY.md`, `CHANGE.md`, and `TASKS` files may be consulted as optional context. New FEATURE work does not require creating, converting, synchronizing, or deleting them. For brownfield impact, record current behavior, intended change, and concrete risks in the PRD or PLAN when relevant.

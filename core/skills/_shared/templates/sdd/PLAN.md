@@ -19,28 +19,32 @@ Use the sections needed to make this work executable. Remove unused prompts. The
 
 Use `## Related` and portable paths. Omit absent siblings; do not create files only to satisfy a link. Existing CONTINUITY, CHANGE, and TASKS may be consulted as optional context.
 
-## Objetivo e limites
+## Objective and boundaries
 
 - **Resultado:** [o que será observavelmente diferente ao concluir]
 - **Incluído:** [capacidades, áreas ou comportamentos dentro do escopo]
 - **Fora de escopo:** [limites importantes, quando houver]
 - **Restrições / dependências:** [somente as que afetam a execução]
 
-## Impacto brownfield (quando aplicável)
+## Brownfield impact (when applicable)
 
 - **Comportamento atual:** [evidência relevante ou limite do que foi observado]
 - **Mudança pretendida:** [comportamento após a implementação]
 - **Riscos concretos:** [compatibilidade, dados, integração, operação ou outro risco]
 
-## Aprovação do plano
+## Plan approval
 
-Registrar em uma nota curta a aprovação explícita deste PLAN antes da implementação e os limites informados pelo operador. A aprovação vale apenas para o resultado, escopo e decisões apresentados neste documento. Reabrir a decisão somente se uma mudança material afetar esses elementos.
+Record explicit approval of this PLAN in a short note before implementation, including the limits stated by the operator. Approval applies only to the outcome, scope, and decisions presented in this document. Reopen approval only if a material change affects those elements.
 
-## Estratégia de validação
+## Technical design and decisions
+
+[Changed contracts, components and entry points, dependencies, and grounded material choices. Where applicable, record the data model, transactions, states, concurrency, integration failures, guarantee limits, and security controls. Cite the canonical contract and specific evidence. See `skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md`.]
+
+## Validation strategy
 
 [Verificações relevantes para o resultado, incluindo comandos já existentes quando conhecidos. Distinguir o que será verificado, o que depende de ambiente e o que não pode ser observado localmente. Agrupar validações quando isso oferecer evidência suficiente.]
 
-## Progresso da implementação
+## Implementation progress
 
 Esta é a única tabela canônica de execução. Atualizar a linha do passo conforme o trabalho avança; não repetir seu estado em outro campo ou artefato.
 
@@ -48,23 +52,26 @@ Esta é a única tabela canônica de execução. Atualizar a linha do passo conf
 |------------|--------------|--------|-----------------------|-------------------------|
 | S1 — [resultado do passo] | — | PENDING | — | — |
 
-Estados permitidos: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`. Derive contagens da tabela; não mantenha totalizadores, percentuais, checklists ou filas duplicadas.
+Allowed states: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`. Derive counts from the table; do not maintain duplicate totals, percentages, checklists, or queues.
 
-## Detalhamento dos passos
+## Step details
 
-Descreva cada passo executável abaixo. Esta descrição complementa a tabela; não repita dependências ou estado. Inclua objetivo, alterações previstas, limites, aceite verificável e validação necessária. Dê a cada passo um ID útil para referência, sem exigir um formato específico como condição de autorização.
+Describe each executable step below. This description complements the table; do not repeat dependencies or status. Include the objective, planned changes, limits, verifiable acceptance, and required validation. Give each step a useful reference ID without requiring a specific format as an authorization condition.
 
-### S1 — [resultado do passo]
+### S1 — [step outcome]
 
 - **Objetivo:** [resultado observável]
-- **Alterações previstas:** [comportamentos/artefatos dentro do escopo e limites]
+- **Pré-condições:** [entradas ou condições necessárias além das dependências da tabela, quando relevantes]
+- **Pontos de entrada:** [caminhos portáteis e símbolos existentes ou a criar]
+- **Alterações previstas:** [comportamentos e artefatos dentro do escopo, com limites explícitos]
+- **Erros e casos de borda:** [tratamento previsto quando afeta o passo]
 - **Aceite:** [resultado verificável e referência ao comportamento no PRD quando aplicável]
 - **Validação:** [verificação necessária e evidência esperada; explicar se não houver teste específico]
 - **Risco ou dependência externa (quando relevante):** [impacto e encaminhamento]
 
-## Decisões abertas (quando houver)
+## Open decisions (when applicable)
 
-Registrar apenas questões ainda capazes de mudar comportamento, aceite, escopo, acesso necessário ou implementação. Identificar qual trabalho depende da resposta. Questões menores e melhorias opcionais não bloqueiam trabalho independente.
+Record only questions that could still change behavior, acceptance, scope, required access, or implementation. Record the question, useful options, affected work, and, after an observable answer, the decision and its source. Minor questions and optional improvements do not block independent work.
 
 ## Referências (quando relevantes)
 

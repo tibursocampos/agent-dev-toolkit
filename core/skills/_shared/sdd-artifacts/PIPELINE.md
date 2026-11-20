@@ -56,8 +56,9 @@ At the end of an approved implementation scope, complete the validation required
 | **Classic SDD** | `adt-sdd-spec` -> `adt-sdd-plan` -> `adt-sdd-develop` | `features/NNN-slug/USnn/{PRD,PLAN}/` (default story `US01`) |
 | **Backlog Refine** | `adt-refine-story` -> `adt-split-story-checklist` (-> optional SDD / developer) | Prefer `features/.../STORY.md` + story subfolders; `docs/backlog/` shortcut |
 | **Orchestrated Delivery** | `adt-orchestrate-analyze` -> `adt-orchestrate-prepare` -> `adt-orchestrate-implement` **or** manual `adt-sdd-develop` | Same `features/` tree; Memory Bank and CONTINUITY are optional context |
+| **ADT Delivery** | `adt-delivery-flow` -> `adt-delivery-refine` -> `adt-delivery-plan` -> `adt-delivery-implement` | Separate lifecycle with one evolving feature-root `PLAN.md`; governed by `skills/_shared/adt-delivery/` |
 
-Tracks coexist. Skill ids follow the current catalog and approved namespace map. Classic SDD does not require FEATURE, STORY, Memory Bank, or orchestration. Create ARCH or other specialist analysis only when a concrete decision or risk needs it; brownfield classification alone does not require mirrored architecture documentation. A material architecture choice still needs an explicit decision before dependent implementation.
+Tracks coexist and remain recommendations rather than prerequisites. Skill ids follow the current catalog and approved namespace map. Classic SDD does not require FEATURE, STORY, Memory Bank, or orchestration. ADT Delivery's separate plan lifecycle is not an extension of Classic SDD or O1/O2/O3. Create ARCH or other specialist analysis only when a concrete decision or risk needs it; brownfield classification alone does not require mirrored architecture documentation. A material architecture choice still needs an explicit decision before dependent implementation.
 
 ## Skill order
 
