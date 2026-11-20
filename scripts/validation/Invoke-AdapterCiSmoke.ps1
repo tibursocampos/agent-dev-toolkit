@@ -48,7 +48,7 @@ function Fail([string] $Reason) {
 function Assert-PublishedSkillReferences([string] $InstallRoot) {
     $layouts = switch ($Adapter) {
         'codex' {
-            foreach ($skills in @('skills', 'plugin/skills', '.agents/skills')) {
+            foreach ($skills in @('skills', 'plugins/agent-dev-toolkit/skills', '.agents/skills')) {
                 @{ Skills = $skills; Branch = 'rules/branch-validation.md'; Delivery = 'rules/ai-stealth.md' }
             }
         }

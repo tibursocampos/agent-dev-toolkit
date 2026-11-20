@@ -4,6 +4,7 @@
   "additionalToolkitRoots": [
     { "adapter": "codex", "path": "plugins/agent-dev-toolkit", "when": "always", "reason": "Codex marketplace plugin skills resolve TOOLKIT_ROOT to InstallRoot/plugins/agent-dev-toolkit." },
     { "adapter": "codex", "path": ".agents", "when": "user-scope", "reason": "Codex optional USER-scope skills resolve TOOLKIT_ROOT to InstallRoot/.agents." },
+    { "adapter": "antigravity", "path": "config", "when": "always", "reason": "Antigravity skills resolve TOOLKIT_ROOT to InstallRoot/config." },
     { "adapter": "openhands", "path": ".agents", "when": "project", "reason": "OpenHands project skills resolve TOOLKIT_ROOT to InstallRoot/.agents." }
   ],
   "files": [
