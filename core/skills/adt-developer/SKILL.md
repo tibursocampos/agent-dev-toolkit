@@ -31,8 +31,8 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 |------|----------------------------------------|
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Git / language policy | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
-| Developer flow | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/GUIDE.md` |
-| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Developer flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` |
+| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/adt-developer/references/<section>.md` |
@@ -55,12 +55,12 @@ Do **not** load `dev_persona` or Antigravity KI artifacts.
 Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### 0. Frontend design routing
-Follow `references/frontend-design-routing.md` when the task touches UI.
+Follow `references/frontend-design-routing.md` for ad-hoc UI work. Explicit PLAN work first goes to its flow owner in Step 1.
 
 ### 1. Stack routing
-Follow `references/stack-routing.md` (e.g. `pom.xml` / `build.gradle` → `adt-java-developer`). On match, load that stack `SKILL.md` and stop this router.
+If the request explicitly identifies a PLAN or a PLAN step, apply the PLAN routing in `references/stack-routing.md` first. The flow owner reads the approved PLAN and owns its progress. `REFINE/tasks.md` is optional context and is never a second progress ledger.
 
-When the user names a story PLAN step (`features/.../PLAN/PLAN_*.md` plus a step number): load that step block and the matching `REFINE/tasks.md` boxes before any code. Do not load the rest of the PRD. After the step, set the step status to `COMPLETED` in the PLAN and mark those boxes `- [x]`. Without a story path, stay on the ad-hoc fallback.
+For requests without a PLAN, apply ordinary stack routing (e.g. `pom.xml` / `build.gradle` → `adt-java-developer`). On match, load that stack `SKILL.md` and stop this router.
 
 ### 2. Fallback only
 If no stack match: follow `references/fallback-execution.md`.

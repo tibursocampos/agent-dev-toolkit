@@ -1,5 +1,7 @@
 ## Stack routing
 
+When the request explicitly identifies a PLAN, route before stack detection. A story PLAN (`features/<feature>/{USnn|TSnn}/PLAN/PLAN_*.md`) goes to direct `adt-sdd-develop` unless the current handoff explicitly selects O3 context. A Delivery PLAN at the feature root or in `plans/<unit>/PLAN.md` goes to `adt-delivery-implement`. The owner resolves the manifest-selected path, validates approval and extracts the step. The router neither edits the PLAN nor forwards the request as unplanned work when the selected PLAN is missing. When its caller is already executing a step, a stack skill receives only the scoped code/tests work and returns evidence to that caller. Ordinary stack detection below applies to ad-hoc work.
+
 1. **Inspect the workspace** - identify stack in this order (frameworks before generic Node):
 
    | Signal | Route to |
@@ -33,6 +35,6 @@
    - Do **not** ask the user for confirmation to switch skills.
 
 3. **Fallback mode (if no match found)**:
-   - If no major framework structure is detected (e.g., isolated `.html`, `.sh`, `.bat`, `.ps1` files), **do not delegate**.
+   - If no major framework structure is detected (e.g., isolated `.html`, `.sh`, `.bat`, `.ps1` files), use the scoped delegation rules in `references/fallback-execution.md`.
    - Assume the task directly using standard, secure engineering practices as a Senior Developer.
    - Proceed to `references/fallback-execution.md`.
