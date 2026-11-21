@@ -20,8 +20,8 @@ The PLAN may be derived from a canonical PRD or a sufficiently specified demand.
 1. Resolve the invocation context once: direct or orchestrated. Do not infer O2 from sibling files. Reuse the context passed by the parent when present.
 2. Resolve the authorized source: use a relevant PRD when available; otherwise use the demand and cited evidence. Read only relevant optional FEATURE, STORY, analysis, Memory Bank, CHANGE, CONTINUITY, or TASKS material. Missing or stale sidecars do not block planning.
 3. Clarify only decisions that prevent determining behavior, acceptance, scope, required access, or an implementation choice. Record the question or observable answer in the PLAN and identify affected work. Minor questions do not block independent planning.
-4. Inspect repository evidence only where needed to determine constraints, dependencies, risks, and suitable validation. Distinguish observed behavior from inference, proposal, and gap. Do not claim runtime behavior based on static evidence.
-5. Derive outcome-based steps directly from the source. Group related work, represent real dependencies, and avoid file-only steps or speculative code detail. `adt-split-story-checklist` is optional and remains independently invocable; use an existing linked checklist as context when useful, but do not require or create TASKS files.
+4. Inspect every file, symbol and contract that the steps name, in this session, and reread them as needed to determine constraints, dependencies, risks, and suitable validation. Distinguish observed behavior from inference, proposal, and gap. Do not claim runtime behavior based on static evidence.
+5. Derive outcome-based steps directly from the source. Group related work, represent real dependencies, and avoid file-only steps; include the exact contract excerpt that a step creates or changes; avoid speculative code (behavior the source does not show). `adt-split-story-checklist` is optional and remains independently invocable; use an existing linked checklist as context when useful, but do not require or create TASKS files.
 6. Draft the PLAN using `templates/sdd/PLAN.md` and `references/template-usage.md`. Specify each step's preconditions, paths and symbols, intended changes, limits, error behavior, acceptance and expected evidence. Resolve material design choices before handing off affected steps. Keep dependencies and status in the single progress table.
 7. Review the draft once for outcome coverage, dependencies, acceptance, material risks, validation, evidence limits, and scope. Fix substantive gaps. Use `references/self-review.md` and `references/challenge-vagueness.md` as guidance, not as separate authorization or formatting gates.
 8. Save the PLAN in the canonical path. Preserve equivalent headings, numbering and wording when revising existing plans. Resolve substantive gaps directly.
@@ -32,6 +32,14 @@ The PLAN may be derived from a canonical PRD or a sufficiently specified demand.
 - A directly invoked `adt-sdd-plan` owns one contextual progress table for its planning stages.
 - When O2 invokes this skill internally, O2 remains the sole table owner. Represent this work in O2's story row.
 - Use `LIVE-STAGE-TABLE.md` for owner and display points. Do not add a cumulative checkpoint or persist the chat table in the PLAN.
+
+## Executable steps (mandatory)
+
+Every step you write, check or execute must be executable by a less capable agent that reads only the step, the files it names and the decisions it cites. Full rule: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EXECUTABLE-STEP.md`.
+- Each step lists exact files (`modify` or `create`), exact symbols (with `path:line` read in this session, or `create`), a code block for each contract it creates or changes, numbered edits, a validation command with its filter, and acceptance IDs.
+- Forbidden in approved steps: `a confirmar`, `TBD`, `se necessário`, `ajustar se`, `conforme adequado`, `decidir`, `escolher`, `etc.`, and a reference to another step's result without its excerpt.
+- Planner: before presenting, check each step with the three questions in that file (files exist or `create`; symbols read or `create`; no forbidden word). Fix each `no` once.
+- Implementer: before editing a step, check it with those three questions. If it fails, mark it BLOCKED with `plan defect: <what is missing>` and return to the planner. Do not guess. Business or architecture decisions go to the operator, once.
 
 ## Boundaries
 

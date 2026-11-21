@@ -10,6 +10,8 @@
 
 ## Steps
 - Order steps by dependency. For each, specify outcome, dependencies, preconditions, paths and symbols, intended changes and limits, error behavior when relevant, acceptance, the planned check and expected evidence. Link to each settled contract or decision it applies.
+- Every file, symbol, constant and signature a step names is opened in this session and cited as `path:line`, or marked `criar no passo <id>`. A report or summary from an earlier session is not a source.
+- A step that creates or changes a contract includes the exact excerpt in a code block. Keep each step to one reviewable result and one decision.
 - Each step names the bounded paths it owns and the guideline files it follows (from the plan's `Guidelines:` line): structure and naming from `structure-and-quality.md` and the stack file, layering from the architecture file, test shape from the stack test file.
 - Parallelism only for independent steps with clear file ownership.
 - Do not mandate a test after every step. Tests come from the criteria (see Validation).
@@ -42,7 +44,7 @@
 ## Self-check and approval
 - Review the complete plan once. Trace material behavior through the technical design to steps and evidence; verify that paths and referenced contracts let a fresh executor act, and that producer and consumer guarantees agree.
 - Check only the affected content after a correction. Equivalent headings, wording and IDs are editorial; retain approval through editorial edits.
-- Persist open questions with alternatives when useful and affected work. Resolve material questions for the scope being presented before requesting approval. Continue independent preparation while a question remains open.
+- Persist open questions with alternatives when useful and affected work. Resolve material questions for the scope being presented before requesting approval. Continue independent preparation while a question remains open. No step presented for approval leaves a business or architecture choice open; such a decision is resolved first or the step is marked BLOCKED. Style and pattern gaps are settled from the existing code and recorded in the step.
 - Present the complete plan and request ONE explicit approval for its full scope.
 - Record the approval as one free line in the Operational record: approver, date and approved scope.
 - Approval is never inferred from silence or from a review.

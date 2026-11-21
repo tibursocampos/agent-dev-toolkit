@@ -15,9 +15,10 @@ Assign one bounded step to one child using `adt-sdd-develop`. Include:
 
 - canonical portable PLAN path, step identifier, and explicit `invocation_context=orchestrated`;
 - approved scope, dependencies, and acceptance for that step;
+- the step body verbatim, including its contract excerpt and its paths;
 - only relevant context and authorized evidence paths;
 - requested validation, if stated in the PLAN or needed for the acceptance;
-- instruction to return changed paths, outcome, checks performed or deferred, and any blocker.
+- instruction to return changed paths, outcome, checks performed or deferred, and any blocker; a missing business or architecture decision goes in `blockedReason` naming the decision (no new receipt field).
 
 Do not pass unrelated story data or full document bodies. Preserve repository path-containment rules. If native child dispatch is unavailable, provide the same single-step manual `/adt-sdd-develop` handoff with `invocation_context=orchestrated` and stop. Neither a spawned nor a manual executor writes the PLAN. The coordinator may mark `IN_PROGRESS` only once execution is observed.
 

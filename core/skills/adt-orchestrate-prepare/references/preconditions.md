@@ -6,7 +6,7 @@ Discover current US/TS stories and dependencies from canonical records. Reuse ex
 
 ## Questions and blockers
 
-Ask only for information that could materially change behavior, acceptance, scope, required access, or an implementation choice. Identify which story or dependency is affected. Keep unrelated stories eligible. Minor questions and optional technical improvements remain visible but do not block.
+Ask only for information that could materially change behavior, acceptance, scope, required access, or an implementation choice. Identify which story or dependency is affected. Keep unrelated stories eligible. Minor questions and optional technical improvements remain visible but do not block. A PLAN presented for approval has no open business or architecture decision that changes a step; only such a decision still open inside a step blocks that step.
 
 Brownfield status alone does not require ARCH/ANALYSIS/CHANGE artifacts, a document validator, or a preflight. Inspect existing behavior when it is relevant to the requested change; record the current behavior, intended change, concrete risks, and evidence limits in the PRD or PLAN.
 

@@ -26,7 +26,7 @@
 - Optional US: [group related criteria and steps only when useful]
 - Impact: [affected files or bounded path patterns; contracts, data migration, integrations, error handling when applicable]
 - Technical design: [contracts, paths, integrations, data and risks applicable to the change; see `../sdd-artifacts/AUTHORING-CONTENT.md`]
-- Steps: [ordered outcomes, dependencies, preconditions, paths and symbols, changes and limits, applicable failures, linked criteria and decisions, checks and evidence; safe parallelism when planned; domain skill when needed]
+- Steps: [ordered outcomes, dependencies, preconditions, paths and symbols, changes and limits, applicable failures, linked criteria and decisions, checks and evidence; safe parallelism when planned; domain skill when needed; for each contract created or changed, an exact code block (signature, JSON, curl or class excerpt); for each symbol or path, the `path:line` read in this session or `criar no passo <id>`; BLOCKED decisions named in the step]
 - Validation: [per criterion: expected test name and file, following the stack test guideline; final validation; checks specific to this change]
 
 ## Operational record
