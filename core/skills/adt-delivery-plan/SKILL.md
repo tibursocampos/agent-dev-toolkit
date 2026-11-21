@@ -79,11 +79,19 @@ After Step 0: **Read `references/command.md`** for ordered step discovery; then 
 4. **Context (mandatory).**
    - Memory-bank: if the Evidence has a `Memory-bank:` line, reuse it. Otherwise check `bank_root` and read it as `adt-delivery-refine` step 4 does (five files, selectively, or `absent`), then record the line.
    - Guidelines: use the Evidence `Guidelines:` line as an index. Read the applicable files for this scope that are not already in the current context. Use the map in `adt-delivery-refine/references/clarify.md` to find and record any additional relevant paths.
-5. **Inspect source, specialist triage.** Read relevant source only. Triage per `TRIAGE.md`; delegate per `ROSTER.md` and `SPAWN.md` only when warranted, with a local fallback. Reconcile the evidence and close material technical choices before handoff.
+5. **Inspect source, specialist triage.** Read every file and symbol the steps name, in this session, and reread them as needed; a previous report or summary is not a source. Triage per `TRIAGE.md`; delegate per `ROSTER.md` and `SPAWN.md` only when warranted, with a local fallback. Reconcile the evidence and close material technical choices before handoff.
 6. **Draft steps, validation and risks.** Shape with `PLAN-TEMPLATE.md` and `references/plan-content.md`. Keep normative content separate from operational status. Each step specifies preconditions, paths and symbols, limits, applicable failures and evidence, and cites its criteria and guideline files. Validation maps criteria to expected checks. If a step writes to docs or a README, ask the documentation-language question now (`references/plan-content.md`, "Documentation language") and record the answer in that step.
-7. **Planner self-check.** Review the complete plan once using `references/plan-content.md`. Fix a material gap and check only the affected content. Equivalent wording or formatting is editorial.
+7. **Planner self-check.** Review the complete plan once using `references/plan-content.md`. Fix a material gap and check only the affected content. Equivalent wording or formatting is editorial. Check the business and architecture decision rule of `references/plan-content.md`.
 8. **Present the plan and ask one approval.** Show the complete plan, request ONE explicit approval for its full scope, and record it as one free line in the Operational record (approver, date, scope). Set `Stage ledger` to `plan=approved` only when that explicit approval is recorded; a question, a review or silence leaves `plan=pending`. Resolve any open material question first.
 9. **Outcome and handoff.** Apply `HANDOFF.md`. Direct invocation: redraw the table at close (display point 6). Then the handoff below.
+
+## Executable steps (mandatory)
+
+Every step you write, check or execute must be executable by a less capable agent that reads only the step, the files it names and the decisions it cites. Full rule: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EXECUTABLE-STEP.md`.
+- Each step lists exact files (`modify` or `create`), exact symbols (with `path:line` read in this session, or `create`), a code block for each contract it creates or changes, numbered edits, a validation command with its filter, and acceptance IDs.
+- Forbidden in approved steps: `a confirmar`, `TBD`, `se necessário`, `ajustar se`, `conforme adequado`, `decidir`, `escolher`, `etc.`, and a reference to another step's result without its excerpt.
+- Planner: before presenting, check each step with the three questions in that file (files exist or `create`; symbols read or `create`; no forbidden word). Fix each `no` once.
+- Implementer: if a step fails those questions, mark it BLOCKED with `plan defect: <what is missing>` and return to the planner. Do not guess. Business or architecture decisions go to the operator, once.
 
 ## Must not
 

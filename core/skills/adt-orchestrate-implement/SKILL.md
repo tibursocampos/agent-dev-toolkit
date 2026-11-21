@@ -52,6 +52,13 @@ Invoke for O3 after planning, using a feature path or a specific canonical PLAN 
 | Child implementation contract | `{{TOOLKIT_ROOT}}/skills/adt-sdd-develop/SKILL.md` |
 | Handoff and closeout | `references/continuity-handoff.md` |
 
+## Executable steps (mandatory)
+
+Every step you write, check or execute must be executable by a less capable agent that reads only the step, the files it names and the decisions it cites. Full rule: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EXECUTABLE-STEP.md`.
+- Each step lists exact files (`modify` or `create`), exact symbols (with `path:line` read in this session, or `create`), a code block for each contract it creates or changes, numbered edits, a validation command with its filter, and acceptance IDs.
+- Forbidden in approved steps: `a confirmar`, `TBD`, `se necessário`, `ajustar se`, `conforme adequado`, `decidir`, `escolher`, `etc.`, and a reference to another step's result without its excerpt.
+- Implementer (the O3 child): before editing a step, check it with the three questions in that file. If it fails, return BLOCKED with `plan defect: <what is missing>` in `blockedReason`. Do not guess. Business or architecture decisions go to the operator, once.
+
 ## Must not
 
 - Never run two O3 implementation children at once or let two conversations implement the same PLAN concurrently.

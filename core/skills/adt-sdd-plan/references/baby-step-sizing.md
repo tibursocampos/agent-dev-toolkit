@@ -3,7 +3,7 @@
 Derive steps from the requested behavior, acceptance, dependencies, and available evidence. Do not create one step per file or layer, and do not invent technical work that the evidence or request does not support.
 
 - Name each step for a result that can be reviewed. Mention files or components in the planned-change detail when useful.
-- Group closely related outcomes that share dependencies and validation; separate work when it has a real independent outcome, risk, or dependency boundary.
+- Split a step when it has more than one reviewable result or more than one decision. Group only outcomes that share one result and one validation.
 - Represent only real blocking dependencies. Independent steps need not be serialized for ceremony.
 - Do not estimate duration or impose a fixed number of steps.
 - Use IDs that are easy to reference. Preserve IDs from an existing linked checklist when doing so is useful and consistent with the approved scope; otherwise derive IDs in the PLAN.

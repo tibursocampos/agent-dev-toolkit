@@ -64,6 +64,8 @@ Describe each executable step below. This description complements the table; do 
 - **Pré-condições:** [entradas ou condições necessárias além das dependências da tabela, quando relevantes]
 - **Pontos de entrada:** [caminhos portáteis e símbolos existentes ou a criar]
 - **Alterações previstas:** [comportamentos e artefatos dentro do escopo, com limites explícitos]
+- **Trecho de contrato:** [bloco de código exato quando o passo cria ou altera contrato; senão `n/a`]
+- **Verificado no código:** [`path:symbol` lidos nesta sessão; itens a criar marcados `criar`]
 - **Erros e casos de borda:** [tratamento previsto quando afeta o passo]
 - **Aceite:** [resultado verificável e referência ao comportamento no PRD quando aplicável]
 - **Validação:** [verificação necessária e evidência esperada; explicar se não houver teste específico]

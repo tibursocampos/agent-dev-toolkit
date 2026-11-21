@@ -97,6 +97,14 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 1. Report results, evidence and remaining limitations, never claiming completion without evidence; map the result to a terminal outcome per `HANDOFF.md`.
 2. Memory-bank offer (last action, after the report): ask ONCE, in the user's chat language, whether to run `adt-memory-bank` on `bank_root` (`STORAGE-FEATURE.md`, "Memory bank root"): create when `memory-bank/` is absent, `refresh-light` when present. Options `confirm` / `skip` per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Wait for the answer. `confirm` runs `adt-memory-bank`; `skip` ends here. The offer does not change the outcome and is not a gate.
 
+## Executable steps (mandatory)
+
+Every step you write, check or execute must be executable by a less capable agent that reads only the step, the files it names and the decisions it cites. Full rule: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EXECUTABLE-STEP.md`.
+- Each step lists exact files (`modify` or `create`), exact symbols (with `path:line` read in this session, or `create`), a code block for each contract it creates or changes, numbered edits, a validation command with its filter, and acceptance IDs.
+- Forbidden in approved steps: `a confirmar`, `TBD`, `se necessário`, `ajustar se`, `conforme adequado`, `decidir`, `escolher`, `etc.`, and a reference to another step's result without its excerpt.
+- Planner: before presenting, check each step with the three questions in that file (files exist or `create`; symbols read or `create`; no forbidden word). Fix each `no` once.
+- Implementer: before editing a step, check it with those three questions. If it fails, mark it BLOCKED with `plan defect: <what is missing>` and return to the planner. Do not guess. Business or architecture decisions go to the operator, once.
+
 ## Must not
 
 - Start without a valid plan approval.
@@ -117,6 +125,6 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 |-----------|------|
 | Implement done | Report the result; commit, push and PR only on the operator's specific request (`adt-commit`, `adt-push`, `adt-open-github-pr`) |
 | Blocked or failed | State the cause and the exact input or change that resolves it; no automatic retry of the same transition |
-| Open question (branch, cadence, review mode, scope change, approval, memory-bank offer) | Ask once and wait |
+| Open question (branch, cadence, review mode, scope change, approval, memory-bank offer, or a business or architecture decision missing inside an approved step) | Ask once and wait |
 
 Example, only when the operator asks for it: `adt-commit`. Paths in handoffs are portable: `features/NNN-slug/PLAN.md` (global: prefix `sdd/<repo-id>/`).

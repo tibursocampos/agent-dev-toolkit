@@ -33,6 +33,14 @@ Classic/O1/O2/O3 progress is persisted only in the canonical PLAN execution tabl
 
 On resume, trust current FEATURE/STORY/PRD/PLAN content first. Consult old CONTINUITY/CHANGE/TASKS only to resolve relevant context. If records materially conflict and available evidence cannot establish the current state, present that specific conflict and pause the affected work; do not require full conversion or infer completion from a file's presence.
 
+## Executable steps (mandatory)
+
+Every step you write, check or execute must be executable by a less capable agent that reads only the step, the files it names and the decisions it cites. Full rule: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EXECUTABLE-STEP.md`.
+- Each step lists exact files (`modify` or `create`), exact symbols (with `path:line` read in this session, or `create`), a code block for each contract it creates or changes, numbered edits, a validation command with its filter, and acceptance IDs.
+- Forbidden in approved steps: `a confirmar`, `TBD`, `se necessário`, `ajustar se`, `conforme adequado`, `decidir`, `escolher`, `etc.`, and a reference to another step's result without its excerpt.
+- Planner: before presenting, check each step with the three questions in that file (files exist or `create`; symbols read or `create`; no forbidden word). Fix each `no` once.
+- Implementer: before editing a step, check it with those three questions. If it fails, mark it BLOCKED with `plan defect: <what is missing>` and return to the planner. Do not guess. Business or architecture decisions go to the operator, once.
+
 ## Must not
 
 - Write application or test code, implement PLAN steps, or authorize work outside the approved scope.

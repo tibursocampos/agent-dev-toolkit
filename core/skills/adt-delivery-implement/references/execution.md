@@ -8,6 +8,7 @@
 
 ## Doing the work
 - Implement each step within its planned paths and outcomes. Read the applicable structure, architecture, stack and testing references from the plan's `Guidelines:` index. Reuse the target repository's observed conventions where they settle implementation or test style.
+- If a step leaves a business or architecture decision open, do not decide it: mark the step BLOCKED, record the missing decision in Progress, and ask the operator once. Style, naming and project patterns are settled from the existing code and recorded in the step.
 - A step that names a domain skill (`adt-ef-add-migration`, `adt-i18n-manager`, `adt-containerize`, `adt-test-coverage`, `adt-repair-dotnet-build`) invokes that skill for that step, inside the step's paths. No other domain skill runs.
 - Check dependencies and current state before every step and on resume.
 - When subagents are available, delegate proportionally to scope and risk, with scoped file ownership and a receipt. Follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Without subagents, implement in the current context.

@@ -14,6 +14,7 @@ Review the draft once after authoring. Fix material gaps before presenting the a
 - For brownfield work, does the plan capture current behavior, intended change, and concrete risks where relevant?
 - Are unresolved questions limited to decisions that materially affect behavior, acceptance, scope, access, or implementation? Name the affected work.
 - Is the PLAN the only persisted implementation progress source, with no duplicate status in step descriptions or auxiliary files?
-- Does the plan avoid speculative code detail, file-only step titles, durations, and unrelated improvements?
+- Does each step that creates or changes a contract carry its exact excerpt, and does the plan avoid speculative code (behavior the source does not show), file-only step titles, durations, and unrelated improvements?
+- Does any step presented for approval still leave a business or architecture choice open?
 
 Correct substantive omissions. A non-applicable prompt does not require an empty section or placeholder. Do not block the PLAN for section naming, numbering style, a fixed criterion count, or a validator's formatting preference.

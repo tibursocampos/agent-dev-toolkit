@@ -82,6 +82,14 @@ After Step 0: **Read `references/command.md`** for ordered step discovery; then 
 8. **Record in `PLAN.md`.** Follow `PLAN-TEMPLATE.md`: update Normative content in place, preserve prior decisions and Operational record progress, and mark unresolved items. Set `Stage ledger` to `refine=done` only when refinement is complete for the scope handed off. Continue independent investigation and drafting while a question affecting other work remains open.
 9. **Outcome and handoff.** Follow `HANDOFF.md`: direct invocation ends with the planning handoff; flow invocation returns control; an open material question stays here until answered. Direct invocation: redraw the table at close (display point 6). In analysis mode (`Mode: analysis`), stop after step 8 with a findings report (facts, inferences and suggestions kept apart, with `file:line`); give no plan handoff and wait for the operator's answer to the planning offer.
 
+## Executable steps (mandatory)
+
+Every step you write, check or execute must be executable by a less capable agent that reads only the step, the files it names and the decisions it cites. Full rule: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EXECUTABLE-STEP.md`.
+- Each step lists exact files (`modify` or `create`), exact symbols (with `path:line` read in this session, or `create`), a code block for each contract it creates or changes, numbered edits, a validation command with its filter, and acceptance IDs.
+- Forbidden in approved steps: `a confirmar`, `TBD`, `se necessário`, `ajustar se`, `conforme adequado`, `decidir`, `escolher`, `etc.`, and a reference to another step's result without its excerpt.
+- Planner: before presenting, check each step with the three questions in that file (files exist or `create`; symbols read or `create`; no forbidden word). Fix each `no` once.
+- Implementer: if a step fails those questions, mark it BLOCKED with `plan defect: <what is missing>` and return to the planner. Do not guess. Business or architecture decisions go to the operator, once.
+
 ## Must not
 
 - Implement, approve or publish anything.
