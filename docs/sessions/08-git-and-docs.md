@@ -2,7 +2,7 @@
 
 `adt-commit`, `adt-push`, and `adt-open-github-pr` never use chat compression. They do not open a pull request except through `adt-open-github-pr`. None of them force-push `main`, `master`, or `develop`.
 
-Allowed heads: `feature/<slug>` or `feat/<id>` (one segment). Blocked: `main`, `master`, `develop`, nested `feature/a/b`.
+For feature work, allowed heads are `feature/<slug>` or `feat/<id>` (one segment); integration branches are blocked as feature heads. Release PRs are a separate mode and use the repository's documented release source, normally `develop` → `master` or `main`.
 
 ## `adt-commit`
 

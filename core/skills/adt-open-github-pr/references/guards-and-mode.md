@@ -13,8 +13,9 @@ Then ask whether to proceed. `confirm` continues. `adjust` or `cancel` stops. Si
 
 ### 0. Resolve base and head
 
-- **Head:** the current branch. It must not be `main`, `master` or `develop`, because development skills do not run on integration branches. Full check in `references/validate-branch.md`.
-- **Base:** the repository's default branch, unless the user names another. Detect it with `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`. If the repository's PR template or docs name a different base, follow them.
-- The skill does not assume a release or feature flow. The repository defines it.
+- **Mode:** use the operator's explicit feature/release intent or branch pair. Otherwise follow the repository's PR template and release documentation; ask once only if the mode remains unclear.
+- **Head:** feature mode uses the current work branch. Release mode uses the repository's documented release source (normally `develop`), even though feature PRs must not originate from integration branches.
+- **Base:** feature mode normally targets the repository's feature-integration branch. Release mode targets the documented release branch (`master` or `main`). Detect the default with `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`, then check the named branches on `origin` and follow the operator and repository release instructions.
+- Validate the selected mode with `references/validate-branch.md`; do not apply the feature-head restriction to release mode.
 
-If the base is unclear, ask once in the user's chat language. Offer `confirm` (use the detected default branch, named in the question) and `adjust` (the user names another base branch). Ids and render rule: `core/skills/_shared/agents/QUESTIONS.md`.
+If the operator's named base does not exist, or both documented release bases exist without a repository preference, ask once in the user's chat language and name the available branch(es). Offer `confirm` for the explicitly stated available base or `adjust` to name another base. Ids and render rule: `core/skills/_shared/agents/QUESTIONS.md`.

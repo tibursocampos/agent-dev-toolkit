@@ -73,14 +73,14 @@ Read `references/<section>.md` for procedural detail — **not** full `reference
 ### -1 / 0. Guards and mode
 Follow `references/guards-and-mode.md` (Caveman **NEVER**; re-check guardrails; resolve the base and the head).
 
-### 1. Validate branch (blocker)
-Follow `references/validate-branch.md`. If blocked, stop — do not create a PR.
+### 1. Validate branch for the selected mode (blocker)
+Follow `references/validate-branch.md`. Feature PRs require a work-branch head. Release PRs use the repository's documented release source and destination; in the standard `develop` → `master`/`main` flow, `develop` is the valid head. Do not apply the feature-branch restriction to release mode.
 
 ### 2. Preflight - GitHub CLI
 Follow `references/preflight.md`. Prefer authenticated `gh`; STOP with install help if unavailable.
 
 ### 3. Ensure branch is pushed
-Follow `references/ensure-pushed.md`. Hand off to `/adt-push` when needed. Never force-push protected branches.
+Follow `references/ensure-pushed.md`. Feature mode checks the current work branch; release mode checks the documented remote release head. Hand off to `/adt-push` only when the requested head contains local commits that need publishing. Never force-push protected branches.
 
 ### 4. Resolve PR body template
 Follow `references/resolve-template.md`.
