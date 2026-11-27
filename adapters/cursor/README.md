@@ -19,7 +19,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot .\scri
 |------|-------|
 | Skills path (live) | `~/.cursor/skills/<id>/SKILL.md` |
 | Explicit form | `/id` |
-| Examples | `/help-skills`, `/sdd-spec`, `/developer` |
+| Examples | `/adt-help-skills`, `/adt-sdd-spec`, `/adt-developer` |
 | Also | Customize â†’ Skills (picker / auto) |
 
 Canonical form is the skill **id**; `/` is the Cursor host prefix. Hooks trust UI is separate from skill invoke.
@@ -73,7 +73,7 @@ Skills prefer Task when `subagents=native`; fallback in-parent when Task unavail
 
 ### Child assignment lifecycle
 
-Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as idle. Continue it (SendMessage where the host offers it) only for the same topic and scope while its context is still relevant; never reuse it for a different topic, a different scope, or an already large context. A new task, review, or correction on a different scope must use a fresh child handle. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
+Lifecycle: see core/skills/_shared/agents/SPAWN.md section "Task ownership and lifecycle": batch related work, never reuse a returned child for a different topic or scope (use a fresh child), and the host manages teardown, so no process or context termination is claimed. Close control: unknown. Caps and checklist: SPAWN.md.
 
 ## Hooks merge
 
@@ -94,22 +94,21 @@ When this toolkit is installed **per agent** via sync (separate Cursor and Claud
 3. **Publish model:** The toolkit already publishes separately to `~/.cursor` and `~/.claude` (and other InstallRoots). Rely on those syncs â€” not on Cursor importing third-party agent homes.
 4. **Storage mode** (repository vs global / live home) remains a **user choice**. This note does not require forcing repository-scoped install.
 
-## Shell allowlist (WS10 / REQ-013)
+## Session helper
 
-Operator tip for O3 / `sdd-develop` Shell friction. Prefer **allowlisting** the two canonical `-File` scripts (cwd = repo root) so one approve covers the session gate + ledger claim chain. Sessions root defaults to `~/.cursor/sdd/sessions` (or `$SDD_ROOT/sessions`).
+`Invoke-DevelopSessionGate.ps1` is used by `adt-document-implement`, whose contract explicitly retains session state. Classic SDD and Orchestrated Delivery do not require session gates or PLAN claims. When using the retained helper, an operator may opt into an explicit host allowlist for this path (cwd = repo root); no broad or silent Shell approval is implied.
 
 | Script (portable) | Role |
 |-------------------|------|
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent develop `step_confirmed` |
-| `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Atomic PLAN-LEDGER claim SoT |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Session helper for `adt-document-implement` |
 
 **Opt-in only (RNF-004):**
 
-- Operator must explicitly allowlist these paths in the host Shell approve UI.
+- Operator explicitly allowlists the helper path in the host Shell approve UI when needed.
 - **Do not** ship or enable a hooks “auto-approve all Shell” / silent policy mutation.
-- Cursor publishes no guard: `preToolUse` and `beforeShellExecution` stay empty arrays in `hooks.json`. Allowlisting these scripts does not change any toolkit hook; the host's Shell approval and permission settings remain the only gate.
+- Cursor publishes no guard: `preToolUse` and `beforeShellExecution` stay empty arrays in `hooks.json`. Allowlisting this helper does not change any toolkit hook; the host's Shell approval and permission settings remain the only gate.
 
-O3 skill pointer: `core/skills/orchestrate-develop/references/step-queue-spawn.md` § Canonical Shell boundary. CLI summary: [docs/domains/cli-scripts.md](../../docs/domains/cli-scripts.md).
+CLI summary: [docs/domains/cli-scripts.md](../../docs/domains/cli-scripts.md#session-helper-document-implement).
 
 ## Official docs (Cursor)
 

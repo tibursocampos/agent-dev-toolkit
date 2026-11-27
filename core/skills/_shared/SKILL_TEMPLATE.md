@@ -30,7 +30,7 @@ description: >-
 
 ## STOP - Read before ANY tool call
 
-Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the silent gate check (verified without printing a checklist; report in chat only the failing items; SESSION.md is mandatory at turn 1; PIPELINE.md is conditional, see `_shared/sdd-artifacts/INDEX.md`; `orchestrate-*` always read PIPELINE.md), and the user chat language rule. Do not copy those rules into the skill. Add only skill-specific gate lines after this pointer.
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the silent gate check (verified without printing a checklist; report in chat only the failing items; SESSION.md is mandatory at turn 1; PIPELINE.md is conditional, see `_shared/sdd-artifacts/INDEX.md`; `adt-orchestrate-*` always read PIPELINE.md), and the user chat language rule. Do not copy those rules into the skill. Add only skill-specific gate lines after this pointer.
 
 ### Caveman (participating skills)
 
@@ -47,7 +47,7 @@ Add under **Process** (after the STOP pointer). Cap = `Lite` | `Full` | `Never` 
 5. Auto-Clarity + never-compress gates/drafts/paths.
 ```
 
-**NEVER** (`commit`, `push`):
+**NEVER** (`adt-commit`, `adt-push`):
 
 ```
 ### Caveman Mode
@@ -62,7 +62,7 @@ Lazy-load row when applicable: `| Caveman Mode (if active) | {{TOOLKIT_ROOT}}/sk
 
 The STOP pointer above is 3 lines and does not count toward editorial budget.
 
-**Size:** hard limit **500 lines** total per `SKILL.md` (Agent Skills convention). Soft targets: workflow skills 150-300 lines after the gate; atomic skills (`push`) may be shorter. Put long templates in `reference.md` but keep decision tables and must-not inline.
+**Size:** hard limit **500 lines** total per `SKILL.md` (Agent Skills convention). Soft targets: workflow skills 150-300 lines after the gate; atomic skills (`adt-push`) may be shorter. Put long templates in `reference.md` but keep decision tables and must-not inline.
 
 - **Trigger** - lead with skill **id** `<name>`; note host forms (`/<name>`, `$<name>`, `use skill <name>`, OpenCode `skill` tool) briefly
 - **Outcome**
@@ -71,7 +71,7 @@ The STOP pointer above is 3 lines and does not count toward editorial budget.
 - **Must not**
 - **Handoff** - exact next skill id: `` `<next-skill> - <full-paths>` `` (host prefixes optional in examples)
 
-### New `*-developer` skills — subagent-first (mandatory)
+### New `adt-*-developer` skills — subagent-first (mandatory)
 
 Align with US02: do **not** redefine spawn policy in the skill body. Point + short Process echo only.
 
@@ -93,7 +93,7 @@ Classify complexity → consult capability `subagents` → if medium/complex and
 
 Stable assert markers (exact substrings): `SPAWN.md`, `subagents`, `in-parent`, `fallback`, `receipt`, `paths` — see `subagent-first.md`.
 
-Gold-bar reference: `dotnet-developer/SKILL.md` (gate, SDD table, developer-common steps, SPAWN).
+Gold-bar reference: `adt-dotnet-developer/SKILL.md` (gate, SDD table, developer-common steps, SPAWN).
 
 ### Develop skills - mandatory session end
 
@@ -109,7 +109,7 @@ Gold-bar reference: `dotnet-developer/SKILL.md` (gate, SDD table, developer-comm
 
 ### Pipeline skills — `references/command.md` packing
 
-Pipeline skills (`orchestrate-*`, `sdd-spec`, `sdd-plan`, `sdd-develop`, `refine-story`, `memory-bank-init`) **must** ship:
+Pipeline skills (`adt-orchestrate-*`, `adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`, `adt-refine-story`, `adt-memory-bank`) **must** ship:
 
 ```text
 skill-id/

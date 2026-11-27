@@ -8,7 +8,7 @@ When SPAWN / Orchestrated Delivery prefer a specialist child:
 
 1. Call **`delegate_task`** with a clear `goal` and a self-contained `context`.
 2. Put in `context`: portable paths (FEATURE / CONTINUITY / PLAN / story notes), role, and receipt requirement (`RECEIPT.md`). Do **not** paste guideline packs, full SKILL bodies, or large policy dumps.
-3. O3 develop: **one child = one PLAN step** (`sdd-develop` contract). Parent updates CONTINUITY only; parent never writes application code.
+3. O3 develop: **one child = one PLAN step** (`adt-sdd-develop` contract). Parent updates CONTINUITY only; parent never writes application code.
 4. Prefer `role=leaf` (default). Nested `role=orchestrator` is optional operator config — the toolkit does **not** emit `delegation.*` YAML.
 
 ### Where this file applies
@@ -23,4 +23,4 @@ Official: [Subagent delegation](https://hermes-agent.nousresearch.com/docs/user-
 
 ### `delegate_task` lifecycle
 
-Batch related, bounded work before dispatch. Each `delegate_task` call is one child assignment: once it returns any result (complete, incomplete, blocked, or failed), treat that child handle as idle. Continue it (SendMessage where the host offers it) only for the same topic and scope while its context is still relevant; never reuse it for a different topic, a different scope, or an already large context. A new task, review, or correction on a different scope must use a fresh `delegate_task` call. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use Hermes' close/stop control when available; termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `skills/_shared/agents/SPAWN.md`.
+Lifecycle: see core/skills/_shared/agents/SPAWN.md section "Task ownership and lifecycle": batch related work, never reuse a returned child for a different topic or scope (use a fresh child), and the host manages teardown, so no process or context termination is claimed. Close control: unknown. Caps and checklist: SPAWN.md.

@@ -57,7 +57,7 @@ Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
 - [ ] Diff limited to stated acceptance (YAGNI)
 - [ ] Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield ([structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2)
 - [ ] No new CSS framework without ask
-- [ ] Conventional commit message ready (via `/commit` when requested)
+- [ ] Conventional commit message ready (via `/adt-commit` when requested)
 - [ ] Guideline paths touched: `semantic-html`, `accessibility-basics`, `css-foundations`, `modern-css`, `scss-guidelines`, `inclusive-components` as applicable
 
 ### Quick verify

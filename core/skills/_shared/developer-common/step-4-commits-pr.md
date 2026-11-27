@@ -73,19 +73,19 @@ Ask user to approve the message before committing when the skill is interactive.
 
 ## 4.4. Pull request (optional, user-driven)
 
-Create a PR only when the user asks (or answers `confirm` to the post-`/push` offer).
+Create a PR only when the user asks (or answers `confirm` to the post-`/adt-push` offer).
 
-**Required path:** invoke **`/open-github-pr`** and follow that skill end-to-end (mode, `gh` preflight, template, body confirmation, **mandatory** auto-merge ask).  
+**Required path:** invoke **`/adt-open-github-pr`** and follow that skill end-to-end (mode, `gh` preflight, template, body confirmation, **mandatory** auto-merge ask).
 
-**`/commit` and `/push` must not** create or merge pull requests themselves (CLI or web compare) — they only hand off to `/open-github-pr`.
+**`/adt-commit` and `/adt-push` must not** create or merge pull requests themselves (CLI or web compare) — they only hand off to `/adt-open-github-pr`.
 
-**Bundled intent:** phrases like `fluxo completo`, `abra o PR`, `criar PR`, `commit + push + PR`, or `open the PR` mean: after push, **enter `/open-github-pr` immediately** (do not invent a shortcut create). That skill still asks for title/body confirmation and auto-merge; do not infer auto-merge from those phrases.
+**Bundled intent:** phrases like `fluxo completo`, `abra o PR`, `criar PR`, `commit + push + PR`, or `open the PR` mean: after push, **enter `/adt-open-github-pr` immediately** (do not invent a shortcut create). That skill still asks for title/body confirmation and auto-merge; do not infer auto-merge from those phrases.
 
 The base branch is the one the repository defines (its PR template or docs), or the one the user or PLAN names. The toolkit does not set a base or a release flow.
 
-After a successful `/push`: if PR intent was already stated, hand off to `/open-github-pr` without re-asking “abrir?”; otherwise `/push` **asks** in the user chat language whether to open a PR; on `confirm`, load `/open-github-pr`.
+After a successful `/adt-push`: if PR intent was already stated, hand off to `/adt-open-github-pr` without re-asking “abrir?”; otherwise `/adt-push` **asks** in the user chat language whether to open a PR; on `confirm`, load `/adt-open-github-pr`.
 
-**Fallback — GitHub web UI** (only inside `/open-github-pr` when `gh` is unavailable, or if the user explicitly refuses the skill and asks for UI steps):
+**Fallback — GitHub web UI** (only inside `/adt-open-github-pr` when `gh` is unavailable, or if the user explicitly refuses the skill and asks for UI steps):
 
 1. Ensure the feature branch is pushed.
 2. Open the repository on GitHub → **Compare & pull request** (or **Pull requests** → **New**).
@@ -106,7 +106,7 @@ No MCP work-item linking, no corporate PR template APIs, no mandatory `pr-analyz
 ## 4.5. After commit
 
 - Confirm `git status` clean (or only intentional untracked files).
-- For SDD: update PLAN via `sdd-develop` skill before starting the next step in a new chat.
+- For SDD: update PLAN via `adt-sdd-develop` skill before starting the next step in a new chat.
 
 ---
 

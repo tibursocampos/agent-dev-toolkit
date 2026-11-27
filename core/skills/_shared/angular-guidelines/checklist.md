@@ -59,7 +59,7 @@ Pointers only — do not paste style-guide / gist bodies. **angular.dev wins** a
 - [ ] Best practices: https://angular.dev/best-practices
 - [ ] Signals: https://angular.dev/guide/signals
 - [ ] Testing: https://angular.dev/guide/testing
-- [ ] Catalog: `skills/framework-upgrade/references/sources-catalog.md`
+- [ ] Catalog: `skills/adt-framework-upgrade/references/sources-catalog.md`
 
 ---
 
@@ -103,7 +103,7 @@ Inspect `angular.json`, the lockfile, and `package.json` scripts first; preserve
 - [ ] Diff limited to stated acceptance (YAGNI)
 - [ ] No new NgModules or state libraries without need
 - [ ] No secrets in `environment.*`
-- [ ] Conventional commit message ready (via `/commit` when requested)
+- [ ] Conventional commit message ready (via `/adt-commit` when requested)
 - [ ] Guideline paths touched: `style-and-structure`, `standalone-and-templates`, `signals-and-state`, `di-routing-forms`, `rxjs-lifecycle`, `testing` as applicable
 
 ---
@@ -115,4 +115,4 @@ Inspect `angular.json`, the lockfile, and `package.json` scripts first; preserve
 - [Angular — Testing](https://angular.dev/guide/testing)
 - [Angular — Signals](https://angular.dev/guide/signals)
 - Cross-stack: `../code-guidelines/principles/structure-and-quality.md`
-- Upgrade sources catalog (normative vs auxiliary): `skills/framework-upgrade/references/sources-catalog.md`
+- Upgrade sources catalog (normative vs auxiliary): `skills/adt-framework-upgrade/references/sources-catalog.md`

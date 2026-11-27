@@ -6,15 +6,15 @@ Language: English
 | Field | Value |
 |-------|-------|
 | **Repo** | agent-dev-toolkit |
-| **Inventory at** | 2026-10-30T00:32:30Z |
-| **Status** | ready |
-| **Inventory hash** | `8aff168d2fe4178874796e16319d5e7c15d994e1bede413229116e70fa0b3fe3` |
-| **Primary stack signals** | 138 source(s); stack: markdown, powershell |
+| **Inventory at** | 2026-11-20T16:26:13.4871755Z |
+| **Status** | ready — sources indexed with hash and summary |
+| **Inventory hash** | `fb07cb6220b3a73b1db80888222f17cc0e77c9aeb49d4654afa0b176d4450bcc` |
+| **Primary stack signals** | 144 source(s); stack: markdown, powershell; 52 skills |
 <!-- END GENERATED: inventory-summary -->
 
 ## Purpose
 
-**agent-dev-toolkit** ships one portable core (skills, policy, router, SDD contracts) plus per-agent adapters that publish that core into host install roots. `scripts/toolkit.ps1` syncs, validates, and uninstalls. The default write destination is an in-repo fixture. Live profile writes require `-AllowUserHome`.
+**agent-dev-toolkit** ships one portable core (skills, policy, router, SDD contracts) plus per-agent adapters that publish that core into host install roots. The core includes `adt-settings` for session-wide subagent model and effort selection, with parent inheritance as the fallback. `scripts/toolkit.ps1` syncs, validates, and uninstalls. The default write destination is an in-repo fixture. Live profile writes require `-AllowUserHome`.
 
 ## Actors / users
 

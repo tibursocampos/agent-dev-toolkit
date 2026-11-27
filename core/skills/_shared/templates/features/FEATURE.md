@@ -4,50 +4,53 @@
 |-------|--------|
 | **Id** | `{{NNN}}-{{slug}}` |
 | **Path** | `features/{{NNN}}-{{slug}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/` (global; portable path — see `STORAGE.md` § Portable path) |
-| **Scope** | backend \| frontend \| fullstack |
-| **Nature** | greenfield \| brownfield \| operational |
-| **Complexity** | trivial \| medium \| complex |
-| **Status** | draft \| approved \| in-progress \| done |
+| **Scope (when known)** | backend \| frontend \| fullstack |
+| **Nature (when known)** | greenfield \| brownfield \| operational |
+| **Complexity (when useful)** | trivial \| medium \| complex |
 
 ## Problem
 
 {{PROBLEM}}
 
-Mandatory for synthesis gates (ARCH / REQ-002). Describe the user or business pain — not a file checklist.
+Describe the user or business need when it helps explain the intended outcome. Do not use this document as a file checklist.
 
 ## Goals
 
 - {{GOAL_1}}
 - {{GOAL_2}}
 
-Observable outcomes for the initiative. Empty Goals fail FEATURE quality gates.
+Observable outcomes for the initiative. Use measurable targets when there is a basis for them.
 
 ## Non-goals
 
 - {{NON_GOAL_1}}
 - {{NON_GOAL_2}}
 
-Explicit out-of-altitude items (what this FEATURE will **not** solve). Empty Non-goals fail FEATURE quality gates.
+Use when explicit exclusions help prevent scope confusion; do not add placeholder non-goals.
 
 ## Macro acceptance criteria
 
 Filled prose in this file follows the chat language (`LANGUAGE.md`). Ids and severity tokens stay English.
 
-| Id | Observable result | Condition | Failure | Disposição / destino |
-|----|-------------------|-----------|---------|-----------------------|
-| AC-01 | {{OBSERVABLE_RESULT}} | {{CONDITION}} | {{FAILURE}} | {{STORY_IDS_OR_EXISTING_DECISION_OR_QUESTION}} |
+| Id (optional) | Observable result | Condition (when relevant) | Failure or boundary (when relevant) | Story or decision reference (when useful) |
+|--------------|-------------------|--------------------------|-----------------------------------------|------------------------------------------|
+| {{OPTIONAL_ID}} | {{OBSERVABLE_RESULT}} | {{CONDITION_OR_OMIT}} | {{FAILURE_OR_BOUNDARY_OR_OMIT}} | {{REFERENCE_OR_OMIT}} |
 
-Each row needs an observable result, the condition under which it holds, and the failure when it does not. Do not leave a criterion that cannot be checked. Do not put a file checklist here.
+Use only for initiative-level outcomes that help divide or assess the work. Keep outcomes observable where possible; omit conditions or failure details that do not apply. Do not put a file checklist here.
 
-For each material behavior, use the last column to reference the promoted story ID(s), an unchanged preservation, an explicitly approved exclusion by existing `decision_id`, or an unresolved existing `question_id`. Record the decision only in **Decisions** and the question only in **Open questions**; do not create a second decision list. Compare the current decision with the actual normative text it governs. A link or ID alone does not prove agreement, and a superseded row remains historical. State why a disposition is not applicable when that is the case.
+Use links or stable IDs when they make a material behavior easier to trace. Keep decisions and unresolved material questions in their own sections; do not duplicate them here.
 
-## Evidence
+## Definition of Done
+
+[Integrated verification across stories, including the behavior at their shared boundaries and the expected evidence. Individual story closure is recorded in its own PLAN.]
+
+## Evidence (when useful)
 
 | Campo | Valor |
 |-------|--------|
 | **Evidence** | {{EVIDENCE_PATH_OR_REDACTED_OR_OMITTED}} |
 
-**Rule: omit > fabricate.** Prefer portable paths or redacted snippets. If no real signal exists, use `omitted — none yet` — never invent quotes, metrics, or PII. See `skills/_shared/backlog-item-types/product-evidence-lite.md`. Scorecard must not force inventing Evidence.
+Prefer relevant portable paths or redacted snippets. Never invent quotes, metrics, or PII. See `skills/_shared/backlog-item-types/product-evidence-lite.md`.
 
 For an external source that may be needed during O3, cite `external:<alias>/<relative-path>` (for example, `external:Demandas/brief/source.md`) without its root. This records a portable evidence reference; it does not authorize O3 access. The O3 coordinator authorizes the alias and provides the alias-to-root map separately to the runtime guard (`STORAGE.md` § External evidence references for O3; `RECEIPT.md`).
 
@@ -67,52 +70,54 @@ Omit the table when unknown — do not fabricate numbers (`product-evidence-lite
 
 ## Decisions
 
-| question_id | decision_id | Decision | Affected normative artifact/section (REQ/CA) | Status | Superseded by |
+| question_id | decision_id | Decision and source | Affected normative artifact/section (REQ/CA) | Status | Superseded by |
 |-------------|-------------|----------|---------------------------------------------|--------|--------------|
 | {{Q-001}} | {{D-001}} | {{DECISION_PROSE}} | {{PORTABLE_PATH_AND_SECTION; REQ-### / CA# WHEN APPLICABLE}} | resolved | — |
 
-One row per closed question. `question_id` and `decision_id` stay stable. Link each decision to the portable path and section it changes or governs, including applicable `REQ-###` and `CA#` ids; use `n/a` only when no normative artifact or section is affected yet. Status is `resolved` only for an explicit user answer or a cited portable evidence path, or `superseded` when a later decision replaces it. Keep superseded rows and their original targets; record the replacing `decision_id` in **Superseded by**. Append history instead of deleting or rewriting prior decisions. When carrying a decision into a material behavior, inspect the current normative destination; a valid link does not establish that its text agrees, and an older decision does not become current by recency.
+Keep stable IDs when they help refer to material decisions. Record only decisions that affect scope, behavior, acceptance, or implementation; a short decision note is sufficient. Preserve relevant decision history without requiring a fixed schema or repeated traceability fields.
 
 ## Open questions
 
-| Id | Severity | Impact | Owner | Question |
+| Id | Severity | Impact / affected work | Owner | Question and options |
 |----|----------|--------|-------|----------|
 | Q-001 | B \| I \| MINOR | {{IMPACT}} | Product \| Engineering \| UX | {{QUESTION}} |
 
-Severity tokens: `B`, `I`, `MINOR` (`readiness-severity.md` § Open-question gate). Owner: `Product`, `Engineering`, or `UX`. Any non-empty unanswered row blocks story folders (`open_question`). Silence does not close a row. "I do not know" leaves the row open.
+Use this section for unresolved questions that may affect behavior, acceptance, scope, required access, or an implementation choice. Name the affected work and an owner when useful. A question blocks only the work that cannot proceed without its answer; minor questions and optional improvements remain visible without blocking unrelated work.
 
 ## Histórias
 
-| Id | Tipo | Título | Rationale | Product intent | Macro AC / decision ids | Status |
-|----|------|--------|-----------|----------------|------------------------|--------|
-| US01 | US | {{STORY_TITLE}} | {{WHY_THIS_STORY}} | {{WHO_JOB_OUTCOME_OR_N_A}} | {{FEATURE_AC_AND_CURRENT_DECISION_IDS}} | draft |
+| Id (when assigned) | Tipo | Título | Rationale (when useful) | Product intent (US) | Outcome/decision references (when useful) |
+|--------------------|------|--------|--------------------------|--------------------|------------------------------------------|
+| {{STORY_ID}} | {{US_TS_OR_BUG}} | {{STORY_TITLE}} | {{WHY_SEPARATE_IF_NEEDED}} | {{WHO_JOB_OUTCOME_OR_N_A}} | {{REFERENCES_OR_OMIT}} |
 
 `Product intent` = Who / Job / Outcome (or `n/a` for pure TS/Bug). See `skills/_shared/backlog-item-types/persona-context.md`. `Rationale` = why this story is separate (sizing / anti-task-shatter). Cap ≤4 US/TS unless rationale is explicit (`feature-altitude.md`).
 
-List the existing macro-acceptance and applicable current decision ids carried by each story. The acceptance text in STORY must preserve the behavior those ids identify; the ids are a navigation aid, not proof of semantic agreement. Do not add story rows for an unresolved question or an unapproved exclusion.
+Use references to show where a story came from when helpful. An unresolved question may be recorded while independent stories are prepared; do not treat a suggestion as approved scope.
 
-The table may stay empty until the open-question gate passes. Do not add story rows while an open question remains on this FEATURE.
+Stories may be drafted while questions remain open. Keep affected scope clear and do not proceed with dependent implementation until a material decision is resolved.
 
-## Flags (`needs_*`)
+## Investigation signals (optional)
+
+Use only to identify a concrete question that may need specialist investigation. A flag or classification alone does not require an agent, folder, or sidecar.
 
 | Flag | Valor |
 |------|-------|
-| needs_api | false |
-| needs_domain | false |
-| needs_database | false |
-| needs_frontend | false |
-| needs_security | false |
-| needs_devops | false |
+| needs_api | {{TRUE_IF_A_CONCRETE_QUESTION_EXISTS}} |
+| needs_domain | {{TRUE_IF_A_CONCRETE_QUESTION_EXISTS}} |
+| needs_database | {{TRUE_IF_A_CONCRETE_QUESTION_EXISTS}} |
+| needs_frontend | {{TRUE_IF_A_CONCRETE_QUESTION_EXISTS}} |
+| needs_security | {{TRUE_IF_A_CONCRETE_QUESTION_EXISTS}} |
+| needs_devops | {{TRUE_IF_A_CONCRETE_QUESTION_EXISTS}} |
 
 ## Related
 
 | Relação | Path portátil |
 |---------|---------------|
-| CONTINUITY | `features/{{NNN}}-{{slug}}/CONTINUITY.md` (omit if absent) |
-| CHANGE | `features/{{NNN}}-{{slug}}/CHANGE.md` — required when **Nature** = `brownfield`; greenfield must not force an empty stub (`CHANGE-CONTRACT.md`) |
 | STORY | `features/{{NNN}}-{{slug}}/US01/STORY.md` (ajustar ids; omit if absent) |
 | PRD / PLAN | story `PRD/` / `PLAN/` when on-disk (omit if absent) |
 
 Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Portable paths only. Omit-if-absent — do not stub siblings only for links.
 
-Norms: `skills/_shared/backlog-item-types/feature-altitude.md`, `product-evidence-lite.md`.
+Norms: `skills/_shared/backlog-item-types/feature-altitude.md`, `product-evidence-lite.md`, and `skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md`.
+
+Existing `CONTINUITY.md`, `CHANGE.md`, and `TASKS` files may be consulted as optional context. New FEATURE work does not require creating, converting, synchronizing, or deleting them. For brownfield impact, record current behavior, intended change, and concrete risks in the PRD or PLAN when relevant.

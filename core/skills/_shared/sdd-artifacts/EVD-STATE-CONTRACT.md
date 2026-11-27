@@ -45,7 +45,7 @@ Policy name: **evidence-or-zero**.
 | `standard` | `cheap` + every matrix row has a non-empty evidence path under `EVD/` |
 | `strict` | `standard` + every matrix **Result** is `pass` (no `pending` / empty / `fail`) |
 
-Default for post-implementation verify in `sdd-develop`: **`cheap`** (override via `-Level` or STATE field **Evidence level**).
+Default for post-implementation verify in `adt-sdd-develop`: **`cheap`** (override via `-Level` or STATE field **Evidence level**).
 
 **Gate:** level ≥ `cheap` with zero evidence → gate **fails** (exit ≠ 0). Do not mark the PLAN step done.
 
@@ -69,12 +69,12 @@ Template stub: `skills/_shared/templates/features/EVD/README.md`.
 
 ## Verifier ≠ O3 parallelism
 
-Evidence verification is a **sequential** gate inside the same `sdd-develop` session (or a deterministic script).
+Evidence verification is a **sequential** gate inside the same `adt-sdd-develop` session (or a deterministic script).
 
 | Allowed | Forbidden |
 |---------|-----------|
 | Run `validate-evidence.ps1` in the develop child after tests | Spawn Agent / O3 parallel children **as the verifier mechanism** |
-| Parent asks child to include evidence before marking done | Treat `orchestrate-develop` parallelism as “proof” that ACs passed |
+| Parent asks child to include evidence before marking done | Treat `adt-orchestrate-implement` parallelism as “proof” that ACs passed |
 | Serial re-run of validate after fixing EVD/STATE | Parallel “verify” wave that replaces STATE/EVD |
 
 O3 may still parallelize **implementation** of **disjoint PLAN steps** when the PLAN and operator allow — that is unrelated to the evidence verifier.
@@ -113,7 +113,7 @@ Exit 0 = policy satisfied. Exit ≠ 0 = fix before marking the step done. Determ
 
 | Moment | Action |
 |--------|--------|
-| During / after `sdd-develop` step that claims AC coverage | Create/update `EVD/` + `STATE.md`; run `validate-evidence` |
+| During / after `adt-sdd-develop` step that claims AC coverage | Create/update `EVD/` + `STATE.md`; run `validate-evidence` |
 | Level `off` | Optional artifacts; no gate |
 | Before PLAN step **Completed** when level ≥ `cheap` | Gate must pass |
 

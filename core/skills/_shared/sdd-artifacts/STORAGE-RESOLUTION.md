@@ -4,7 +4,7 @@ Load this reference when selecting repository/global storage, resolving `manifes
 
 ## Global manifest and dynamic storage resolution (schema v2)
 
-> **Used by:** all `sdd-*`, `refine-story`, `split-story-checklist`, and Orchestrated Delivery `orchestrate-*` skills.
+> **Used by:** all `adt-sdd-*`, `adt-refine-story`, `adt-split-story-checklist`, and Orchestrated Delivery `adt-orchestrate-*` skills.
 
 ### Effective SDD_ROOT
 
@@ -75,7 +75,7 @@ Toolkit-wide runtime preferences (Caveman Mode, parent orchestrator mode, option
 | `caveman_level` | string | `"full"` | `lite` \| `full` \| `ultra` when mode ON |
 | `orchestrator_mode` | string | `"adaptive"` | `always` \| `adaptive` — parent orchestrator policy (`orchestrator-session`) |
 | `artifact_language` | string \| null | `null` | Optional SDD artifact language override; when `null`, match user chat per `LANGUAGE.md` |
-| `verify_mode` | bool | `false` | When `true`, O3 spawns a read-only verifier child after each implementer returns (`orchestrate-develop` Step 5.5) |
+| `verify_mode` | bool | `false` | When `true`, O3 spawns a read-only verifier child after each implementer returns (`adt-orchestrate-implement` Step 5.5) |
 
 In-session commands update this file (`caveman on|off|…`, `orchestrator always|adaptive|status`). On an interactive first sync, `toolkit.ps1` asks for parent mode (`always`/`adaptive`) and Caveman (`on`/`off`) in the same flow. Caveman on is recommended; off disables response compression. With `WhatIf`, neither prompt nor write occurs. These installation preferences do not select manual versus O3 execution for an individual invocation.
 
@@ -146,7 +146,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
 | PRD/PLAN | Under story `PRD/` / `PLAN/` only | Same under global feature root |
 | `.gitignore` SDD block | Per `features_versioned` (see § Repository mode); `docs/documentation-plan/plan.md` remains ignored; **not** `/memory-bank/` | Do **not** edit project `.gitignore` |
 | Root / flat `PRD/`/`PLAN/` | Not used (ignored if present) | Not used |
-| Leading `/` on ignore patterns | Must not ignore `skills/sdd-plan/` or templates | N/A |
+| Leading `/` on ignore patterns | Must not ignore `skills/adt-sdd-plan/` or templates | N/A |
 
 ### User storage prompt (chat only — mirror user language; pt-BR example below)
 

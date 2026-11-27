@@ -96,7 +96,7 @@ The shell wrapper needs `bootstrap.ps1` beside it and runs it with `pwsh` in the
 | `-DirectSync` | After extract, call `sync-agent.ps1` instead of `toolkit.ps1` |
 | `-SyncWhatIf` | With `-DirectSync`: forward `-WhatIf` to `sync-agent.ps1` (safe smoke) |
 | `-Agent` / `TOOLKIT_SYNC_AGENT` | Registry agent id when `-DirectSync` (default `cursor`) |
-| `-InstallRoot` / `-AllowUserHome` / `-Mode` / `-UserScope` | Forwarded to `sync-agent.ps1` when `-DirectSync` runs (same live-home rules as § 3) |
+| `-InstallRoot` / `-AllowUserHome` / `-Mode` / `-UserScope` / `-CodexSkillDistribution` | Forwarded to `sync-agent.ps1` when `-DirectSync` runs (same live-home rules as § 3) |
 | `-ZipAssetName` / `TOOLKIT_RELEASE_ZIP_ASSET` | Override zip asset (default `agent-dev-toolkit.zip`) |
 | `-ChecksumAssetName` / `TOOLKIT_RELEASE_CHECKSUM_ASSET` | Override checksum asset (default `agent-dev-toolkit.zip.sha256`) |
 | `-ExpectedSha256` | Hex SHA256 override (skips checksum download; useful for smoke) |
@@ -122,7 +122,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 
 | Menu | What it does |
 |------|----------------|
-| **Sync agent** | Publish skills/policy/hooks — wizard picks agent, then **live home (Enter default)** / fixture / custom path |
+| **Sync agent** | Publish skills/policy/hooks — wizard picks agent, Codex skill destinations when applicable, then **live home (Enter default)** / fixture / custom path |
 | **Validate agent** | `validate-core` + adapter smoke for one agent |
 | **Sync then validate** | Sync, then smoke the same target |
 | **Validate core only** | Repo checks only (`Assert-GuardShellCanonicalPaths.ps1` and `Assert-TraceEmitterFailOpen.ps1`) — **no** agent home write. The full local suite is `scripts/validation/validate-core.ps1` |
@@ -156,6 +156,7 @@ Sync / Validate / Uninstall **require** `-Agent` when not using the menu (no sil
 | `-InstallRoot` | Target root (omit = adapter in-repo fixture) |
 | `-AllowUserHome` | Required when InstallRoot resolves under `%USERPROFILE%` / `$HOME` |
 | `-Mode` | Required for `copilot`: `user` or `repo` |
+| `-CodexSkillDistribution` | Codex only: `Both` (default), `Local`, or `Plugin` |
 | `-Quiet` / `-SkipSmoke` | Forwarded to validate-agent / validate-core |
 | `-Action Backup` | Not implemented (fail-closed unless `-ForceStub` for tests) |
 
@@ -167,7 +168,9 @@ Prefer the menu (option 1) for day-to-day use. These call the same orchestrators
 
 ### Interactive Sync: live home is the wizard default
 
-In `toolkit.ps1` (no `-Action`), after picking an agent the target menu defaults to **[1] Live agent home** (Enter). Confirm before write. Choose **[2] In-repo fixture** to avoid profile writes.
+In `toolkit.ps1` (no `-Action`), after picking Codex, choose the skill destinations: **Both** (default behavior), **Local**, or **Plugin**. The target menu then defaults to **[1] Live agent home** (Enter). Confirm before write. Choose **[2] In-repo fixture** to avoid profile writes.
+
+Both publishes each skill locally and in the plugin, which creates two entries in Codex's `$` picker. Local publishes local skills and retains the plugin for its hooks. Plugin publishes plugin skills only. Direct calls to `sync-agent.ps1` or `toolkit.ps1 -Action Sync` accept `-CodexSkillDistribution`; when omitted, they use `Both`. Changing the option does not remove previously published skill copies.
 
 ### Non-interactive default: in-repo fixture (CI-safe)
 
@@ -207,7 +210,7 @@ The Claude sync writes:
 - `CLAUDE.md`, from `core/router/AGENTS.md`.
 - `agents/*.md`, from `core/agents/`.
 - `hooks/*.ps1`, from `adapters/claude/assets/hooks/`.
-- `settings.json` keys: `hooks` (managed `UserPromptSubmit`, `SessionStart`, `PostToolUse`, `SubagentStop` handlers), `permissions.allow` (narrow hook entries and read-only git), `permissions.ask` (`git commit`, `push`, `merge`, `rebase`, `checkout -b`), and `attribution` (`commit` and `pr` set to empty strings). Other keys are preserved, and `settings.json.bak` is written before each change.
+- `settings.json` keys: `hooks` (managed `UserPromptSubmit`, `SessionStart`, `PostToolUse`, `SubagentStop` handlers), `permissions.allow` (narrow hook entries and read-only git), `permissions.ask` (`git commit`, `adt-push`, `merge`, `rebase`, `checkout -b`), and `attribution` (`adt-commit` and `pr` set to empty strings). Other keys are preserved, and `settings.json.bak` is written before each change.
 
 No PreToolUse guard hook is installed for Claude. Review `settings.json` after the first sync. Hook behavior is in [HOOKS.md](HOOKS.md#claude-event-table).
 
@@ -252,7 +255,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 | Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/`, `hooks.json` |
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, `agents/*.md`, `hooks/`, merged `settings.json` |
 | Copilot | `skills/`, `instructions/*.instructions.md`, `copilot-instructions.md`, `hooks/` |
-| Codex | `plugin/` (+ marketplace), `skills/` (`$` mirror), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` |
+| Codex | Plugin shell + marketplace + `SubagentStop` hook; package source at `plugins/agent-dev-toolkit/`; Codex cache at `plugins/cache/`; skills go to local `skills/`, plugin `plugins/agent-dev-toolkit/skills/`, or both via `-CodexSkillDistribution`; `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` |
 | OpenCode | `skills/`, `AGENTS.md`, `plugins/*.js` |
 | Grok | `skills/`, `rules/`, `hooks/`, `AGENTS.md` (InstallRoot = `~/.grok`) |
 | ZCode | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` |
@@ -292,7 +295,7 @@ After a live Cursor sync, confirm files such as:
 
 ```text
 %USERPROFILE%\.cursor\AGENTS.md
-%USERPROFILE%\.cursor\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.cursor\skills\adt-sdd-spec\SKILL.md
 %USERPROFILE%\.cursor\rules\guardrails.mdc
 ```
 
@@ -303,10 +306,10 @@ Open a **consumer project** in the agent (not only this toolkit repo). Canonical
 Cursor / Claude example — start a feature with analyze (it runs spec and plan underneath on the next phase):
 
 ```text
-/orchestrate-analyze
+/adt-orchestrate-analyze
 ```
 
-Codex / ZCode: `$orchestrate-analyze`. After Copilot sync: `/skills reload`. One story that is already clear can use `/sdd-spec` instead. Full path: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
+Codex / ZCode: `$adt-orchestrate-analyze`. After Copilot sync: `/skills reload`. One story that is already clear can use `/adt-sdd-spec` instead. Full path: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
 
 See [guides/01-getting-started.md](guides/01-getting-started.md) and [guides/02-using-skills.md](guides/02-using-skills.md).
 

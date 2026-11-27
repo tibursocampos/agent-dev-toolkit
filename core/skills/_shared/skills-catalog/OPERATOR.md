@@ -1,6 +1,6 @@
 # Skills operator notes (agent SoT)
 
-Static operator-facing nuances for installed skills. **Read this file** (with `CATALOG.md`) via skill `help-skills` — do **not** re-analyze every `SKILL.md` to answer catalog or “what will I be asked?” questions.
+Static operator-facing nuances for installed skills. **Read this file** (with `CATALOG.md`) via skill `adt-help-skills` — do **not** re-analyze every `SKILL.md` to answer catalog or “what will I be asked?” questions.
 
 Installed path: `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/OPERATOR.md`
 
@@ -13,20 +13,20 @@ Human mirrors: `docs/SKILLS.md`, docs-site Using skills, deep git dive `docs/dom
 | Topic | Expectation |
 |-------|-------------|
 | Invoke | Use **skill ids** (kebab-case). Host prefixes differ — see matrix below. Compat: `use skill <id>` / natural language when the host accepts it. |
-| Gates | Most mutating skills require guardrails + SESSION; user **`sim`** before writes. Silence ≠ approval. |
+| Gates | Apply the active skill's contract. Classic SDD and O1/O2/O3 use one complete PLAN approval before implementation; draft writing is preparation. Other skills keep their own confirmations. |
 | Parallel specialists | Multi-facet planning / analysis / questions: prefer parallel specialist children; this session stays **parent**. Caps and fallback: `_shared/agents/SPAWN.md`. Trivial work stays in-parent. |
-| Orchestrator mode | Default **`always`**. Commands: `orchestrator always\|adaptive\|status` (aliases: `orchestrate …`, `parent …`). See `docs/guides/08-orchestrator-mode.md` + `orchestrator-session` policy. |
+| Orchestrator mode | Default **`adaptive`**. See `orchestrator-session` section "Modes". Commands: `orchestrator always\|adaptive\|status` (aliases: `orchestrate …`, `parent …`). |
 | Caveman | Default **OFF**. Commands: `caveman on\|off\|status\|lite\|full\|ultra`. See `_shared/caveman/CAVEMAN.md` and `docs/guides/07-caveman-mode.md`. |
-| Caveman **NEVER** | `help-skills`, `read-sdd-artifact`, `commit`, `push`, `open-github-pr` — clear prose always; do not load CAVEMAN for compression. |
+| Caveman **NEVER** | `adt-help-skills`, `adt-read-sdd-artifact`, `adt-commit`, `adt-push`, `adt-open-github-pr` — clear prose always; do not load CAVEMAN for compression. |
 
 ### Invoke matrix (host prefixes)
 
 | Host | Explicit form | Example |
 |------|---------------|---------|
-| Cursor / Claude / Copilot / Grok | `/id` | `/help-skills` |
-| Codex / ZCode | `$id` | `$help-skills` |
-| Antigravity | `use skill id` or `/id` | `use skill sdd-plan` |
-| OpenCode | `skill` tool | `skill({ name: "help-skills" })` |
+| Cursor / Claude / Copilot / Grok | `/id` | `/adt-help-skills` |
+| Codex / ZCode | `$id` | `$adt-help-skills` |
+| Antigravity | `use skill id` or `/id` | `use skill adt-sdd-plan` |
+| OpenCode | `skill` tool | `skill({ name: "adt-help-skills" })` |
 
 Codex: plugin packaging alone does not feed `$`; `$` uses InstallRoot `skills/` (`~/.codex/skills`) + optional UserScope. `/hooks` and `/hooks-trust` are trust UI, not skill invoke. There is no `$skill --menu` product flag.
 
@@ -36,7 +36,7 @@ Codex: plugin packaging alone does not feed `$`; `$` uses InstallRoot `skills/` 
 
 | Skill | Operator notes |
 |-------|----------------|
-| `help-skills` | Read-only. Present `CATALOG.md` + this file. No `sim` gate. Do not paraphrase into a new essay — structure from the files. Do not invent skills. |
+| `adt-help-skills` | Read-only. Present `CATALOG.md` + this file. No `sim` gate. Do not paraphrase into a new essay — structure from the files. Do not invent skills. |
 
 ---
 
@@ -46,27 +46,28 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 | Skill | Confirmations / options | Handoffs |
 |-------|-------------------------|----------|
-| `commit` | Feature branch only (`feature/<slug>` or `feat/<id>-<slug>`). Confirm Conventional Commit **message** before commit. No AI co-author trailers. Does **not** open PRs. | Optional skill `push`; PR only via `open-github-pr`. |
-| `push` | Confirm before push. No force on protected branches. | After success: hand off to `open-github-pr` immediately when PR intent was clear, else ask. |
-| `open-github-pr` | Modes: **feature** (head → `develop`) or **release** (`develop` → `master`/`main`). Confirm **title/body** every time. Ask **auto-merge** every time (`sim`/`não`) — do not infer from “fluxo completo”. Needs `gh` auth. | Owns all `gh pr create`; commit/push must not invent PR shortcuts. |
+| `adt-commit` | Feature branch only (`feature/<slug>` or `feat/<id>-<slug>`). Confirm Conventional Commit **message** before commit. No AI co-author trailers. Does **not** open PRs. | Optional skill `adt-push`; PR only via `adt-open-github-pr`. |
+| `adt-push` | Confirm before push. No force on protected branches. | After success: hand off to `adt-open-github-pr` immediately when PR intent was clear, else ask. |
+| `adt-open-github-pr` | Modes: **feature** (head → `develop`) or **release** (`develop` → `master`/`main`). Confirm **title/body** every time. Ask **auto-merge** every time (`sim`/`não`) — do not infer from “fluxo completo”. Needs `gh` auth. | Owns all `gh pr create`; `adt-commit` / `adt-push` must not invent PR shortcuts. |
 
 ---
 
 ## Classic SDD / Backlog Refine / Orchestrated Delivery
 
-**Track choice:** Classic SDD is standalone — `/sdd-spec` and `/sdd-plan` do **not** require `orchestrate-analyze` first. Offer Orchestrated Delivery as an option for multi-story / brownfield; never as a hard gate.
+**Track choice:** Classic SDD is standalone — `/adt-sdd-spec` and `/adt-sdd-plan` do **not** require `adt-orchestrate-analyze` first. Offer Orchestrated Delivery as an option for multi-story / brownfield; never as a hard gate.
 
 | Skill | Operator notes |
 |-------|----------------|
-| `sdd-spec` / `sdd-plan` | Classic SDD — direct slash OK (chat, plan mode, host plan file). Caveman cap **Lite** when mode ON. |
-| `sdd-develop` | **One PLAN step per session**, then stop / handoff. Caveman cap **Full**. |
-| `read-sdd-artifact` | Read-only. Canonical FEATURE/STORY/PRD/PLAN under `features/` → `source_context`; reject `..` / outside `features/` with precise reason. Caveman **NEVER**. When envelope already present, skip opaque re-read. |
-| `refine-story` / `split-story-checklist` | Backlog Refine prep before Classic SDD or Orchestrated Delivery. |
-| `requirement-review` | Exactly one mode: `--feature` or `--tech`; asks once when missing (no silent default). Report and Q&A writes only after `sim`. Never edits code. `--tech` searches the repository and does not guess. |
-| `memory-bank-init` | Orchestrated Delivery Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
-| `orchestrate-analyze` | Memory Bank Gate first. Conditional parallel specialists per ROSTER. Backlog approval **`sim`** required. Greenfield / `needs_domain`: ARCH draft → **`sim`** before approved style. Parent does not write app code. |
-| `orchestrate-deliver` | PRD/PLAN per story via SDD contracts; ask série vs paralelo. Parent does not implement. |
-| `orchestrate-develop` | One PLAN step per child via `sdd-develop`; parent does not implement. |
+| `adt-sdd-spec` / `adt-sdd-plan` | Classic SDD — direct invocation is supported. Draft/write preparation has no separate approval; the complete PLAN is approved once before implementation. Caveman cap **Lite** when mode ON. |
+| `adt-sdd-develop` | Uses the approved PLAN cadence: step-by-step stops after one step; continuous advances through eligible steps. PLAN is the only progress source; SESSION flags and claims are not prerequisites. Caveman cap **Full**. |
+| `adt-read-sdd-artifact` | Read-only. Canonical FEATURE/STORY/PRD/PLAN under `features/` → `source_context`; reject `..` / outside `features/` with precise reason. Caveman **NEVER**. When envelope already present, skip opaque re-read. |
+| `adt-refine-story` / `adt-split-story-checklist` | Backlog Refine prep before Classic SDD or Orchestrated Delivery. |
+| `adt-requirement-review` | Exactly one mode: `--feature` or `--tech`; asks once when missing (no silent default). Report and Q&A writes only after `sim`. Never edits code. `--tech` searches the repository and does not guess. |
+| `adt-memory-bank` | Optional O1 context; initialize only when useful or explicitly requested. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
+| `adt-epic-planner` | Optional initiative discovery for work likely to span multiple features. It writes a navigable `EPIC.md`; it is not a prerequisite for O1 or a delivery tracker. When starting O1 from it, identify the relevant EPIC and select a stable feature ID; O1 reads relevant context without inheriting extra gates. |
+| `adt-orchestrate-analyze` | Proportional triage and specialists for concrete questions. Memory Bank and sidecars are optional context; no backlog approval gate. O1 owns one contextual table and does not write app code. |
+| `adt-orchestrate-prepare` | Prepares PRD/PLAN per selected story; one approval covers the complete explicitly listed PLAN set before implementation. Independent stories may proceed when another is blocked; parent does not implement. |
+| `adt-orchestrate-implement` | Serial queue: one PLAN step per child; reconcile each result before the next dispatch. Step-by-step or continuous cadence; no SESSION/claim prerequisites. Parent does not implement app code. |
 
 ---
 
@@ -74,11 +75,11 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 | Skill | Operator notes |
 |-------|----------------|
-| `code-review` | Must choose **single** vs **multi-angle** (no silent default). Multi-angle: prefer parallel Tasks when `subagents=native`. Report in the active user-chat language. |
-| `implementation-survey` | `source` is `working-tree` or a ref git already resolves. `target` is `HEAD` or another branch. Ask one question when `source` or `target` is missing (no silent default). `path` is optional. The report does not approve. Read `SPAWN.md` before the first spawn decision. |
-| `developer` | Hybrid stack router or ad-hoc scripts; small/medium without full SDD. |
-| `*-developer` | Stack-specific small/medium work; medium/complex may spawn ≤2 children. |
-| `blip-plugin-developer` | Scaffold Blip plugin → handoff `react-developer`. |
+| `adt-code-review` | Must choose **single** vs **multi-angle** (no silent default). Multi-angle: prefer parallel Tasks when `subagents=native`. Report in the active user-chat language. |
+| `adt-code-explain` | With endpoints, compares changes and asks for any missing endpoint; without endpoints, explains existing code for a topic, file, folder, or symbol. Ambiguous intent prompts first. Report cites opened code and separates observation from inference. |
+| `adt-developer` | Hybrid stack router or ad-hoc scripts; small/medium without full SDD. |
+| `adt-*-developer` | Stack-specific small/medium work; medium/complex may spawn ≤2 children. |
+| `adt-blip-plugin-developer` | Scaffold Blip plugin → handoff `adt-react-developer`. |
 
 ---
 
@@ -86,8 +87,8 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 | Skill | Operator notes |
 |-------|----------------|
-| `document-plan` | **Ask doc language** (pt-BR or English) before writing the plan. |
-| `document-implement` | One documentation-plan step per session. |
+| `adt-document-plan` | **Ask doc language** (pt-BR or English) before writing the plan. |
+| `adt-document-implement` | One documentation-plan step per session. |
 
 ---
 
@@ -95,18 +96,18 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 | Skill | Operator notes |
 |-------|----------------|
-| `repair-dotnet-build` | Diagnose/fix local (or pasted CI) build/test failures. |
-| `test-coverage` | Coverlet report; threshold evaluation. |
-| `run-tests` | Does not edit code. Asks when the stack is not recognized. Does not replace `test-coverage`. |
-| `ef-add-migration` | Discovers startup project / DbContext / migrations folder. |
-| `scaffold-message-handler` | Collects requirements first; MassTransit / bus when detected. |
-| `refactor` | Incremental safe plan + tests. |
-| `api-integrate` | OpenAPI → typed clients/DTOs. |
-| `api-standards` | Agnostic HTTP/API standards (REST, versioning, errors). No company contracts; hand off clients to `api-integrate`. |
-| `framework-upgrade` | Generic orchestrator (not a pinned pack). Modes: `audit` \| `plan` \| `migrate` \| `validate`; migrate needs **`sim`**. Packs under `packs/` resolve framework+version; point to `_shared/*-guidelines` + official sources (Learn / angular.dev / PEP 8). Skill id stays `framework-upgrade`; do **not** rename `angular-developer` / `dotnet-developer` / `python-developer`. |
-| `performance-profile` | Hot paths / micro-benchmarks. |
-| `containerize` | Multi-stage Docker + compose for local. |
-| `i18n-manager` | Extract strings to localization files. |
+| `adt-repair-dotnet-build` | Diagnose/fix local (or pasted CI) build/test failures. |
+| `adt-test-coverage` | Coverlet report; threshold evaluation. |
+| `adt-run-tests` | Does not edit code. Asks when the stack is not recognized. Does not replace `adt-test-coverage`. |
+| `adt-ef-add-migration` | Discovers startup project / DbContext / migrations folder. |
+| `adt-scaffold-message-handler` | Collects requirements first; MassTransit / bus when detected. |
+| `adt-refactor` | Incremental safe plan + tests. |
+| `adt-api-integrate` | OpenAPI → typed clients/DTOs. |
+| `adt-api-standards` | Agnostic HTTP/API standards (REST, versioning, errors). No company contracts; hand off clients to `adt-api-integrate`. |
+| `adt-framework-upgrade` | Generic orchestrator (not a pinned pack). Modes: `audit` \| `plan` \| `migrate` \| `validate`; migrate needs **`sim`**. Packs under `packs/` resolve framework+version; point to `_shared/*-guidelines` + official sources (Learn / angular.dev / PEP 8). Skill id stays `adt-framework-upgrade`; do **not** rename `adt-angular-developer` / `adt-dotnet-developer` / `adt-python-developer`. |
+| `adt-performance-profile` | Hot paths / micro-benchmarks. |
+| `adt-containerize` | Multi-stage Docker + compose for local. |
+| `adt-i18n-manager` | Extract strings to localization files. |
 
 ---
 

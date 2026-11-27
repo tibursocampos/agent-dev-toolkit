@@ -55,4 +55,4 @@ Condensed reference for fundamental principles.
 ---
 
 **Version:** 1.2 (agent-dev-toolkit)  
-**Used by:** `developer-common/step-0.5`, `developer`, `code-review`
+**Used by:** `developer-common/step-0.5`, `adt-developer`, `adt-code-review`

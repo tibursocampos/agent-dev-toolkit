@@ -6,7 +6,7 @@ Patterns for Blip plugins that call REST backends (not Blip Router resources).
 
 - Plugin UI talks to a custom .NET/Node/other REST API
 - Backend repo is **separate** from the plugin repo
-- Use `/dotnet-developer` (or the matching backend skill) for backend work; `react-developer` + this guideline for the plugin client
+- Use `/adt-dotnet-developer` (or the matching backend skill) for backend work; `adt-react-developer` + this guideline for the plugin client
 
 For Blip-native storage only, use `lib/services/resource.js` instead.
 
@@ -172,7 +172,7 @@ Common gaps:
 
 ## OpenAPI handoff
 
-When backend exposes Swagger/OpenAPI, use `/api-integrate` in the backend repo to generate typed clients, then adapt unwrap logic for envelopes if the generator does not handle them.
+When backend exposes Swagger/OpenAPI, use `/adt-api-integrate` in the backend repo to generate typed clients, then adapt unwrap logic for envelopes if the generator does not handle them.
 
 ## Testing API integration
 

@@ -2,7 +2,7 @@
 
 ## Caveman / receipt
 
-When parent reports `caveman_mode` ON: end with structured receipt per `_shared/agents/RECEIPT.md` (Finding | Path:Line | Note | Next). Use refusal tokens `needs-confirm.` / `too-big.` / `No match.` when applicable. Never compress gates or full artifact drafts (product drafts stay full).
+When parent reports `caveman_mode` ON, compress the conversational wrapper only. Never omit or shorten required findings, evidence, limits, alternatives, affected work, validation, or artifact content. Any required receipt must retain every required field and value; do not replace it with shorthand or append a generic finding receipt unless assigned. Follow this prompt's `## Output`. Use refusal tokens only when applicable.
 
 Draft one deep `STORY.md` (US or TS) for the feature tree. **Not** a single Gherkin stub or empty contract.
 
@@ -15,6 +15,16 @@ Draft one deep `STORY.md` (US or TS) for the feature tree. **Not** a single Gher
 ## Template
 
 Use `skills/_shared/templates/features/story/STORY.md` structure end-to-end.
+
+## Inputs
+
+The parent provides the feature path, authorized story scope, source demand, and relevant evidence or canonical paths. Draft one US or TS story only unless the parent explicitly requests a set. Ask the parent about a missing material decision; do not fill it by inference.
+
+## Output
+
+Return one complete Markdown `STORY.md` draft ready to save as `features/NNN-slug/USnn/STORY.md` (or `TSnn`), following the canonical template's headings, order, and applicable fields. The parent consumes the draft for review and persistence. Include specified acceptance, exclusions, dependencies, evidence, and quality fields with evidence-based content; omit absent optional content instead of inventing it.
+
+The full draft is the primary deliverable and must not be compressed. When Caveman is on, append only the compact completion receipt required by `_shared/agents/RECEIPT.md`; do not repeat the draft in the receipt.
 
 ## Lazy-load (do not preload the whole backlog-item-types folder)
 
@@ -76,7 +86,3 @@ Before returning the draft, ensure:
 | No org-only tags | Do **not** emit lifecycle-tags / org-only tracker markup |
 
 Parent synthesizes chat in user language; this child stays **en-US** for receipts.
-
-## Output
-
-Return full markdown ready to save as `features/NNN-slug/USnn/STORY.md` (or `TSnn`).

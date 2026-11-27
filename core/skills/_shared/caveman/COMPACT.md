@@ -3,7 +3,7 @@
 Lean, optional compression of **narrative** context files so later sessions spend fewer input tokens.
 Not a port of upstream `caveman-compress`. Agent-driven rewrite with **hard validators** + user `sim`.
 
-Load only when the user asks to compact continuity/memory, or when `memory-bank-init` offers refresh-light and caveman mode is ON.
+Load only when the user asks to compact continuity/memory, or when `adt-memory-bank` offers refresh-light and caveman mode is ON.
 
 ---
 

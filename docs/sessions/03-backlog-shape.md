@@ -1,35 +1,35 @@
 # 03 — Backlog shape
 
-Three skills shape a backlog item: `refine-story`, `requirement-review`, and `split-story-checklist`. Orchestrated Delivery already performs the product rules **inside** [O1](01-orchestrated-delivery.md) without invoking these skills. Standalone use is for someone who is writing tasks or one story and is not running a feature through O1–O3.
+Three skills can help shape a backlog item: `adt-refine-story`, `adt-requirement-review`, and `adt-split-story-checklist`. O1 investigates proportionally and creates justified stories without requiring these skills. Standalone use is for someone who wants a separate review, refinement, or task decomposition.
 
 ## What O1 already does
 
 | Rule | File loaded by O1 | Standalone skill |
 |------|-------------------|------------------|
-| Scorecard /100 mapped to 1–5 on `STORY.md` | `refine-story/references/scorecard-rubric.md` | `refine-story` runs the rubric **and** its mode gate |
-| Merge and split of stories | `backlog-item-types/story-sizing.md` | `refine-story` then optional checklist |
+| Story sizing and splitting | `backlog-item-types/story-sizing.md` when relevant | Optional refinement/checklist |
+| Merge and split of stories | `backlog-item-types/story-sizing.md` | `adt-refine-story` then optional checklist |
 | Reject verb+file titles | `anti-task-shatter.md` | Checklist refuses to create a new US/TS per file |
 | Who / Job / Outcome | `persona-context.md` (user stories only) | Refine feature mode |
-| At most five implementation groups | mental check against checklist limits | `split-story-checklist` writes the file |
+| Optional dependency breakdown | Use when it helps coordinate work | `adt-split-story-checklist` can write the file |
 
-O1 does not ask “feature, tech, or split?”. That question belongs only to a direct `/refine-story`.
+O1 does not ask “feature, tech, or split?”. That question belongs only to a direct `/adt-refine-story`.
 
 ## When these skills are invoked
 
 | Situation | Skill |
 |-----------|--------|
-| Product person shaping one bug, user story, or technical story, no feature delivery | `/refine-story` |
-| That item needs a dependency checklist | `/split-story-checklist` |
-| A feature or story has open questions before SDD, or a technical story must be checked against the repository | `/requirement-review --feature` or `--tech` |
-| O2 stopped because clarification **B**, **I**, or **MINOR** is still open | `/refine-story` (and/or return to O1). Do not write PRD/PLAN until READY |
-| O1 intent classified the input as one informal item or an idea | Early handoff to `/refine-story`, then re-enter O1 only if the result is multi-story or needs specialists |
+| Product person shaping one bug, user story, or technical story, no feature delivery | `/adt-refine-story` |
+| That item needs a dependency checklist | `/adt-split-story-checklist` |
+| A feature or story has open questions before SDD, or a technical story must be checked against the repository | `/adt-requirement-review --feature` or `--tech` |
+| A material question blocks a feature/story decision | `/adt-refine-story` or return to the owning flow with the specific question |
+| O1 intent classified the input as one informal item or an idea | Early handoff to `/adt-refine-story`, then re-enter O1 only if the result is multi-story or needs specialists |
 | Normal feature through analyze → deliver → develop | Neither skill is required |
 
-READY needs no unanswered **B**, **I**, or **MINOR** question. The four open-question gates name where the next artifact stops: the feature before story folders, the story files before a PRD, the PRD before a PLAN, and the PLAN before it is saved (`readiness-severity.md`). Ready for a spec is not the same as a PLAN step being complete, and it is not `step_confirmed`.
+Backlog skills may use their own readiness language. For Classic SDD and Orchestrated Delivery, only a material unanswered decision blocks affected work; minor questions remain visible and do not stop independent work. See [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md).
 
-## `refine-story`
+## `adt-refine-story`
 
-Trigger: `/refine-story`.
+Trigger: `/adt-refine-story`.
 
 **Mode is mandatory.** If the invoke does not name one, the skill stops and asks. It does not assume feature.
 
@@ -50,40 +50,40 @@ The skill does not create tracker cards. It does not invent architecture that be
 
 Process: confirm the repo (and look for PRDs under `features/**/PRD/`, not a root `PRD/` folder); lock the mode; collect and generate inside that playbook; score product depth and acceptance budget; keep an interaction envelope at `NEEDS_CLARIFICATION` until READY; challenge vague BDD; persist only after the language question when using `docs/backlog/`.
 
-While **B**, **I**, or **MINOR** remain, do not hand off to `sdd-spec`.
+Resolve questions before handoff only when they materially affect behavior, acceptance, scope, required access, or implementation. Keep unrelated work moving.
 
 ```text
-/split-story-checklist - features/NNN-slug/US01/STORY.md
-/orchestrate-analyze - features/NNN-slug
-/sdd-spec - features/NNN-slug/US01/STORY.md
+/adt-split-story-checklist - features/NNN-slug/US01/STORY.md
+/adt-orchestrate-analyze - features/NNN-slug
+/adt-sdd-spec - features/NNN-slug/US01/STORY.md
 ```
 
-## `requirement-review`
+## `adt-requirement-review`
 
-Trigger: `/requirement-review`, or `requirement-review --feature` / `--tech`.
+Trigger: `/adt-requirement-review`, or `adt-requirement-review --feature` / `--tech`.
 
 **Mode is mandatory and exactly one per run.** If the invoke names neither mode or both, the skill asks once and loads no playbook.
 
 | Mode | Invoke | Checks |
 |------|--------|--------|
 | `--feature` | `--feature`, `feature`, `1` | Actor, flow, rules, error and permission cases, data ownership, states, rollout; acceptance criteria split into atoms (`CA-002.a`) |
-| `--tech` | `--tech`, `tech`, `2` | Named contracts, endpoints, events, and data flows searched in the repository; API standards applied by reference; technical follow-ups for `sdd-spec` |
+| `--tech` | `--tech`, `tech`, `2` | Named contracts, endpoints, events, and data flows searched in the repository; API standards applied by reference; technical follow-ups for `adt-sdd-spec` |
 
 Outcome: a review report with `Status: READY` or `Status: NEEDS_CLARIFICATION`, open questions with severity (B, I, MINOR) and one decision owner each, and Q&A entries. Persistence: `features/NNN-slug/USnn/REFINE/requirement-review-<mode>.md` beside the story, with the Q&A history in `REFINE/qa-history.md`; shortcut `docs/backlog/<slug>-requirement-review-<mode>.md` when no story folder exists. Writes wait for the `confirm` id (pt-BR label: `sim`).
 
-`refine-story` runs this review at step 4a before it hands off to `sdd-spec`: `--feature`, then `--tech` when the story touches a repository. Standalone use is the same.
+`adt-refine-story` runs this review at step 4a before it hands off to `adt-sdd-spec`: `--feature`, then `--tech` when the story touches a repository. Standalone use is the same.
 
 The skill never writes code and never decides a product question by assumption.
 
-## `split-story-checklist`
+## `adt-split-story-checklist`
 
-Trigger: `/split-story-checklist`, or refine mode `split`.
+Trigger: `/adt-split-story-checklist`, or refine mode `split`.
 
-Input must already contain structured **Steps** (or a bug’s suggested fix), unless the caller is `sdd-plan` with `source=prd`. In that case the source is the closed story and PRD. No steps yet: build groups from the PRD `REQ` rows. Do not send the caller back to `/refine-story`.
+Input must already contain structured **Steps** (or a bug’s suggested fix), unless the caller is `adt-sdd-plan` with `source=prd`. In that case the source is the closed story and PRD. No steps yet: build groups from the PRD `REQ` rows. Do not send the caller back to `/adt-refine-story`.
 
 The checklist is SMART tasks under the **existing** story. It does not create new `USnn` or `TSnn` folders. Type (Bug, User Story, Technical Story) is written only on `STORY.md`.
 
-If feature complexity is `trivial` and the caller is not `sdd-plan`, do not write a tasks file just to satisfy a gate. `sdd-plan` still gets a one-step breakdown. `medium` and `complex` need the checklist before handoff.
+The checklist is optional for all complexity levels. `adt-sdd-plan` derives executable steps directly from the PRD or sufficiently specified demand; a missing checklist never blocks handoff.
 
 On a direct invoke, documentation language is asked once, in the chat language, before write. An orchestrated call uses the chat language and does not ask.
 
@@ -95,4 +95,4 @@ Persistence:
 
 At most five implementation groups. Dependencies declared on steps win; otherwise layer or repo heuristics. Steps with no edge between them are marked parallel-safe. Tests sit in their own groups.
 
-Handoff: multi-story returns to `/orchestrate-analyze`; one story with a spec path goes `/sdd-spec`; an existing PLAN goes `/sdd-develop` on step 1; a small code-only change goes `/developer` or a stack skill.
+Handoff: multi-story returns to `/adt-orchestrate-analyze`; one story with a spec path goes `/adt-sdd-spec`; an existing PLAN goes `/adt-sdd-develop` on step 1; a small code-only change goes `/adt-developer` or a stack skill.

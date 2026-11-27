@@ -169,7 +169,7 @@ Or open **Validation lab** in the menu. After a live Cursor sync, files such as 
 
 ```text
 %USERPROFILE%\.cursor\AGENTS.md
-%USERPROFILE%\.cursor\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.cursor\skills\adt-sdd-spec\SKILL.md
 %USERPROFILE%\.cursor\rules\guardrails.mdc
 ```
 
@@ -186,12 +186,12 @@ Canonical form is the **skill id**. Host prefixes differ (`/`, `$`, `use skill`,
 Start a feature with analyze. Cursor and Claude:
 
 ```text
-/orchestrate-analyze
+/adt-orchestrate-analyze
 ```
 
-Codex and ZCode: `$orchestrate-analyze`. OpenCode: `skill({ name: "orchestrate-analyze" })`.
+Codex and ZCode: `$adt-orchestrate-analyze`. OpenCode: `skill({ name: "adt-orchestrate-analyze" })`.
 
-That skill classifies the request and asks. A clear story can use `/sdd-spec`. One product item, with no feature delivery, uses `/refine-story`. The gates, storage question, and later phases are on [Orchestrated Delivery](orchestrated-delivery.md).
+That skill classifies the request and asks. A clear story can use `/adt-sdd-spec`. One product item, with no feature delivery, uses `/adt-refine-story`. The gates, storage question, and later phases are on [Orchestrated Delivery](orchestrated-delivery.md).
 
 ## Uninstall
 

@@ -13,7 +13,7 @@ Publish surfaces for **Claude Code**. InstallRoot defaults to an in-repo fixture
 |------|-------|
 | Skills path (live) | `~/.claude/skills/<id>/SKILL.md` (or project `.claude/`) |
 | Explicit form | `/id` |
-| Examples | `/help-skills`, `/sdd-spec`, `/sdd-plan` |
+| Examples | `/adt-help-skills`, `/adt-sdd-spec`, `/adt-sdd-plan` |
 
 Canonical form is the skill **id**; `/` is the Claude host prefix.
 
@@ -40,7 +40,7 @@ Matrix: [docs/SPAWN.md](../../docs/SPAWN.md). Contract: `core/skills/_shared/age
 
 ### Child assignment lifecycle
 
-Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as idle. Continue it (SendMessage where the host offers it) only for the same topic and scope while its context is still relevant; never reuse it for a different topic, a different scope, or an already large context. A new task, review, or correction on a different scope must use a fresh child handle. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
+Lifecycle: see core/skills/_shared/agents/SPAWN.md section "Task ownership and lifecycle": batch related work, never reuse a returned child for a different topic or scope (use a fresh child), and the host manages teardown, so no process or context termination is claimed. Close control: unknown. Caps and checklist: SPAWN.md.
 
 ### Agent tools per role
 

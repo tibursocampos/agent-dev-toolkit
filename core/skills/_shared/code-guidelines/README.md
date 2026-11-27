@@ -12,7 +12,7 @@ Cross-skill code standards for implementation and review.
 Centralize guidelines so:
 
 - **Developers** consult them **before** implementing (proactive)
-- **code-review** validates **after** changes (reactive)
+- **adt-code-review** validates **after** changes (reactive)
 - **One update** benefits all skills that reference the same file
 
 ## Token discipline (mandatory)
@@ -78,7 +78,7 @@ _shared/code-guidelines/
 |-------|------|------------|
 | **developer** | Step 0.5 | `principles/*` + `dotnet-guidelines/*` |
 | **implement** | Before .NET code | `dotnet-guidelines` (lazy); principles if design-heavy |
-| **code-review** | Review pass | `principles/*` + stack guidelines as needed |
+| **adt-code-review** | Review pass | `principles/*` + stack guidelines as needed |
 
 ---
 

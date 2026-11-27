@@ -1,0 +1,11 @@
+# adt-performance-profile — reference index
+
+Extended detail for `skills/adt-performance-profile/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
+
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`.
+
+| Section | Path |
+|---------|------|
+| Target and audit | `references/target-audit.md` |
+| Benchmark and optimize | `references/benchmark-optimize.md` |
+| Must not | `references/must-not.md` |

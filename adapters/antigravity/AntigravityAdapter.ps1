@@ -783,7 +783,14 @@ function Publish-Skills {
         -SourceSkillsRoot $sourceSkillsRoot `
         -DestinationSkillsRoot $destSkillsRoot `
         -InstallRoot $resolvedInstallRoot `
-        -SkipPlaceholderResolve
+        -PlaceholderMap (Get-AntigravityPlaceholderMap -InstallRoot $resolvedInstallRoot) `
+        -TextFileExtensionPattern $script:AntigravityPathConstant.TextFileExtensionPattern `
+        -UnresolvedTokens @(
+            $script:AntigravityPathConstant.PlaceholderToolkitRoot,
+            $script:AntigravityPathConstant.PlaceholderSddRoot,
+            $script:AntigravityPathConstant.PlaceholderGuardrailsPath
+        ) `
+        -UnresolvedMessageFormat $script:AntigravityPublishMessage.PlaceholderUnresolved
     $publishedCount = $publishResult.SkillFolderCount
     $skillsJsonResult = Update-AntigravitySkillsJson -SkillsJsonPath $skillsJsonPath -PublishedSkillsPath $destSkillsRoot
 

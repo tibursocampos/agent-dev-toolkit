@@ -58,7 +58,7 @@ if (isDev) {
 |--------|--------|
 | electron-vite | Respect `main` / `preload` / `renderer` inputs in Vite config |
 | electron-forge / webpack | Extend existing main entry and forge makers |
-| React / Vue renderer | Load stack guidelines for UI only; stay in `electron-developer` identity |
+| React / Vue renderer | Load stack guidelines for UI only; stay in `adt-electron-developer` identity |
 | Custom protocol (`app://`) | Register once in main; keep CSP aligned |
 | Tray / deep links | Follow existing second-instance and protocol handlers |
 

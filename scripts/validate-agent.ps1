@@ -109,7 +109,7 @@ try {
                 exit 1
             }
 
-            & $checkPath
+            $global:LASTEXITCODE = $null; & $checkPath
             $checkExit = $LASTEXITCODE
             if ($null -eq $checkExit) {
                 $checkExit = 0

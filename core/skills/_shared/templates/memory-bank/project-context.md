@@ -1,7 +1,7 @@
 # Project context
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Generated summary placeholders - replace or refresh via `memory-bank-init`._
+_Generated summary placeholders - replace or refresh via `adt-memory-bank`._
 
 | Field | Value |
 |-------|--------|

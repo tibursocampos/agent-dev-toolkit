@@ -58,8 +58,11 @@ When active, agents show once per session:
 
 | Mode | Behavior |
 |------|----------|
-| **adaptive** (default) | Same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent |
-| **always** | Strict parent orchestrator; spawn for non-trivial work per `SPAWN.md` |
+| **adaptive** (default) | trivial work (3/6/150 limits) may stay in the parent |
+| **always** | delegates everything except qa_checklist |
+
+Full table: `core/policy/orchestrator-session.md` "Modes".
+
 
 Both modes honor spawn caps, fallback when `subagents=none`, and Caveman-scoped child I/O.
 

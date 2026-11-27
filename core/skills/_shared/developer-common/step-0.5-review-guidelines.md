@@ -32,7 +32,7 @@ When triggered, load in this order:
    - `security-and-dependencies.md` for secrets, trust boundaries, dependency provenance, or platform-qualified security claims;
    - `validation-and-reporting.md` for host-only, compile-only, device-runtime, or HIL evidence and status reporting.
 
-Treat the embedded pack as the cross-platform **WHAT** layer. Keep stack-specific **HOW** guidance in the selected stack overlay and load only that overlay after the task identifies the runtime/framework/toolchain. Preserve these boundaries: Arduino, ESP-IDF, and MicroPython remain distinct stack overlays, while CPython host work remains with `python-developer`.
+Treat the embedded pack as the cross-platform **WHAT** layer. Keep stack-specific **HOW** guidance in the selected stack overlay and load only that overlay after the task identifies the runtime/framework/toolchain. Preserve these boundaries: Arduino, ESP-IDF, and MicroPython remain distinct stack overlays, while CPython host work remains with `adt-python-developer`.
 
 If the task does not identify enough target/runtime/framework context for a platform-qualified recommendation, record the missing context or ask for it; do not infer a platform from a board name.
 

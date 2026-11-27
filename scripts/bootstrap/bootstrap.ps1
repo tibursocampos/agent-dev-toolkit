@@ -79,6 +79,9 @@
 .PARAMETER UserScope
   Forwarded to sync-agent.ps1 when -DirectSync runs.
 
+.PARAMETER CodexSkillDistribution
+  Codex only, with -DirectSync: choose Both, Local, or Plugin. Omitted defaults to Both.
+
 .EXAMPLE
   # Operator path (after downloading bootstrap.bat/.ps1 from the Release):
   pwsh -NoProfile -File .\bootstrap.ps1
@@ -149,7 +152,11 @@ param(
     [string] $Mode,
 
     [Parameter()]
-    [switch] $UserScope
+    [switch] $UserScope,
+
+    [Parameter()]
+    [ValidateSet('Both', 'Local', 'Plugin')]
+    [string] $CodexSkillDistribution = 'Both'
 )
 
 Set-StrictMode -Version Latest
@@ -543,7 +550,8 @@ function Invoke-BootstrapSyncHandoff {
         [string] $SyncInstallRoot,
         [Parameter(Mandatory = $true)][bool] $DoAllowUserHome,
         [string] $SyncMode,
-        [Parameter(Mandatory = $true)][bool] $DoUserScope
+        [Parameter(Mandatory = $true)][bool] $DoUserScope,
+        [Parameter(Mandatory = $true)][ValidateSet('Both', 'Local', 'Plugin')][string] $SyncCodexSkillDistribution
     )
     $syncPath = Resolve-BootstrapSyncScriptPath -ExtractDir $ExtractDir -BootstrapScriptDir $BootstrapScriptDir
     $whatIfNote = if ($DoWhatIf) { $script:BootstrapMessage.WhatIfSuffix } else { '' }
@@ -577,6 +585,10 @@ function Invoke-BootstrapSyncHandoff {
     }
     if ($DoUserScope) {
         [void]$argList.Add('-UserScope')
+    }
+    if ($AgentId -eq 'codex') {
+        [void]$argList.Add('-CodexSkillDistribution')
+        [void]$argList.Add($SyncCodexSkillDistribution)
     }
 
     # Portable path scripts/sync-agent.ps1 — do not rewrite sync-agent / toolkit internals.
@@ -727,7 +739,8 @@ try {
             -SyncInstallRoot $InstallRoot `
             -DoAllowUserHome:([bool]$AllowUserHome) `
             -SyncMode $Mode `
-            -DoUserScope:([bool]$UserScope)
+            -DoUserScope:([bool]$UserScope) `
+            -SyncCodexSkillDistribution $CodexSkillDistribution
     }
     else {
         $previousReleaseVersion = [Environment]::GetEnvironmentVariable($script:BootstrapConstant.EnvReleaseVersion)

@@ -11,8 +11,8 @@ This page is the map of the site. English is the default. Portuguese is the tran
 | [Home](index.md) | What the toolkit is, and where each page starts |
 | [Get started](get-started.md) | Bootstrap download, clone, then the CLI |
 | [CLI](cli.md) | `toolkit.ps1`, `-Action`, sync, validate, uninstall |
-| [First use](first-use.md) | `help-skills` and one example of each skill |
-| [Orchestrated Delivery](orchestrated-delivery.md) | `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop`, and planning/review evidence boundaries |
+| [First use](first-use.md) | `adt-help-skills` and one example of each skill |
+| [Orchestrated Delivery](orchestrated-delivery.md) | `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, `adt-orchestrate-implement`, and planning/review evidence boundaries |
 | [Using skills](using-skills.md) | Invocation, and session behavior |
 | [Architecture](architecture.md) | Core, adapters, install layouts, placeholders, and publication/session safeguards |
 | [Adapters](adapters.md) | The ten agents, registry, capabilities, per-agent publish |

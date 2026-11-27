@@ -1,24 +1,24 @@
 # 08 — Git and repository docs
 
-`commit`, `push`, and `open-github-pr` never use chat compression. They do not open a pull request except through `open-github-pr`. None of them force-push `main`, `master`, or `develop`.
+`adt-commit`, `adt-push`, and `adt-open-github-pr` never use chat compression. They do not open a pull request except through `adt-open-github-pr`. None of them force-push `main`, `master`, or `develop`.
 
-Allowed heads: `feature/<slug>` or `feat/<id>` (one segment). Blocked: `main`, `master`, `develop`, nested `feature/a/b`.
+For feature work, allowed heads are `feature/<slug>` or `feat/<id>` (one segment); integration branches are blocked as feature heads. Release PRs are a separate mode and use the repository's documented release source, normally `develop` → `master` or `main`.
 
-## `commit`
+## `adt-commit`
 
-Drafts a Conventional Commit and **waits**. Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. Subject and body in English. Approve the exact text before `git commit`. Prefer explicit paths over `git add -A`.
+Drafts a Conventional Commit and **waits**. Types: `feat`, `fix`, `docs`, `style`, `adt-refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. Subject and body in English. Approve the exact text before `git commit`. Prefer explicit paths over `git add -A`.
 
-`/commit` does not ask about memory bank or project docs. Presence of those trees does not add a question, and this skill does not start `/memory-bank-init` or `/document-plan`. `orchestrate-develop` still confirms memory-bank **refresh-light** after application-file changes, before it hands off. That confirm is not part of `/commit`.
+`/adt-commit` does not ask about memory bank or project docs. Presence of those trees does not add a question, and this skill does not start `/adt-memory-bank` or `/adt-document-plan`. `adt-orchestrate-implement` still confirms memory-bank **refresh-light** after application-file changes, before it hands off. That confirm is not part of `/adt-commit`.
 
 After every commit, read `git log -1`. A `Co-authored-by` trailer (any agent) is stripped with amend until it is gone. Do not finish while that trailer remains. Do not add `--author` or `--trailer` for an agent.
 
-Push only when asked: that is `/push`. A pull request is `/open-github-pr`, not a web compare link from this skill.
+Push only when asked: that is `/adt-push`. A pull request is `/adt-open-github-pr`, not a web compare link from this skill.
 
-## `push`
+## `adt-push`
 
-`git push -u origin HEAD` after the branch check. On success, if this conversation already asked for a pull request, load `open-github-pr` immediately. Otherwise ask whether to open one. `confirm` enters that skill. The GitHub web UI is not offered from `/push`.
+`git push -u origin HEAD` after the branch check. On success, if this conversation already asked for a pull request, load `adt-open-github-pr` immediately. Otherwise ask whether to open one. `confirm` enters that skill. The GitHub web UI is not offered from `/adt-push`.
 
-## `open-github-pr`
+## `adt-open-github-pr`
 
 This skill owns `gh pr create`. Ad-hoc `gh pr create` is out of contract.
 
@@ -33,20 +33,20 @@ Content confirmation is separate from auto-merge. Show title, base, head, full b
 
 If the repository disallows auto-merge, still create the PR and say auto-merge cannot be enabled. If the required method (squash or rebase) is disabled, stop and ask. Do not switch methods silently.
 
-Needs authenticated `gh`. If the branch is not on `origin`, hand off to `/push` first.
+Needs authenticated `gh`. If the branch is not on `origin`, hand off to `/adt-push` first.
 
-## `help-skills`
+## `adt-help-skills`
 
-Read-only. Presents `core/skills/_shared/skills-catalog/CATALOG.md` and, when the question is about confirmations or quirks, `OPERATOR.md`. It does not load every `SKILL.md` and does not invent ids. Shared packs and the architect role are not skills. There is no `open-pr` id; the id is `open-github-pr`.
+Read-only. Presents `core/skills/_shared/skills-catalog/CATALOG.md` and, when the question is about confirmations or quirks, `OPERATOR.md`. It does not load every `SKILL.md` and does not invent ids. Shared packs and the architect role are not skills. There is no `open-pr` id; the id is `adt-open-github-pr`.
 
-No write gate for a catalog answer. Invoke forms: `/help-skills`, `$help-skills`, `use skill help-skills`, or the host’s skill tool.
+No write gate for a catalog answer. Invoke forms: `/adt-help-skills`, `$adt-help-skills`, `use skill adt-help-skills`, or the host’s skill tool.
 
-## `document-plan` and `document-implement`
+## `adt-document-plan` and `adt-document-implement`
 
 These write repository documentation for retrieval. They do not write feature `PLAN/PLAN_*.md`.
 
-`document-plan` asks once: product `docs/` in **pt-BR** or **English**. For this toolkit the answer is English. It writes `docs/overview.md` and `docs/documentation-plan/plan.md`. Domain pages are steps on that plan, executed later.
+`adt-document-plan` asks once: product `docs/` in **pt-BR** or **English**. For this toolkit the answer is English. It writes `docs/overview.md` and `docs/documentation-plan/plan.md`. Domain pages are steps on that plan, executed later.
 
-`document-implement` requires that plan. It runs **one** pending step per session, then stops. Language comes from the plan header. Missing language: ask before writing. Verification is “the files named in the step exist and match the code”, not an application test suite. Session gates for that plan path are `step_confirmed` and `tests_run` on `plan-{hash}.json`.
+`adt-document-implement` requires that plan. It runs **one** pending step per session, then stops. Language comes from the plan header. Missing language: ask before writing. Verification is “the files named in the step exist and match the code”, not an application test suite. Session gates for that plan path are `step_confirmed` and `tests_run` on `plan-{hash}.json`.
 
-Next pending step is a new chat of `/document-implement`. All steps done: optional `/code-review` or `/commit`.
+Next pending step is a new chat of `/adt-document-implement`. All steps done: optional `/adt-code-review` or `/adt-commit`.

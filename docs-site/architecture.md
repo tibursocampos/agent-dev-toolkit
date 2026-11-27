@@ -4,7 +4,7 @@ title: Architecture
 
 # Architecture
 
-**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**46** skills), `adapters/registry.json` (**10** agents).
+**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**52** skills), `adapters/registry.json` (**10** agents).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -23,7 +23,7 @@ core/          skills, policy, router, sdd contracts, agents
 adapters/      per-agent modules, registry.json, _contract
 scripts/       toolkit.ps1, sync-agent, validate-agent, _lib, validation, bootstrap
 docs/          operator documentation in the repository
-memory-bank/   durable workspace map (Orchestrated Delivery Step 0)
+memory-bank/   optional durable workspace context
 .github/workflows/validate-toolkit.yml
 .github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
@@ -46,7 +46,7 @@ Stable adapter commands: `Get-Capabilities`, `Get-InstallRoots`, `Publish-Skills
 
 `scripts/sync-agent.ps1` runs Publish, then always `Get-SddRoot -Prepare`. CLI actions: `Sync`, `Validate`, `SyncAndValidate`, `ValidateCore`, `ListAgents`, `Uninstall`, `Backup`. Sync, Validate, and Uninstall require `-Agent`. Uninstall is keyed and keeps `sdd/sessions` and an existing `sdd/manifest.json`. Backup fails closed unless `-ForceStub`.
 
-The feature path published from this core is Orchestrated Delivery (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). Deliver runs `sdd-spec` then `sdd-plan`. Develop runs one `sdd-develop` step per child. Detail: [First use](first-use.md). Per-agent flags: [Adapters](adapters.md).
+For multi-story or specialist coordination, the feature path is Orchestrated Delivery (`adt-orchestrate-analyze` → `adt-orchestrate-prepare` → `adt-orchestrate-implement`). Classic SDD also starts directly for a clear feature. O2 runs `adt-sdd-spec`/`adt-sdd-plan`; O3 is serial, one `adt-sdd-develop` step per child. Detail: [First use](first-use.md). Per-agent flags: [Adapters](adapters.md).
 
 ## How a consumer app picks a style
 
@@ -54,19 +54,21 @@ This is separate from the toolkit’s own core and adapter layout. The guideline
 
 | Mode | Flow |
 |------|------|
-| **Greenfield** | Roster specialist **architect** proposes via Layer A (`architecture-selection.md`) → ARCH draft → **sim** → ARCH approved. There is no silent default style |
-| **Brownfield** | Mirror the in-repo or approved ARCH style. Re-select only if you ask to change it |
+| **Material architecture choice** | When a concrete choice affects behavior or implementation, present it and resolve it before dependent work. The repository being greenfield alone does not add a gate |
+| **Brownfield** | Inspect existing conventions when relevant. Brownfield alone does not require a mirrored ARCH or a style re-pick |
 
-After confirm (or a brownfield mirror): load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. `orchestrate-analyze` runs the confirm gate when nature is greenfield or `needs_domain` without an established style.
+After resolving a material architecture choice: load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. An existing convention may inform the choice without requiring a separate ARCH note.
 
 ## Source policy
 
 - Product content for agents lives under `core/`.
 - Public SDD state file name: `manifest.json`.
-- `core/skills/` — 46 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
+- `core/skills/` — 52 skills plus `_shared`. Agents read the map with `adt-help-skills` (`CATALOG.md` and `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router (`AGENTS.md`). The host file name depends on the adapter.
 - `core/skills/_shared/sdd-artifacts/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, reached through `Get-SddRoot`.
+- `core/skills/_shared/agents/prompts/` — canonical specialist and stage prompts; each declares its expected result in `## Output`.
+- `core/skills/_shared/templates/` — canonical artifact templates; feature/story artifacts own decisions, acceptance, approvals, and progress. Specialist notes are optional supporting records.
 
 Specialist prompts under `core/agents/` (`architect`, `database`, `repo-analyst`, `security`, `shell-runner`) publish when `agents` is true. `qa_checklist` has no agent file.
 
@@ -134,16 +136,17 @@ Live product home is `~/.codex`. USER skills discovery is `~/.agents/skills`. Pl
 
 | Relative path | Role |
 |---------------|------|
-| `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills |
-| `plugin/skills/_shared/skills-catalog/CATALOG.md` and `OPERATOR.md` | Map via `help-skills` |
+| `plugins/agent-dev-toolkit/.codex-plugin/plugin.json` | Toolkit-managed plugin source manifest (`skills: ./skills/`) |
+| `plugins/agent-dev-toolkit/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills |
+| `plugins/agent-dev-toolkit/skills/_shared/skills-catalog/CATALOG.md` and `OPERATOR.md` | Map via `adt-help-skills` |
+| `plugins/cache/<marketplace>/<plugin>/<version>` | Codex-managed installed plugin cache; not written by the toolkit |
 | `rules/*.md` | Policy |
 | `.agents/plugins/marketplace.json` | Local marketplace entry |
 | `AGENTS.md` | Materialized dual-root absolute paths |
-| `plugin/hooks/hooks.json` | Plugin hooks. `/hooks` trust is manual |
+| `plugins/agent-dev-toolkit/hooks/hooks.json` | Plugin source hooks. `/hooks` trust is manual |
 | `.agents/skills/` | Optional `-UserScope` (live: `$HOME/.agents/skills` plus `-AllowUserHome`) |
 
-Default sync is plugin-only. Fixture: `scripts/validation/fixtures/codex`.
+Default direct sync is **Both**: home skills and plugin package. Guided Sync can select `Both`, `Local`, or `Plugin`; changing modes does not remove previously published copies. Fixture: `scripts/validation/fixtures/codex`.
 
 ## Claude Code
 

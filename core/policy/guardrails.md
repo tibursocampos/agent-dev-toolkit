@@ -1,5 +1,5 @@
 ---
-description: Non-negotiable agent rules for every conversation - git, write confirmation, one step per session, tests, language
+description: Non-negotiable agent rules for every conversation - authorization, scope, tests, language
 alwaysApply: true
 ---
 
@@ -16,10 +16,10 @@ Full enforcement context: `docs/ENFORCEMENT.md` in the toolkit repo.
 Before **any** tool call (`Read`, `Write`, `Shell`, etc.):
 
 1. Read this rule (`{{GUARDRAILS_PATH}}`).
-2. Read `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`.
+2. Consult `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md` only if the active workflow explicitly retains session helpers. Classic SDD and Orchestrated Delivery do not load session-state as a gate.
 3. Read § 1 (Git) of this file and `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` (language surfaces) when mutating git or writing code.
 
-If the user has **not** said **sim** to the current action, do **NOT** execute mutating git or file writes.
+Before a mutation, verify that it falls within the user's current authorization and the active workflow's scope. Ask only when authorization or a material decision is genuinely missing; do not require a literal answer token.
 
 ---
 
@@ -34,7 +34,7 @@ If the user has **not** said **sim** to the current action, do **NOT** execute m
 
 ### Working branch (development skills, before the first code change)
 
-The integration-branch stop applies only to `orchestrate-develop`, `sdd-develop`, `developer`, and `*-developer`.
+The integration-branch stop applies only to `adt-orchestrate-implement`, `adt-sdd-develop`, `adt-developer`, and `adt-*-developer`.
 
 Before those skills change code, run read-only `git status -sb` or `git branch --show-current` and show the branch name.
 
@@ -48,55 +48,44 @@ If the current branch is `main`, `master`, or `develop`:
 
 If the branch is already `feature/*` or `feat/*`, do not ask again in that conversation.
 
-`sdd-spec`, `sdd-plan`, `orchestrate-analyze`, `orchestrate-deliver`, and every other skill stay on the current branch. They do not show the branch and do not ask for a branch switch.
+`adt-sdd-spec`, `adt-sdd-plan`, `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, and every other skill stay on the current branch. They do not show the branch and do not ask for a branch switch.
 
 Exception: the user explicitly says to keep the current integration branch. That exception is only for the development skills listed above.
 
 Mutating git commands require explicit confirmation (`confirm`) in the user's **immediately previous** message, or the user runs them manually. An observable selection of the question component, or a clear affirmative reply in any language, counts for the exact action asked. It does not generalize to other actions.
 
-Use `/commit` / `/push` after confirmation.
+Use `/adt-commit` / `/adt-push` after confirmation.
 
-**Commit messages:** never include `Co-authored-by: Cursor`, Antigravity, or any AI agent - not in the message file, not via `--trailer`. If the IDE injects a co-author trailer after commit, amend it away per `/commit` §5.1 and `conventional-commits.mdc`.
-
----
-
-## 2. Write / delete (confirm before write)
-
-Technical authorization by effect and scope is a separate decision from the operator confirmation required for the current action. An `allow` result from a provider or shared policy does not satisfy the required `sim`; `continuous` is independently limited to its eligible O3 queue step.
-
-Before creating or replacing **new** SDD artifacts (PRD, PLAN):
-
-1. Show title, path, summary bullets.
-2. Ask for confirmation in the user's conversation language, with the options `confirm` / `adjust` / `cancel` rendered as localized labels (ids and answer mapping in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). The question names the target path.
-3. Write only after confirmation (`confirm`).
-
-**Exception:** updating an existing PLAN after an **already approved** develop step - no re-confirmation.
-
-Before editing production code or tests: confirm scope unless the user explicitly approved the current step/task. A clear affirmative answer in the conversation language or an observable native confirmation selection satisfies the operator-answer contract; do not require literal `sim` when the semantic choice is unambiguous. Keep technical authorization, scope, and persisted session gates as separate checks.
+**Commit messages:** never include `Co-authored-by: Cursor`, Antigravity, or any AI agent - not in the message file, not via `--trailer`. If the IDE injects a co-author trailer after commit, amend it away per `/adt-commit` §5.1 and `conventional-commits.mdc`.
 
 ---
 
-## Open questions without a written deadline
+## 2. Write / delete (scope authorization)
 
-A question whose rule states no deadline stays open until the operator answers every pending question.
+Do not perform destructive or externally consequential actions without explicit authorization. For other writes, honor the current request and its authorized scope; do not add a separate confirmation for each file when the user has authorized the workflow or artifact preparation.
 
-After that question is sent, send no further agent message until those answers arrive. Silence, a timeout, and the end of the turn are not answers.
+For Classic SDD and Orchestrated Delivery, creating and revising draft FEATURE/STORY/PRD/PLAN artifacts is part of preparation. Present the complete plan for one explicit approval before implementation. That approval authorizes implementation only within its scope and chosen cadence. Ask again only for a material change to behavior, acceptance, scope, access, or implementation decisions. ADT Delivery retains its approved-plan boundary and existing cadence contract. Other write workflows keep their own authorization rules.
 
-The question mechanism, the order rule, and the option ids are defined in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Both mechanisms block the flow.
-
-After the question, or after an intermediate skill the operator already authorized, the skill that was in progress resumes. It finishes the requested function or declares a blocker and states the cause. Read repository-local instructions and explain precedence conflicts; do not silently let lower-priority local text override the operator's explicit request or toolkit gates.
-
-The required **sim** before writes in §2 stays in force. This section does not replace that confirm.
+Before editing production code or tests, verify that the current task or approved plan authorizes the exact scope. A clear affirmative answer or prior explicit authorization applies; do not require a literal token such as `sim`. Session flags are not additional authorization requirements for Classic SDD or Orchestrated Delivery.
 
 ---
 
-## 3. One step per session (SDD develop)
+## Open questions
 
-- `sdd-develop`: exactly **one** PLAN step per develop session scope (PLAN-scoped session file — see `SESSION.md`).
-- `document-implement`: exactly **one** documentation plan step per session.
+For Classic SDD and Orchestrated Delivery, block only on an unanswered decision that prevents determining behavior, acceptance, scope, required access, or an implementation choice. Keep minor questions and optional improvements visible without stopping unaffected work. Ask a focused question, then resume the authorized workflow when answered. Other skills retain their own question contracts.
 
-After completing the step: **STOP**. Do not start step N+1 in the same conversation.
-Cite the next handoff with a **portable** PLAN path only (e.g. `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`) — see `STORAGE.md` § Portable path. Do **not** weaken this gate for batch convenience unless the operator explicitly authorized a multi-step amend in the current session.
+The question mechanism, option ids, and observable answer rules are defined in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Read repository-local instructions and explain genuine precedence conflicts; do not let lower-priority text silently expand the user's scope.
+
+---
+
+## 3. Develop step scopes and cadence
+
+- Classic SDD uses the cadence selected for the approved PLAN: `step_by_step` stops after one step, while `continuous` advances through eligible steps until completion or a real blocker.
+- ADT Delivery follows its own approved plan and selected `step_by_step` or `continuous` cadence. In `continuous`, the initial authorization covers only the eligible steps of that exact approved plan; a blocker, a material scope, input or approval change, or an action needing separate authorization stops the sequence. Its implementation skill defines progress, validation and review.
+- Orchestrated Delivery O3 is serial: one child implements one PLAN step at a time. Its `step_by_step` or `continuous` cadence controls whether the parent stops or dispatches the next eligible step after reconciliation. SESSION flags and claims are not required for Classic/O3 execution.
+- `adt-document-implement`: exactly **one** documentation plan step per session.
+
+Handoffs cite a **portable** PLAN path only (e.g. `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`) — see `STORAGE.md` § Portable path. Cadence does not bypass dependencies, acceptance, required validation, approved scope, or separate authorization for consequential actions.
 
 ---
 
@@ -116,25 +105,18 @@ If the user corrects language, fix the **artifact/code** - do not flip chat to E
 
 ## 6. Progress checkpoints
 
-Persist the existing workflow control artifact at its defined step boundaries. Host context or compaction signals may inform the operator's decision to checkpoint, but no usage percentage, model-cost estimate, or new-session recommendation is a global gate. Preserve the workflow's explicit confirmation, dependency, and one-step boundaries.
+Persist progress in the owning workflow's canonical artifact. For Classic SDD and O1/O2/O3, that is the PLAN execution table; do not add SESSION, claim, CONTINUITY, or TASKS progress mirrors. Host context or compaction signals may inform checkpoint timing, but no usage percentage or model-cost estimate is a global gate. Other workflows retain their own explicit checkpoint contract.
 
 ---
 
-## 7. Session gates
+## 7. Session state
 
-See `SESSION.md`. Before Write/Shell, verify:
-
-- `storage_confirmed` - for manifest/storage path changes
-- `write_confirmed` - for new artifacts
-- `step_confirmed` - before implement
-- `tests_run` - before marking step done
-
-Set gates to `true` only after user **sim**.
+Classic SDD and Orchestrated Delivery use the canonical PLAN for implementation progress and do not require SESSION flags or PLAN claims to authorize or advance work. `SESSION.md` and its helpers remain available only to consumers that explicitly retain those contracts, including `adt-document-implement`; do not apply their gates globally by analogy.
 
 ---
 
 ## Never compress (Caveman Mode)
 
 Confirmation gates, artifact drafts, and git-block notices are **never** subject to Caveman compression.
-Skills `commit` / `push` ignore `caveman_mode` (clear prose). Auto-Clarity drops compression for security and irreversible confirms.
+Skills `adt-commit` / `adt-push` ignore `caveman_mode` (clear prose). Auto-Clarity drops compression for security and irreversible confirms.
 Contract: `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`. Optional narrative compact: `COMPACT.md` (requires user **sim**). Always-on rule: `caveman-mode.mdc`.

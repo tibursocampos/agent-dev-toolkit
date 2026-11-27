@@ -4,10 +4,9 @@ Human summary of the portable spawn contract. Agents **Read** the canonical skil
 
 Per-adapter honesty notes: each `adapters/<id>/README.md` → **Spawn / subagents**. Registry capability: `docs/ADAPTERS.md`.
 
-## Child assignment lifecycle (all `native` adapters)
+## Child assignment lifecycle
 
-Batch related, bounded work before dispatch. A child gets one assignment; any returned result (complete, incomplete, blocked, or failed) ends that assignment. A returned child handle may be continued (SendMessage where the host offers it) only for the same topic and scope while its context is still relevant. Never reuse it for a different topic, a different scope, or an already large context; send those to a fresh child handle. Clarifications are allowed only while the child is running and within its original scope. Use host close/stop controls when available, but do not promise process termination, retention behavior, or context erasure: the host controls those. OpenHands (`subagents=none`) uses the in-parent fallback and must not simulate or claim a native child lifecycle. The canonical operational rule is `core/skills/_shared/agents/SPAWN.md`.
-
+Lifecycle: see `core/skills/_shared/agents/SPAWN.md` section "Task ownership and lifecycle".
 ## Capability `subagents`
 
 | Value | Meaning |
@@ -21,7 +20,7 @@ Batch related, bounded work before dispatch. A child gets one assignment; any re
 
 ## Inventory × host spawn
 
-Sources: official host product docs (primary), `adapters/registry.json`, SPAWN / `SUBAGENT-MODEL.md` / `orchestrate-*`.
+Sources: official host product docs (primary), `adapters/registry.json`, SPAWN / `SUBAGENT-MODEL.md` / `adt-orchestrate-*`.
 
 | Agent id | Display | Product evidence | Registry `subagents` | Prefer when effective `native` |
 |----------|---------|------------------|----------------------|--------------------------------|
@@ -36,13 +35,31 @@ Sources: official host product docs (primary), `adapters/registry.json`, SPAWN /
 | `hermes` | Hermes | Tool **`delegate_task`** (isolated child; optional `role=orchestrator`) — [delegation](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) | `native` | `delegate_task` |
 | `openhands` | OpenHands | Canvas / ACP is not parent→child. SDK `TaskToolSet` is not Canvas. [Skills](https://docs.openhands.dev/overview/skills) | `none` | In-parent (SPAWN fallback) |
 
+
+## Nesting matrix
+
+| Agent id | Child can spawn child | Source | Evidence level | Checked on | Restriction type |
+|----------|-----------------------|--------|----------------|------------|------------------|
+| antigravity | unknown | unknown | unknown | - | unknown |
+| claude | unknown | unknown | unknown | - | unknown |
+| codex | unknown | unknown | unknown | - | unknown |
+| copilot | unknown | unknown | unknown | - | unknown |
+| cursor | unknown | unknown | unknown | - | unknown |
+| grok | unknown | unknown | unknown | - | unknown |
+| hermes | unknown | unknown | unknown | - | unknown |
+| opencode | unknown | unknown | unknown | - | unknown |
+| zcode | unknown | unknown | unknown | - | unknown |
+| openhands | n/a | n/a | none | 2026-11-06 | n/a |
+
+A prompt instruction is not a host block.
+
 **Honesty:** promote/demote only with product evidence. Demote registry `native` → `none` only with a documented regression. Absence of a Spawn section in an adapter README does **not** by itself imply `none`.
 
 **Anti-hallucination:** agents must use **only** their own host row from the portable SPAWN map (`core/skills/_shared/agents/SPAWN.md` § Use only the current host row). Hermes-only operability (`delegate_task` goal/context bridge) is appended to Hermes `AGENTS.md` at publish — it must **not** appear in core policy/router or in other adapters’ published `AGENTS.md` / rules.
 
 ## Antigravity dual-layer (version gate)
 
-Before 2.0: Agent Manager with parallel agents in separate conversations — **not** hierarchical in-session delegation. Since 2.0: `invoke_subagent` (async, nesting ≤10, worktrees).
+Before 2.0: Agent Manager with parallel agents in separate conversations — **not** hierarchical in-session delegation. Since 2.0: `invoke_subagent` (async, worktrees).
 
 | Layer | Value | Role |
 |-------|-------|------|
@@ -59,15 +76,7 @@ Probe fail-closed (`Resolve-AntigravitySubagentsCapability`). Order matches `cor
 
 ## Behavior matrix
 
-| `subagents` | Orchestrate / code-review multi-angle | `*-developer` medium/complex | Thin trivial |
-|-------------|----------------------------------------|------------------------------|--------------|
-| `native` | Prefer Task (or host equivalent); receipt; no guideline paste | Up to **2** children; paths + receipt | In-parent: single-path Q&A **or** one-file edit with no spread risk. If analysis spans multiple files, a one-file change might extend, or any doubt → spawn |
-| `none` | In-parent / documented handoff; **never** hard-fail | Same outcome in-parent | In-parent |
-
-| Context | Cap |
-|---------|-----|
-| `*-developer` children | **≤ 2** |
-| `orchestrate-*` parallel | **≤ 4** concurrent (wave if more) |
+Caps and checklist: `core/skills/_shared/agents/SPAWN.md`.
 
 **RN:** subagent-first = preference + fallback. Antigravity: use **effective** capability (probe), not registry alone.
 
@@ -75,23 +84,29 @@ Probe fail-closed (`Resolve-AntigravitySubagentsCapability`). Order matches `cor
 
 O1 triage sets `needs_*` on `FEATURE.md`. Spawn map (flag → specialist / action / prompt): **`Flags (needs_*)` table** in `core/skills/_shared/agents/ROSTER.md` — do **not** copy that table into skills or this page. Point agents there.
 
-**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `*-developer` skill as an agent file. **OpenCode** and **Grok** publish with `agents: true`: `Publish-Agents` → `InstallRoot/agents/` (native OpenCode Task and Grok `spawn_subagent` remain). **Antigravity** and **Hermes** stay `agents: false` (`Publish-Agents` no-op; native `invoke_subagent` / `delegate_task` only). **OpenHands** still has `subagents=none` and still writes roster files under `.agents/agents/` — that path is an SDK/plugin roster, not Canvas Profile and not native spawn (SPAWN fallback in-parent).
+**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `adt-*-developer` skill as an agent file. **OpenCode** and **Grok** publish with `agents: true`: `Publish-Agents` → `InstallRoot/agents/` (native OpenCode Task and Grok `spawn_subagent` remain). **Antigravity** and **Hermes** stay `agents: false` (`Publish-Agents` no-op; native `invoke_subagent` / `delegate_task` only). **OpenHands** still has `subagents=none` and still writes roster files under `.agents/agents/` — that path is an SDK/plugin roster, not Canvas Profile and not native spawn (SPAWN fallback in-parent).
 
 ## Task `model` (Eixo B/C — A≠B≠C)
 
-Marker: **A≠B≠C**. Model policy does **not** decide spawn vs in-parent (**Eixo A** stays in `SPAWN.md` / thin-trivial exception — never remove spawn choice).
-
-| Axis | Owns | Rule |
-|------|------|------|
-| **A** | This page + canonical `SPAWN.md` | Spawn vs in-parent |
-| **B** | `SUBAGENT-MODEL.md` | Default: **omit** `model` → child inherits the parent session model |
-| **C** | `SUBAGENT-MODEL.md` | Premium / alternate slug only when that gate fires **and** the user gives a `confirm` answer (silence ≠ approval) |
-
-Do **not** pin child≠parent by default. Do **not** conflate Memory Bank policy `auto` with Cursor Auto model. Details: `core/skills/_shared/agents/SUBAGENT-MODEL.md`.
-
+See `core/skills/_shared/agents/SUBAGENT-MODEL.md` for axes B and C.
 ## Orchestrate parents
 
-`orchestrate-analyze` / `deliver` / `develop` parents **coordinate**: goals, gates, scoped paths, receipts, synthesis. They **must not** implement application code — specialists (or stack `*-developer` / `sdd-develop`) own implementation. Receipt shape: `RECEIPT.md` (lazy-load).
+`adt-orchestrate-analyze` / `deliver` / `develop` parents **coordinate**: goals, gates, scoped paths, receipts, synthesis. They **must not** implement application code — specialists (or stack `adt-*-developer` / `adt-sdd-develop`) own implementation. Receipt shape: `RECEIPT.md` (lazy-load).
+
+## Agent deliverables and output contracts
+
+Every canonical agent/stage prompt under `core/skills/_shared/agents/prompts/` declares its deliverable in one `## Output` section. The caller should name the expected result in the assignment and consume the role's contract; prompt outputs are not one universal schema.
+
+| Work | Expected result | Canonical contract |
+|------|-----------------|--------------------|
+| Finding specialists (`repo-analyst`, `architect`, `database`, `security`) | Zero or more evidence-based finding blocks; design recommendations label proposals and unresolved operator decisions | `core/skills/adt-refine-story/references/finding-format.md`; role-specific detail in each prompt |
+| Story author (`generate-story`) | Complete `STORY.md` draft following the canonical template | `core/skills/_shared/templates/features/story/STORY.md` |
+| Stack implementation child (`developer-child`) | Reduced `{ files[], testsSummary }` receipt | `core/skills/_shared/agents/RECEIPT.md` |
+| Bounded command child (`shell-runner`) | Commands, exit results, portable evidence path, and next action | `core/skills/_shared/agents/RECEIPT.md` |
+| O3 implementation child (`adt-sdd-develop`) | Allowlisted PLAN-step relay receipt | `core/skills/_shared/agents/RECEIPT.md` and its runtime validator |
+| Optional verifier | Read-only verification result, separate from implementer receipt | `core/skills/_shared/agents/RECEIPT.md` |
+
+Caveman may compress conversational framing only. It must not shorten a finding, omit evidence or limits, reduce an artifact, or drop required receipt fields. The caller remains responsible for checking the result against its assigned scope and canonical artifact.
 
 ## Related
 

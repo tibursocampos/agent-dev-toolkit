@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "S2-01",
+      "given": {
+        "supportedEfforts": ["low", "medium", "high", "xhigh", "max"]
+      },
+      "expect": {
+        "effortOptions": ["low", "medium", "high"],
+        "nextAction": "ask_effort"
+      }
+    },
+    {
+      "id": "S2-02",
+      "given": {
+        "supportedEfforts": ["high", "xhigh", "medium", "minimal"]
+      },
+      "expect": {
+        "effortOptions": ["medium", "high"],
+        "nextAction": "ask_effort"
+      }
+    },
+    {
+      "id": "S2-03",
+      "given": {
+        "supportedEfforts": ["none", "xhigh", "max", "minimal"]
+      },
+      "expect": {
+        "effortOptions": [],
+        "nextAction": "inherit"
+      }
+    }
+  ]
+}

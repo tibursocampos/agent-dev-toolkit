@@ -1,10 +1,10 @@
-# Subagent-first policy (`*-developer`)
+# Subagent-first policy (`adt-*-developer`)
 
-Shared decision policy for stack `*-developer` skills. Encode RN02–RN04 here once; skills **point** to this file — do not duplicate long bodies.
+Shared decision policy for stack `adt-*-developer` skills. Encode RN02–RN04 here once; skills **point** to this file — do not duplicate long bodies.
 
 **Mandatory:** read `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` and capability `subagents` (`native` | `none` from registry / Get-Capabilities) before spawning.
 
-**Agent `model` (Axis B):** when spawning, follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` — **omit** the Agent `model` parameter by default so the child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. Premium / alternate slug only after that contract’s gate + explicit user `confirm` answer.
+**Model configuration:** see `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`
 
@@ -44,7 +44,7 @@ Classify task complexity
 3. Point to role/skill paths; **do not** paste `_shared/*-guidelines/`, full SKILL bodies, or large policy dumps.
 4. Child prompts and agent receipts: **always en-US** (`LANGUAGE.md`). Pass **paths + excerpt** of user-language artifacts — no full PLAN/PRD dump.
 
-Cap: **≤ 2** children per task wave (`*-developer`).
+Cap: **≤ 2** children per task wave (`adt-*-developer`).
 
 If fallback or in-parent work requires a code edit while the host is in Plan/Ask,
 stop before editing and explicitly ask the operator to switch to Agent. Never
@@ -59,7 +59,7 @@ Skills and CI asserts should echo these literals (exact substrings preferred):
 | Marker | Role |
 |--------|------|
 | `SPAWN.md` | Mandatory contract pointer |
-| `SUBAGENT-MODEL.md` | Axis B omit `model` / Axis C gate |
+| `SUBAGENT-MODEL.md` | Axis B omit `model` / Axis C session choice |
 | `subagents` | Capability name |
 | `in-parent` | Trivial path + fallback path |
 | `fallback` | Degrade when none / no Agent |
@@ -77,7 +77,7 @@ Canonical spawn contract (limits, enum honesty, orchestrate caps): `SPAWN.md` �
 - Spawn for **trivial** work
 - Exceed **2** developer children without user-approved wave
 - Paste guideline packs into child prompts
-- Wire every `*-developer` SKILL from this file alone — Step 5 adds the pointers
+- Wire every `adt-*-developer` SKILL from this file alone — Step 5 adds the pointers
 
 ---
 

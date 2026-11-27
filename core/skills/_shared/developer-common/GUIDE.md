@@ -1,6 +1,6 @@
 # Developer common - Git workflow reference
 
-Shared steps for dev skills (`sdd-develop`, `commit`, `code-review`, `developer`). Load only the steps your skill needs.
+Shared steps for dev skills (`adt-sdd-develop`, `adt-commit`, `adt-code-review`, `adt-developer`). Load only the steps your skill needs.
 
 **Version:** 2.0.0 (agent-dev-toolkit)  
 **Scope:** Git-only - no work-item trackers, no corporate PR APIs.
@@ -14,7 +14,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/`
 ```
 developer-common/
 ├── GUIDE.md                         # This file
-├── subagent-first.md                # Subagent-first policy for *-developer (SPAWN + fallback)
+├── subagent-first.md                # Subagent-first policy for adt-*-developer (SPAWN + fallback)
 ├── step-0-context.md                # AGENTS.md / README, task list
 ├── step-0.5-review-guidelines.md    # Lazy-load principles + stack guidelines
 ├── step-3-branching.md              # feature/<slug> or feat/<id>-<slug>
@@ -25,7 +25,7 @@ developer-common/
     └── todo-list.md                 # High-level task template
 ```
 
-**Subagent-first (`*-developer`):** follow `subagent-first.md` (mandatory pointer to `SPAWN.md` + capability `subagents`). Do not inline that policy in every stack skill.
+**Subagent-first (`adt-*-developer`):** follow `subagent-first.md` (mandatory pointer to `SPAWN.md` + capability `subagents`). Do not inline that policy in every stack skill.
 
 **Not in this toolkit:** work-item tracker integration, time estimation, progress trackers, wiki docs, PR analyzer, nested `feature/base/{id}` branches.
 
@@ -71,7 +71,7 @@ Override only stack-specific commands (e.g. `dotnet test` vs `npm test`).
 └──────────────────────────────────────────────────────────────┘
 ```
 
-SDD skills (`sdd-spec`, `sdd-plan`, `sdd-develop`) embed parts of this flow inline; dev skills load step files on demand.
+SDD skills (`adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`) embed parts of this flow inline; dev skills load step files on demand.
 
 ---
 
@@ -80,8 +80,8 @@ SDD skills (`sdd-spec`, `sdd-plan`, `sdd-develop`) embed parts of this flow inli
 | Step | Rule / skill |
 |------|----------------|
 | 3 | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
-| 4 | `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc`, `commit` skill |
-| SDD PLAN | `sdd-develop` skill |
+| 4 | `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc`, `adt-commit` skill |
+| SDD PLAN | `adt-sdd-develop` skill |
 
 Rules win over conflicting text in step files.
 

@@ -69,7 +69,7 @@ Pointers only — do not paste Learn/blog bodies. Official Microsoft docs win au
 - [ ] ASP.NET Core best practices: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/best-practices?view=aspnetcore-10.0 ([pt-BR](https://learn.microsoft.com/pt-br/aspnet/core/fundamentals/best-practices?view=aspnetcore-10.0))
 - [ ] Memory / performance: https://learn.microsoft.com/en-us/aspnet/core/performance/memory?view=aspnetcore-10.0
 - [ ] .NET 10 perf (official blog, when targeting major 10): https://devblogs.microsoft.com/dotnet/performance-improvements-in-net-10/
-- [ ] Local overlay: `performance-aspnet.md` · catalog: `skills/framework-upgrade/references/sources-catalog.md`
+- [ ] Local overlay: `performance-aspnet.md` · catalog: `skills/adt-framework-upgrade/references/sources-catalog.md`
 
 ---
 
@@ -100,7 +100,7 @@ Pointers only — do not paste Learn/blog bodies. Official Microsoft docs win au
 - [ ] `dotnet build` succeeds
 - [ ] `dotnet test` passes
 - [ ] No new nullable reference type warnings (or documented)
-- [ ] Coverage ≥ 80% on changed files (`/test-coverage`; goal 100% when feasible)
+- [ ] Coverage ≥ 80% on changed files (`/adt-test-coverage`; goal 100% when feasible)
 - [ ] SOLID and clean-code basics respected
 - [ ] No obvious security issues (secrets, injection, unsafe defaults)
 - [ ] No obvious N+1 or hot-path inefficiencies
@@ -126,14 +126,14 @@ Pointers only — do not paste Learn/blog bodies. Official Microsoft docs win au
 
 | Type | Examples | Action |
 |------|----------|--------|
-| **Blocker** | Build failed, tests failing, wrong base branch, coverage below 80% on changed files (when `test-coverage` reports fail) | Fix before PR |
+| **Blocker** | Build failed, tests failing, wrong base branch, coverage below 80% on changed files (when `adt-test-coverage` reports fail) | Fix before PR |
 | **Warning** | Coverage below 100% but ≥ 80%, style nits, vulnerable package advisories pending triage | Document or fix in follow-up |
 
 | Problem | Action |
 |---------|--------|
 | Build failed | Fix usings, types, package references |
 | Tests failing | Fix implementation or test; avoid disabling without reason |
-| Low coverage (&lt; 80% on changed files) | Run `/test-coverage`; add tests for uncovered behavior |
+| Low coverage (&lt; 80% on changed files) | Run `/adt-test-coverage`; add tests for uncovered behavior |
 
 ---
 

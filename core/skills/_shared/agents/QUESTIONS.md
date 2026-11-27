@@ -9,29 +9,31 @@ Other files point here. Gate wording and blocking rules are not restated elsewhe
 ## Order rule
 
 1. If the host offers a question component (see the host mechanism table) **and** the selected answer is returned to the agent in an observable form, use the component and wait.
-2. If the component cannot open, or its answer does not reach the agent, ask in text in the conversation language with numbered options.
-3. In both cases the flow blocks. The question stays `open_question` until its state is `answered` (see States). Silence, a timeout, or the end of the turn is never an answer.
+2. If the component cannot open, disappears, expires, or stops delivering observable answers, keep the same question pending and present it in text in the conversation language with numbered options when applicable.
+3. Keep the affected work paused. Independent work may continue within the active workflow. The question stays `open_question` until its state is `answered` (see States). Silence, a timeout, or the end of the turn is never an answer.
 
-A host **offers** a question component only when the host mechanism table below names a tool for it. No other signal counts as an offer.
+A host **offers** a question component when the host mechanism table names a tool for it, or the row is explicitly `operator-confirmed component`, and the selected answer is returned to the agent. No other signal counts as an offer.
 
 ## Host mechanism table
 
 | Host | Mechanism | Evidence in this repo |
 |------|-----------|-----------------------|
-| `claude` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `Test-ToolkitReadOnlyToolName`, `$readOnlyTools` entry `claude` |
+| `claude` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `Test-ToolkitReadOnlyToolName`, `$readOnlyTools` entry `claude`; operator also confirms a usable component for US03. |
 | `grok` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `grok` |
 | `zcode` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `zcode` |
-| `hermes` | `ask_user` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `hermes`; `adapters/hermes/assets/plugins/agent-dev-toolkit-guard/__init__.py` (`ask_user` in the read-only tool list) |
-| `cursor` | `none` | No verified question component. |
+| `hermes` | `ask_user` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `hermes`; `adapters/hermes/assets/plugins/agent-dev-toolkit-guard/__init__.py` (`ask_user` in the read-only tool list); operator also confirms a usable component for US03. |
+| `cursor` | `cursor/ask_question` | Named by the official ACP reference and operator confirms a usable component for US03. Use it only when its selected answer reaches the agent; otherwise fall back to numbered text. |
 | `antigravity` | `none` | No verified question component. |
-| `codex` | `none` | No verified question component. |
-| `copilot` | `none` | No verified question component. |
-| `opencode` | `none` | No verified question component. |
+| `codex` | `request_user_input_async` | Current Codex surface exposes this question component; the operator selected an option and the answer reached the agent during US03 execution. |
+| `copilot` | `operator-confirmed component` | Operator confirms the component is usable for US03 and its answer reaches the agent; this repository does not record the mechanism name. Do not invent a tool name. |
+| `opencode` | `none` | Documented as the `question` permission, which asks the user during execution (https://opencode.ai/docs/permissions/). Blocking behaviour and subagent behaviour not verified: ask in text until a live run shows the answer reaching the agent. |
 | `openhands` | `none` | No verified question component. |
 
 Rules for this table:
 
-- `none` means no verified question component: ask in numbered text. For a host marked `none` the tool name must not be invented.
+- `none` means no question component is confirmed for the active host surface: use numbered text.
+- `operator-confirmed component` means the operator has confirmed that the host component is usable and its answer reaches the agent, even though this repository does not record a mechanism name. Use the component and do not invent a tool name.
+- For US03, the operator confirms usable components on Codex, Claude, Cursor, Hermes, and Copilot. This does not extend to other hosts. For any other host or any component whose answer is not observable, keep the numbered-text fallback.
 - Use only the row for the current host. Never invoke another host's tool.
 - A name in the evidence column shows that the toolkit knows the tool name. It does not prove that the answer returns to the agent. Treat the mechanism as usable only after a live run shows the selected answer reaching the agent, and record that run in the adapter evidence (`adapters/README.md`).
 
@@ -57,14 +59,14 @@ Common ids:
 | `cancel` | Stop. Do not perform the gated action. |
 | `skip` | Leave an optional step undone and continue. |
 | `decline` | Refuse an optional offer. |
-| `feature`, `tech` | Requirement-review mode (`requirement-review`). |
+| `feature`, `tech` | Requirement-review mode (`adt-requirement-review`). |
 | `split` | Divide a story before drafting. |
 | `manual`, `orchestrated` | Execution route for one PLAN step. |
 | `series`, `parallel` | Orchestrated Delivery drafting mode. |
 
 Domain ids are added per gate. They are still English and must be listed in the owning skill's contract.
 
-`series` / `parallel` (orchestrate-deliver drafting mode) and `serial` / `parallel` / `manual` (orchestrate-develop queue mode) are distinct id sets for distinct questions.
+`series` / `parallel` (adt-orchestrate-prepare drafting mode) and `serial` / `parallel` / `manual` (adt-orchestrate-implement queue mode) are distinct id sets for distinct questions.
 
 ## Answer to id mapping
 
@@ -76,7 +78,7 @@ Domain ids are added per gate. They are still English and must be listed in the 
 
 ## Legitimate free text
 
-Open questionnaires take free text on purpose. Example: the intake questions in `sdd-spec`. Those questions have no fixed id set. The answer is recorded as text, and the question still blocks until it is answered.
+Open questionnaires take free text on purpose. Example: the intake questions in `adt-sdd-spec`. Those questions have no fixed id set. The answer is recorded as text, and the question still blocks until it is answered.
 
 ## States
 
@@ -87,9 +89,9 @@ Open questionnaires take free text on purpose. Example: the intake questions in 
 | `answered` | The agent has received and parsed an allowed answer for this question and can name the selected id. | Only the branch that answer authorizes |
 | `resumed` | After an interruption or a new turn, the agent reloaded the pending question and confirmed which one is still active. | No, until the question becomes `answered` |
 
-`orchestrate-deliver/references/approval-gates.md` uses these same states and points here.
+`adt-orchestrate-prepare/references/approval-gates.md` uses these same states and points here.
 
-Record the question id or scope, the accepted answer form, and the resulting transition in the current turn or in the persistent workflow artifact where one exists. On resume, repeat the active question or present its current status. Never infer an answer from earlier unrelated text.
+Record a material question in the owning durable workflow artifact when one exists. Include the question, options when useful and affected work. When the answer is observable, record the decision and its source. On resume, use that record to show the active question or its current status. Never infer an answer from earlier unrelated text.
 
 A host displaying, queuing, retrying, or redelivering a message is not proof that the agent processed it. When the surface cannot expose processing events, report that boundary and keep the state `pending` until an answer reaches the agent. Toolkit instructions cannot force a host UI to show, retain, or retract a prompt.
 
@@ -105,14 +107,14 @@ Gates are never compressed. The protected text is the gate text in the user's la
 
 ## Subagents
 
-Children never ask the operator. Only the parent asks. A child that needs an answer stops its pass and reports the need in its receipt (`RECEIPT.md`): the `needs-confirm.` token, plus the question, its ids, and its scope. The child writes the receipt in en-US. The parent renders the question in the user's language and asks it, then blocks as above.
+Children never ask the operator. Only the parent asks. This is a toolkit rule, not a host guarantee: on `claude`, the question tool is not available inside subagents (https://code.claude.com/docs/en/sub-agents), and the rule holds on every host. A child that needs an answer stops its pass and reports the need in its receipt (`RECEIPT.md`): the `needs-confirm.` token, plus the question, its ids, and its scope. The child writes the receipt in en-US. The parent renders the question in the user's language and asks it, then blocks as above.
 
 ## Cross-refs (lazy-load)
 
 | File | Use |
 |------|-----|
 | `core/policy/guardrails.md` | Blocking rule and the git and write gates that point here |
-| `core/skills/orchestrate-deliver/references/approval-gates.md` | Gate prompts for Orchestrated Delivery; uses the states defined here |
+| `core/skills/adt-orchestrate-prepare/references/approval-gates.md` | Gate prompts for Orchestrated Delivery; uses the states defined here |
 | `LANGUAGE.md` | Which language each surface uses; the gate text in the user's language |
 | `SPAWN.md` | When to spawn; children report questions through the receipt |
 | `RECEIPT.md` | Receipt schema and the `needs-confirm.` refusal token |

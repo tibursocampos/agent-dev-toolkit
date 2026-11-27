@@ -4,7 +4,7 @@ title: Arquitetura
 
 # Arquitetura
 
-O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**46** skills), `adapters/registry.json` (**10** agentes).
+O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**52** skills), `adapters/registry.json` (**10** agentes).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -23,7 +23,7 @@ core/          skills, política, roteador, contratos sdd, agents
 adapters/      módulos por agente, registry.json, _contract
 scripts/       toolkit.ps1, sync-agent, validate-agent, _lib, validation, bootstrap
 docs/          documentação de operador no repositório
-memory-bank/   mapa durável do workspace (Passo 0 da Entrega orquestrada)
+memory-bank/   contexto durável opcional do workspace
 .github/workflows/validate-toolkit.yml
 .github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
@@ -46,7 +46,7 @@ Comandos estáveis do adaptador: `Get-Capabilities`, `Get-InstallRoots`, `Publis
 
 `scripts/sync-agent.ps1` roda Publish e depois sempre `Get-SddRoot -Prepare`. Ações do CLI: `Sync`, `Validate`, `SyncAndValidate`, `ValidateCore`, `ListAgents`, `Uninstall`, `Backup`. Sync, Validate e Uninstall exigem `-Agent`. Uninstall é chaveado e mantém `sdd/sessions` e um `sdd/manifest.json` existente. Backup falha fechado, salvo `-ForceStub`.
 
-O caminho de feature publicado a partir deste core é Orchestrated Delivery (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). Deliver roda `sdd-spec` e depois `sdd-plan`. Develop roda um passo de `sdd-develop` por filho. Detalhe: [Primeiro uso](first-use.md). Flags por agente: [Adaptadores](adapters.md).
+Para coordenar várias stories ou especialistas, o caminho é Orchestrated Delivery (`adt-orchestrate-analyze` → `adt-orchestrate-prepare` → `adt-orchestrate-implement`). SDD clássico também pode começar diretamente para uma feature clara. O2 roda `adt-sdd-spec`/`adt-sdd-plan`; O3 é serial, um passo de `adt-sdd-develop` por filho. Detalhe: [Primeiro uso](first-use.md). Flags por agente: [Adaptadores](adapters.md).
 
 ## Como um app consumidor escolhe um estilo
 
@@ -54,19 +54,21 @@ Isto é separado do layout de core e adaptadores do próprio toolkit. O pack de 
 
 | Modo | Fluxo |
 |------|--------|
-| **Greenfield** | O especialista de roster **architect** propõe pela Camada A (`architecture-selection.md`) → rascunho ARCH → **sim** → ARCH aprovado. Não há estilo padrão silencioso |
-| **Brownfield** | Espelha o estilo ARCH do repositório ou já aprovado. Seleciona de novo só se você pedir para mudar |
+| **Escolha material de arquitetura** | Quando uma escolha concreta afetar comportamento ou implementação, apresente-a e resolva-a antes do trabalho dependente. O fato de o repositório ser greenfield, sozinho, não cria um gate |
+| **Brownfield** | Consulte as convenções existentes quando for relevante. Brownfield, sozinho, não exige espelhamento de ARCH nem nova escolha de estilo |
 
-Depois da confirmação (ou de um espelho brownfield): carregue **um** arquivo da Camada B em `principles/architecture/` e então o overlay de stack da Camada C correspondente. `orchestrate-analyze` roda o gate de confirmação quando a natureza é greenfield ou `needs_domain` sem estilo estabelecido.
+Depois de resolver uma escolha material de arquitetura: carregue **um** arquivo da Camada B em `principles/architecture/` e então o overlay de stack da Camada C correspondente. Uma convenção existente pode informar a escolha sem exigir uma nota ARCH separada.
 
 ## Política de origem
 
 - O conteúdo de produto para agentes vive em `core/`.
 - Nome do arquivo público de estado SDD: `manifest.json`.
-- `core/skills/` — 46 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
+- `core/skills/` — 52 skills mais `_shared`. Agentes leem o mapa com `adt-help-skills` (`CATALOG.md` e `OPERATOR.md`).
 - `core/policy/` — corpos de regra (`.md`; adaptadores podem normalizar para `.mdc` ou instructions).
 - `core/router/` — roteador neutro (`AGENTS.md`). O nome do arquivo no host depende do adaptador.
 - `core/skills/_shared/sdd-artifacts/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, alcançados por `Get-SddRoot`.
+- `core/skills/_shared/agents/prompts/` — prompts canônicos de especialistas e etapas; cada um declara sua saída esperada em `## Output`.
+- `core/skills/_shared/templates/` — templates canônicos de artefatos; os artefatos feature/story são donos de decisões, aceite, aprovações e progresso. Notas de especialistas são registros auxiliares opcionais.
 
 Prompts de especialista em `core/agents/` (`architect`, `database`, `repo-analyst`, `security`, `shell-runner`) são publicados quando `agents` é true. `qa_checklist` não tem arquivo de agente.
 
@@ -134,16 +136,17 @@ O home de produto ao vivo é `~/.codex`. A descoberta de skills USER é `~/.agen
 
 | Caminho relativo | Papel |
 |------------------|--------|
-| `plugin/.codex-plugin/plugin.json` | Manifesto do plugin (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Skills empacotadas no plugin |
-| `plugin/skills/_shared/skills-catalog/CATALOG.md` e `OPERATOR.md` | Mapa via `help-skills` |
+| `plugins/agent-dev-toolkit/.codex-plugin/plugin.json` | Manifesto da origem do plugin gerida pelo toolkit (`skills: ./skills/`) |
+| `plugins/agent-dev-toolkit/skills/<kebab-id>/SKILL.md` | Skills empacotadas no plugin |
+| `plugins/agent-dev-toolkit/skills/_shared/skills-catalog/CATALOG.md` e `OPERATOR.md` | Mapa via `adt-help-skills` |
+| `plugins/cache/<marketplace>/<plugin>/<version>` | Cache instalado gerido pelo Codex; o toolkit não grava nele |
 | `rules/*.md` | Política |
 | `.agents/plugins/marketplace.json` | Entrada de marketplace local |
 | `AGENTS.md` | Caminhos absolutos de raiz dupla, materializados |
-| `plugin/hooks/hooks.json` | Hooks do plugin. A confiança `/hooks` é manual |
+| `plugins/agent-dev-toolkit/hooks/hooks.json` | Hooks da origem do plugin. A confiança `/hooks` é manual |
 | `.agents/skills/` | `-UserScope` opcional (ao vivo: `$HOME/.agents/skills` mais `-AllowUserHome`) |
 
-O sync padrão é só plugin. Fixture: `scripts/validation/fixtures/codex`.
+O sync direto padrão é **Both**: skills locais e pacote do plugin. O Sync guiado permite escolher `Both`, `Local` ou `Plugin`; trocar de modo não remove cópias publicadas anteriormente. Fixture: `scripts/validation/fixtures/codex`.
 
 ## Claude Code
 

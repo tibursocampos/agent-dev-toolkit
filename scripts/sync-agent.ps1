@@ -36,6 +36,9 @@
 .PARAMETER Mode
   Required for -Agent copilot: user|repo (TE02 when missing/invalid). Ignored for other agents.
 
+.PARAMETER CodexSkillDistribution
+  Codex skill target: Both, Local, or Plugin. Defaults to Both. Ignored for non-Codex agents.
+
 .EXAMPLE
   .\scripts\sync-agent.ps1 -Agent cursor
 
@@ -55,6 +58,10 @@ param(
 
     [Parameter()]
     [string] $Mode,
+
+    [Parameter()]
+    [ValidateSet('Both', 'Local', 'Plugin')]
+    [string] $CodexSkillDistribution = 'Both',
 
     [Parameter()]
     [switch] $WhatIf,
@@ -368,6 +375,10 @@ try {
     $resolved = Resolve-RegistryAgent -RepoRoot $repoRoot -AgentId $Agent
     $resolvedMode = Assert-CopilotAgentMode -AgentId $resolved.AgentId -Mode $Mode
 
+    if ($resolved.AgentId -ne 'codex' -and $CodexSkillDistribution -ne 'Both') {
+        throw ('-CodexSkillDistribution applies only to -Agent codex; received {0} for {1}.' -f $CodexSkillDistribution, $resolved.AgentId)
+    }
+
     # Dot-source before InstallRoot default so adapters can expose FixtureRelativePath.
     . $resolved.ModulePath
 
@@ -425,6 +436,12 @@ try {
             ($paramNames -contains $script:ToolkitConstant.UserScopeParameterName)
         ) {
             $publishArgs[$script:ToolkitConstant.UserScopeParameterName] = $true
+        }
+        if (
+            $resolved.AgentId -eq 'codex' -and
+            ($paramNames -contains $script:ToolkitConstant.CodexSkillDistributionParameterName)
+        ) {
+            $publishArgs[$script:ToolkitConstant.CodexSkillDistributionParameterName] = $CodexSkillDistribution
         }
 
         if ($commandName -eq $script:ToolkitConstant.HooksPublishCommandName) {

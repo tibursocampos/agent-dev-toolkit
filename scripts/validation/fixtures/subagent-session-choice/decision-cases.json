@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "fixtureNote": "DC-21 snapshots the live collaboration.spawn_agent model enum surfaced for this validation session. The tool exposes reasoning_effort as an unconstrained string; official per-model OpenAI documentation supplies compatible efforts. Candidates are documented/requestable and runtime-unverified, not an account catalog or Cartesian product.",
+  "cases": [
+    {
+      "id": "DC-01",
+      "covers": ["CA3"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "pair-A", "referenceReadable": true, "hostOutcomes": ["ok", "ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"], "roles": ["role-A", "role-B"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair", "pair"], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true, true], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-02",
+      "covers": ["CA4"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "valid-pair", "answer": "none", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"], "requestedPairId": "pair-A"},
+      "expect": {"questionsAsked": 0, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair"], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-03",
+      "covers": ["CA6"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "pair", "request": "none", "answer": "inherit", "referenceReadable": true, "hostOutcomes": ["ok", "ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["none", "none"], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true, true], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-04",
+      "covers": ["CA7"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "pair-A", "referenceReadable": false, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["none"], "warnings": 1, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false, "questionOptions": ["inherit"]}
+    },
+    {
+      "id": "DC-05",
+      "covers": ["CA9", "CA21"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "pair-A", "referenceReadable": true, "hostOutcomes": ["refuse-pair", "refuse-inherit"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair", "none"], "warnings": 0, "inheritanceAttempts": 1, "preferencesWritten": false, "taskComplete": [false], "workflowFallbackUsed": true}
+    },
+    {
+      "id": "DC-06",
+      "covers": ["CA17"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "pair-A", "referenceReadable": true, "hostOutcomes": ["refuse-pair", "ok", "ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair", "none", "none"], "warnings": 0, "inheritanceAttempts": 1, "preferencesWritten": false, "taskComplete": [true, true], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-07",
+      "covers": ["CA17"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "pair-A", "referenceReadable": true, "hostOutcomes": ["refuse-pair", "ok", "ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"], "postRefusalRequest": "same-pair"},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair", "none", "none"], "warnings": 1, "inheritanceAttempts": 1, "preferencesWritten": false, "taskComplete": [true, true], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-08",
+      "covers": ["CA17"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "pair-A", "referenceReadable": true, "hostOutcomes": ["refuse-pair", "ok", "ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": true, "availablePairs": ["pair-A"], "postRefusalRequest": "same-pair"},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair", "none", "pair"], "warnings": 0, "inheritanceAttempts": 1, "preferencesWritten": false, "taskComplete": [true, true], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-09",
+      "covers": ["CA1", "CA27"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "silence", "referenceReadable": true, "hostOutcomes": [], "spawnsBeforeAnswer": 2, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": true, "paramsSentPerSpawn": [], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-10",
+      "covers": ["CA26"],
+      "given": {"subagents": "none", "interactive": true, "savedDefault": "none", "request": "none", "answer": "none", "referenceReadable": true, "hostOutcomes": [], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 0, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": [], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [], "workflowFallbackUsed": true, "questionOptions": []}
+    },
+    {
+      "id": "DC-11",
+      "covers": ["CA3"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "pair-A", "referenceReadable": true, "hostOutcomes": ["ok", "ok"], "spawnsBeforeAnswer": 0, "compaction": true, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair", "pair"], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true, true], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-12",
+      "covers": ["CA28"],
+      "given": {"subagents": "native", "interactive": false, "savedDefault": "pair", "request": "none", "answer": "none", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 0, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["none"], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false}
+    },
+    {
+      "id": "DC-13",
+      "covers": ["CA25"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "invalid-pair", "answer": "inherit", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["none"], "warnings": 1, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false, "questionOptions": ["inherit", "pair-A"]}
+    },
+    {
+      "id": "DC-14",
+      "covers": ["CA25"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "partial-pair", "answer": "inherit", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"]},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["none"], "warnings": 1, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false, "questionOptions": ["inherit", "pair-A"]}
+    },
+    {
+      "id": "DC-15",
+      "covers": ["CA5", "CA10"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "pair-A", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"], "pairSupported": false},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["none"], "warnings": 1, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false, "questionOptions": ["inherit"]}
+    },
+    {
+      "id": "DC-16",
+      "covers": ["CA19"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "silence", "referenceReadable": true, "hostOutcomes": [], "spawnsBeforeAnswer": 2, "compaction": false, "contextChange": false, "availablePairs": ["pair-A"], "answerComponent": false},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": true, "paramsSentPerSpawn": [], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [], "workflowFallbackUsed": false, "promptMode": "numbered"}
+    },
+    {
+      "id": "DC-17",
+      "covers": ["CA2"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "valid-pair", "answer": "none", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": ["pair-A", "pair-B"], "requestedPairId": "pair-A"},
+      "expect": {"questionsAsked": 0, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair"], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false, "questionOptions": ["inherit", "pair-A", "pair-B"]}
+    },
+    {
+      "id": "DC-18",
+      "covers": ["CA3", "CA26"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "inherit", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "availablePairs": []},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["none"], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false, "questionOptions": ["inherit"]}
+    },
+    {
+      "id": "DC-19",
+      "covers": ["CA3", "CA5"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "model-A|low", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "codexSchema": {"modelEnum": ["model-A", "model-B"], "reasoningEffortEnum": ["low", "high"], "compatiblePairs": [{"model": "model-A", "reasoning_effort": "low"}] }},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": false, "paramsSentPerSpawn": ["pair"], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [true], "workflowFallbackUsed": false, "questionOptions": ["inherit", "model-A|low"], "questionEmissions": 1, "followupQuestionEmissions": 0, "pendingAfterClarification": false, "schemaDiscovery": {"modelEnum": ["model-A", "model-B"], "reasoningEffortEnum": ["low", "high"], "candidatePairs": ["model-A|low"], "evidence": "SESSION_SCHEMA/requestable"}, "schemaDisclosure": "model enum: model-A, model-B; reasoning_effort enum: low, high; compatible pairs: model-A|low; evidence: SESSION_SCHEMA/requestable, not runtime-verified"}
+    },
+    {
+      "id": "DC-20",
+      "covers": ["CA1", "CA3"],
+      "given": {"subagents": "native", "interactive": true, "savedDefault": "none", "request": "none", "answer": "clarification", "referenceReadable": true, "hostOutcomes": [], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "codexSchema": {"modelEnum": ["model-A", "model-B"], "reasoningEffortEnum": ["low", "high"], "compatiblePairs": [{"model": "model-A", "reasoning_effort": "low"}] }},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": true, "paramsSentPerSpawn": [], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [], "workflowFallbackUsed": false, "questionOptions": ["inherit", "model-A|low"], "questionEmissions": 1, "followupQuestionEmissions": 0, "pendingAfterClarification": true}
+    },
+    {
+      "id": "DC-21",
+      "covers": ["CA3", "CA5"],
+      "given": {"subagents": "native", "interactive": true, "host": "codex", "savedDefault": "none", "request": "none", "answer": "pair", "referenceReadable": true, "hostOutcomes": ["ok"], "spawnsBeforeAnswer": 0, "compaction": false, "contextChange": false, "codexSchema": {"modelEnum": ["gpt-6.1-sol", "gpt-6-astra", "gpt-6.1-terra", "gpt-6-sol", "gpt-6-luna"], "reasoningEffortEnum": [], "documentedEffortsByModel": {"gpt-6.1-sol": ["low", "medium", "high", "xhigh", "max"], "gpt-6-astra": ["low", "medium", "high", "xhigh", "max"], "gpt-6.1-terra": ["none", "low", "medium", "high", "xhigh", "max"], "gpt-6-sol": ["none", "low", "medium", "high", "xhigh", "max"], "gpt-6-luna": ["none", "low", "medium", "high", "xhigh", "max"]}}},
+      "expect": {"questionsAsked": 1, "spawnsBlockedUntilAnswer": true, "paramsSentPerSpawn": [], "warnings": 0, "inheritanceAttempts": 0, "preferencesWritten": false, "taskComplete": [], "workflowFallbackUsed": false, "questionEmissions": 2, "followupQuestionEmissions": 1, "pendingAfterClarification": false, "pendingAfterPairChoice": true, "candidateListDisplayed": true, "promptMode": "numbered", "questionPresentation": "numbered-text", "questionText": "Subagent model and effort choice:\n1. Inherit the parent session model and effort\n2. Choose an alternate model and effort pair", "questionOptions": ["inherit", "pair"], "questionOptionsCount": 2, "candidateSelectionPresentation": "numbered-text", "candidateSelectionOptionsCount": 28, "candidateSelectionOptionsInclude": ["gpt-6-astra|high", "gpt-6.1-terra|none"], "candidateSelectionOptionsExclude": ["gpt-6-astra|none", "gpt-6.1-sol|none", "gpt-6-astra|minimal"], "candidateSelectionTextLineCount": 29, "candidateSelectionTextStartsWith": "Choose a documented model-effort pair (runtime unverified):\n1. gpt-6.1-sol|low", "candidateSelectionTextEndsWith": "28. gpt-6-luna|max", "schemaDiscovery": {"modelEnum": ["gpt-6.1-sol", "gpt-6-astra", "gpt-6.1-terra", "gpt-6-sol", "gpt-6-luna"], "reasoningEffortEnum": [], "documentedEffortsByModel": {"gpt-6.1-sol": ["low", "medium", "high", "xhigh", "max"], "gpt-6-astra": ["low", "medium", "high", "xhigh", "max"], "gpt-6.1-terra": ["none", "low", "medium", "high", "xhigh", "max"], "gpt-6-sol": ["none", "low", "medium", "high", "xhigh", "max"], "gpt-6-luna": ["none", "low", "medium", "high", "xhigh", "max"]}, "candidatePairCount": 28, "modelEvidence": "SESSION_SCHEMA/requestable", "effortEvidence": "DOCUMENTED/requestable; runtime-unverified"}, "schemaDisclosure": "model enum: gpt-6.1-sol, gpt-6-astra, gpt-6.1-terra, gpt-6-sol, gpt-6-luna; reasoning_effort enum: none exposed; documented compatible pairs: gpt-6.1-sol|low, gpt-6.1-sol|medium, gpt-6.1-sol|high, gpt-6.1-sol|xhigh, gpt-6.1-sol|max, gpt-6-astra|low, gpt-6-astra|medium, gpt-6-astra|high, gpt-6-astra|xhigh, gpt-6-astra|max, gpt-6.1-terra|none, gpt-6.1-terra|low, gpt-6.1-terra|medium, gpt-6.1-terra|high, gpt-6.1-terra|xhigh, gpt-6.1-terra|max, gpt-6-sol|none, gpt-6-sol|low, gpt-6-sol|medium, gpt-6-sol|high, gpt-6-sol|xhigh, gpt-6-sol|max, gpt-6-luna|none, gpt-6-luna|low, gpt-6-luna|medium, gpt-6-luna|high, gpt-6-luna|xhigh, gpt-6-luna|max; evidence: model SESSION_SCHEMA/requestable; effort DOCUMENTED/requestable; runtime-unverified"}
+    }
+  ]
+}

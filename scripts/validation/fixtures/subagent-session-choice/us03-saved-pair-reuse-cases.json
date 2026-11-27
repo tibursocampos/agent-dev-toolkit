@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "S3-01",
+      "given": {
+        "preferenceReadable": true,
+        "savedPair": { "model": "model-A", "effort": "low" },
+        "supportedPairs": [{ "model": "model-A", "effort": "low" }],
+        "selection": "reuse_saved",
+        "hostRefusesSavedPair": false,
+        "hostRefusesInheritance": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "reuse_saved", "choose_model"],
+        "route": "reuse_saved",
+        "appliedPair": { "model": "model-A", "effort": "low" },
+        "inheritanceRetryCount": 0,
+        "fallbackUsed": false,
+        "preferencePreserved": true,
+        "preferenceWrites": 0,
+        "nextAction": "continue"
+      }
+    },
+    {
+      "id": "S3-02",
+      "given": {
+        "preferenceReadable": true,
+        "savedPair": { "model": "model-A", "effort": "low" },
+        "supportedPairs": [{ "model": "model-A", "effort": "medium" }, { "model": "model-B", "effort": "low" }],
+        "selection": "inherit",
+        "hostRefusesSavedPair": false,
+        "hostRefusesInheritance": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "route": "inherit",
+        "appliedPair": null,
+        "inheritanceRetryCount": 0,
+        "fallbackUsed": false,
+        "preferencePreserved": true,
+        "preferenceWrites": 0,
+        "nextAction": "continue"
+      }
+    },
+    {
+      "id": "S3-03",
+      "given": {
+        "preferenceReadable": true,
+        "savedPair": { "model": "model-A" },
+        "supportedPairs": [{ "model": "model-A", "effort": "low" }],
+        "selection": "inherit",
+        "hostRefusesSavedPair": false,
+        "hostRefusesInheritance": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "route": "inherit",
+        "appliedPair": null,
+        "inheritanceRetryCount": 0,
+        "fallbackUsed": false,
+        "preferencePreserved": true,
+        "preferenceWrites": 0,
+        "nextAction": "continue"
+      }
+    },
+    {
+      "id": "S3-04",
+      "given": {
+        "preferenceReadable": false,
+        "savedPair": { "model": "model-A", "effort": "low" },
+        "supportedPairs": [{ "model": "model-A", "effort": "low" }],
+        "selection": "inherit",
+        "hostRefusesSavedPair": false,
+        "hostRefusesInheritance": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "route": "inherit",
+        "appliedPair": null,
+        "inheritanceRetryCount": 0,
+        "fallbackUsed": false,
+        "preferencePreserved": true,
+        "preferenceWrites": 0,
+        "nextAction": "continue"
+      }
+    },
+    {
+      "id": "S3-05",
+      "given": {
+        "preferenceReadable": true,
+        "savedPair": { "model": "model-A", "effort": "high" },
+        "supportedPairs": [],
+        "selection": "inherit",
+        "hostRefusesSavedPair": false,
+        "hostRefusesInheritance": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "route": "inherit",
+        "appliedPair": null,
+        "inheritanceRetryCount": 0,
+        "fallbackUsed": false,
+        "preferencePreserved": true,
+        "preferenceWrites": 0,
+        "nextAction": "continue"
+      }
+    },
+    {
+      "id": "S3-06",
+      "given": {
+        "preferenceReadable": true,
+        "savedPair": { "model": "model-A", "effort": "low" },
+        "supportedPairs": [{ "model": "model-A", "effort": "low" }],
+        "selection": "reuse_saved",
+        "hostRefusesSavedPair": true,
+        "hostRefusesInheritance": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "reuse_saved", "choose_model"],
+        "route": "inherit_fallback",
+        "appliedPair": null,
+        "inheritanceRetryCount": 1,
+        "fallbackUsed": true,
+        "preferencePreserved": true,
+        "preferenceWrites": 0,
+        "nextAction": "continue"
+      }
+    }
+  ]
+}

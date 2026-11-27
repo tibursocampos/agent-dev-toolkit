@@ -1,7 +1,7 @@
 # API contracts
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Contract hints from inventory / promote - refresh via `memory-bank-init` or O1/O2 promote._
+_Contract hints from inventory / promote - refresh via `adt-memory-bank` or O1/O2 promote._
 
 | Signal | Path |
 |--------|------|

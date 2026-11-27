@@ -169,7 +169,7 @@ Ou abra **Validation lab** no menu. Depois de um sync ao vivo do Cursor, arquivo
 
 ```text
 %USERPROFILE%\.cursor\AGENTS.md
-%USERPROFILE%\.cursor\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.cursor\skills\adt-sdd-spec\SKILL.md
 %USERPROFILE%\.cursor\rules\guardrails.mdc
 ```
 
@@ -186,12 +186,12 @@ A forma canônica é o **id da skill**. Os prefixos do host diferem (`/`, `$`, `
 Comece uma feature com analyze. Cursor e Claude:
 
 ```text
-/orchestrate-analyze
+/adt-orchestrate-analyze
 ```
 
-Codex e ZCode: `$orchestrate-analyze`. OpenCode: `skill({ name: "orchestrate-analyze" })`.
+Codex e ZCode: `$adt-orchestrate-analyze`. OpenCode: `skill({ name: "adt-orchestrate-analyze" })`.
 
-Essa skill classifica o pedido e pergunta. Uma story clara pode usar `/sdd-spec`. Um item de produto, sem entrega de feature, usa `/refine-story`. Os gates, a pergunta de armazenamento e as fases seguintes estão em [Entrega orquestrada](orchestrated-delivery.md).
+Essa skill classifica o pedido e pergunta. Uma story clara pode usar `/adt-sdd-spec`. Um item de produto, sem entrega de feature, usa `/adt-refine-story`. Os gates, a pergunta de armazenamento e as fases seguintes estão em [Entrega orquestrada](orchestrated-delivery.md).
 
 ## Desinstalar
 

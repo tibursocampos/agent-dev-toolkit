@@ -44,18 +44,18 @@ esac
 
 1. Choose a slug or id for the work (PRD/PLAN name, issue id, or short topic).
 2. Create a work branch using the repository's convention or the operator's name, for example `git checkout -b <branch-name>`.
-3. Re-run the commit flow (`commit` skill or your git commands).
+3. Re-run the commit flow (`adt-commit` skill or your git commands).
 
 ## Integration-branch stop before code changes
 
-This stop applies only to `orchestrate-develop`, `sdd-develop`, `developer`, and `*-developer`. Those skills show the current branch and, when it is `main`, `master`, or `develop`, stop before changing code. They propose a work branch and create it only after **sim**.
+This stop applies only to `adt-orchestrate-implement`, `adt-sdd-develop`, `adt-developer`, and `adt-*-developer`. Those skills show the current branch and, when it is `main`, `master`, or `develop`, stop before changing code. They propose a work branch and create it only after **sim**.
 
-`sdd-spec`, `sdd-plan`, `orchestrate-analyze`, `orchestrate-deliver`, and every other skill write on the current branch. They do not show the branch and do not ask for a branch switch.
+`adt-sdd-spec`, `adt-sdd-plan`, `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, and every other skill write on the current branch. They do not show the branch and do not ask for a branch switch.
 
 ## Where commit and push still apply
 
-- `commit` skill - before staging or committing
-- `sdd-develop`, `developer`, and `*-developer` - same stop as `developer-common` step 3, before code changes
+- `adt-commit` skill - before staging or committing
+- `adt-sdd-develop`, `adt-developer`, and `adt-*-developer` - same stop as `developer-common` step 3, before code changes
 - Any agent-initiated commit or push from a development skill
 
 Commit and push remain refused on an integration branch. That refusal does not move the stop into spec, plan, analyze, or deliver.

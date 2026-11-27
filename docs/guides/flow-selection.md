@@ -1,59 +1,49 @@
 # Choosing the flow
 
-This guide helps you choose which toolkit flow to use before you start: Orchestrated Delivery, Classic SDD, backlog refinement, or requirement review. The choice sets the entry skill and the artifacts that will be written. The details of each flow are in the guides linked from the table.
+Choose a feature-delivery path by the work shape and coordination needed. The paths are independent recommendations; none is a prerequisite for another. Backlog refinement and requirement review are optional helpers.
 
 ## Decision tree
 
 ```mermaid
 flowchart TD
-  Start([New work]) --> Q{What is the situation?}
-  Q -->|Feature with several stories, brownfield, or specialists| ORCH["orchestrate-analyze →<br/>orchestrate-deliver →<br/>orchestrate-develop or sdd-develop"]
-  Q -->|One story already clear, no specialists| SDD["sdd-spec → sdd-plan → sdd-develop"]
-  Q -->|Informal product item| REF["refine-story → split-story-checklist"]
-  Q -->|Requirement must be challenged before SDD| REV["requirement-review --feature or --tech"]
-  REF --> SDD
-  REV --> SDD
-  ORCH --> Done([Code, tests and commit])
-  SDD --> Done
+  Start([New work]) --> Q{What does this work need?}
+  Q -->|One clear feature; direct spec and plan are enough| CLASSIC["Classic SDD<br/>adt-sdd-spec → adt-sdd-plan → adt-sdd-develop"]
+  Q -->|One evolving plan from refinement through delivery| DELIVERY["ADT Delivery Flow<br/>adt-delivery-flow → refine → plan → implement"]
+  Q -->|Several stories, coordinated analysis, or specialist questions| ORCH["Orchestrated Delivery<br/>adt-orchestrate-analyze → adt-orchestrate-prepare → optional adt-orchestrate-implement"]
+  Q -->|Informal backlog item needs shaping first| REF["Optional Backlog Refine<br/>adt-refine-story; checklist only when useful"]
+  Q -->|Requirements need a challenge before delivery| REVIEW["Optional adt-requirement-review"]
+  REF --> Q
+  REVIEW --> Q
 ```
 
-The flows are not prerequisites for one another. Classic SDD can start directly, without `orchestrate-analyze`. Suggest the orchestrated path only when there are several stories, brownfield complexity, or specialist folders.
+The `adt-delivery-flow` is separate from Classic SDD and Orchestrated Delivery. Do not import their artifact trees or execution gates into it. A brownfield or specialist question alone does not require a separate analysis folder; use Orchestrated Delivery when coordination across stories or concrete specialist analysis helps.
 
 ## Flow table
 
-| Flow | When to use | Entry point | Guide or doc |
-|------|-------------|-------------|--------------|
-| Orchestrated Delivery | Feature with several stories, brownfield, or that needs specialists | `/orchestrate-analyze` | [../sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) |
-| Classic SDD | One story already clear, no need for specialists | `/sdd-spec` | [../sessions/02-classic-sdd.md](../sessions/02-classic-sdd.md) |
-| Refine backlog item | Informal product item (bug, user story, or technical story) before SDD | `/refine-story` | [backlog-refine.md](backlog-refine.md) and [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
-| Review requirement | Check acceptance criteria or contracts before SDD | `/requirement-review --feature` or `--tech` | [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
+| Flow | When to use | Entry point | Plan shape and approval |
+|------|-------------|-------------|-------------------------|
+| Classic SDD | One feature with a clear path | `adt-sdd-spec` → `adt-sdd-plan` → `adt-sdd-develop` | PRD and PLAN under the story folder; one complete PLAN approval before implementation. [Classic SDD](../sessions/02-classic-sdd.md) |
+| ADT Delivery Flow | End-to-end refinement, planning, implementation and review around one evolving feature plan | `adt-delivery-flow` (or a stage skill directly) | One `features/NNN-slug/PLAN.md`; refinement and planning happen in that file, followed by one explicit plan approval. [ADT Delivery](../sessions/10-adt-delivery.md) |
+| Orchestrated Delivery | Multi-story work or coordinated investigation / implementation | `adt-orchestrate-analyze` → `adt-orchestrate-prepare` → optional `adt-orchestrate-implement` | FEATURE/STORY context as relevant, PRD and PLAN per selected story; one approval for the explicitly listed complete PLAN set. [Orchestrated Delivery](../sessions/01-orchestrated-delivery.md) |
+| Backlog Refine | An informal bug, story, or technical item needs shaping before delivery | `adt-refine-story` | A refined STORY when useful; the task checklist is optional and no delivery path requires Backlog Refine first. [Backlog shape](../sessions/03-backlog-shape.md) |
+| Requirement review | A requirement needs a functional or repository-grounded challenge | `adt-requirement-review --feature` or `--tech` | Review report and question history under `REFINE/` after explicit approval; then choose a delivery path. [Backlog shape](../sessions/03-backlog-shape.md) |
 
-For a trivial single file, use `/developer` or the stack skill, if the operator chooses that shortcut.
+For a small isolated code change, `adt-developer` or a stack-specific developer skill is also available; use a delivery flow when its planning and handoff are needed.
 
-## Readiness rule
+## Decisions and artifacts
 
-An open **B** (blocker), **I** (important), or **MINOR** item keeps the status at `NEEDS_CLARIFICATION`. Only `READY` releases the write of the next artifact (PRD, PLAN, or story). This rule applies at every gate, including MINOR. Source: [readiness-severity.md](../../core/skills/_shared/sdd-artifacts/readiness-severity.md).
+- Only an unanswered material decision that affects behavior, acceptance, scope, required access, or implementation blocks the affected work. Minor questions remain visible; unrelated work may continue.
+- Drafting and saving requirements/plans is preparation. Classic SDD, Orchestrated Delivery O2, and ADT Delivery each have their own single plan-approval boundary before implementation; the artifact set differs by flow.
+- Memory Bank, `CONTINUITY.md`, `CHANGE.md`, `TASKS.md`, and separate `ANALYSIS/`, `ARCH/`, or `SEC/` notes are not universal prerequisites. Use existing context when it is relevant; create a separate note only when it provides useful durable evidence or its owning skill requires it.
+- The canonical requirements and approved plan for the selected path own acceptance and implementation progress. Generic document validators are optional diagnostics unless a specific skill explicitly requires one.
 
-## Write limits
+## Canonical paths
 
-- Canonical PRD and PLAN paths live under `features/NNN-slug/`. Do not create artifacts outside the `features/` tree.
-- Without a `features/NNN-slug/` folder, `sdd-spec` does not read `docs/backlog/` on its own. A `.md` from `docs/backlog/` is used only when the operator cites its path (promote in `direct` mode, see [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md)) or when the content is pasted into the chat.
-- `docs/backlog/` is a write shortcut for `refine-story`, `requirement-review`, and `split-story-checklist`. It is not a canonical source for PRD or PLAN.
+- Classic SDD PRDs and PLANs live under `features/NNN-slug/USnn/`; the default story is `US01` when none is specified.
+- Orchestrated artifacts use the same `features/NNN-slug/` tree. Story folders and separate analysis notes are created when justified, not merely because work is brownfield or a specialist role was considered.
+- ADT Delivery uses one evolving `features/NNN-slug/PLAN.md` for refinement, planning, and progress.
+- `docs/backlog/` is a convenience location for backlog shaping and review; it is not a canonical PRD or PLAN destination.
 
-## Sessions and gates
+## Implementation cadence
 
-- `sdd-spec` writes only the PRD in this session. `sdd-plan` writes only the PLAN.
-- `sdd-develop` executes **one** PLAN step per session. When it finishes, stop. The next step starts in another session.
-- Before any new artifact is written, the skill shows the path and a summary and asks a gate question. Writing happens only after the `confirm` answer. Silence, an ambiguous or unrelated reply, or an emoji alone is not an answer; the question stays pending.
-
-### Gate legend
-
-Labels are shown in the user's conversation language. The id is stable and is what the rule matches. Answers are matched by meaning, not by a fixed word. Contract: `core/skills/_shared/agents/QUESTIONS.md`.
-
-| Id | Label (pt-BR) | Meaning |
-|----|---------------|---------|
-| `confirm` | sim | Approve the exact action or artifact shown. |
-| `adjust` | ajustar | Change the proposal before acting. |
-| `cancel` | cancelar | Stop. Do not perform the gated action. |
-| `skip` | pular | Leave an optional step undone and continue. |
-| `decline` | não | Refuse an optional offer. |
+Classic `adt-sdd-develop` and Orchestrated O3 follow the cadence selected for the approved PLAN: `step_by_step` stops after one completed step; `continuous` advances through eligible steps until completion or a real blocker. O3 remains serial, one PLAN step per child. ADT Delivery follows its own cadence and lifecycle. Validation follows the approved plan and the scope's actual risks; reuse current evidence and rerun only checks invalidated by a change. See [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) for Classic/O1/O2/O3 contracts and the ADT guide for its separate lifecycle.

@@ -1,6 +1,6 @@
 # Anti-task-shatter
 
-Hard rules that stop **task-shaped** or **layer-only** candidates from becoming US/TS. Bake into O1 promotion gates and `split-story-checklist` output policy.
+Hard rules that stop **task-shaped** or **layer-only** candidates from becoming US/TS. Bake into O1 promotion gates and `adt-split-story-checklist` output policy.
 
 Normative source for this toolkit: feature ANALYSIS anti-task-shatter list (US03). External PM checklists may inspire wording — **paraphrase + link only**; do not vendor third-party bodies. Do **not** add a Core `/write-spec` skill for this (ARCH non-goal / RNF-004).
 
@@ -11,7 +11,7 @@ Normative source for this toolkit: feature ANALYSIS anti-task-shatter list (US03
 1. **Title = verb + file/class/script/path** → do **not** create US/TS. Keep as PLAN/refine step.
 2. **Layer-only** title (e.g. "Domain types", "Infrastructure") → **merge** into a vertical / outcome story.
 3. **Maturity cap** → Product Initiative backlog ≤ **4** US/TS unless FEATURE rationale explicitly justifies extra split.
-4. **`split-story-checklist` output** → SMART **tasks**, never one US per file.
+4. **`adt-split-story-checklist` output** → SMART **tasks**, never one US per file.
 5. **Valuable** → US must name beneficiary + observable progress; pure TS may use `n/a` for Product intent.
 
 ---
@@ -43,6 +43,6 @@ TE02 intent (PRD): message like “Not promoted to US/TS (anti-task-shatter): �
 | `invest-and-story-quality.md` | Valuable bar after promotion |
 | `splitting.md` | Cap and merge/split policy |
 | `feature-altitude.md` | Correct height for rejected items |
-| `orchestrate-analyze` | **Wired:** promotion + FEATURE depth + cap gates in `references/story-synthesis.md` (lazy-load this file at synthesis) |
-| `split-story-checklist` | **Wired:** output = SMART tasks; must not emit US-per-file (lazy-load this file before Write) |
-| `refine-story` | Scorecard Product depth; outcome-shaped titles (lazy-load at scorecard) |
+| `adt-orchestrate-analyze` | **Wired:** promotion + FEATURE depth + cap gates in `references/story-synthesis.md` (lazy-load this file at synthesis) |
+| `adt-split-story-checklist` | **Wired:** output = SMART tasks; must not emit US-per-file (lazy-load this file before Write) |
+| `adt-refine-story` | Scorecard Product depth; outcome-shaped titles (lazy-load at scorecard) |

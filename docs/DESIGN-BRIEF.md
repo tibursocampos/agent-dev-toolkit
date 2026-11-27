@@ -87,7 +87,7 @@ Controls name the file they download. One sentence of outcome next to the table.
 - A copy button next to a command that is already visible.
 - IBM Plex Mono (or any mono) on body and nav.
 - Glass, gradient text, metric cards, eyebrows on every section.
-- Restoring a Caveman page or treating Orchestrated Delivery, Classic SDD, and refine-story as three equal products.
+- Restoring a Caveman page or treating Orchestrated Delivery, Classic SDD, and adt-refine-story as three equal products.
 
 ## 8. Target stack
 

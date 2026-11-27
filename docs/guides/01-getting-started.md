@@ -1,4 +1,4 @@
-﻿# Getting started
+# Getting started
 
 End-to-end path from Release bootstrap (or clone) to first skill invoke.
 
@@ -109,7 +109,7 @@ In Cursor / Claude / Copilot / … open the **application** repo you want to cha
 Confirm skills are visible (Cursor example after live sync):
 
 ```text
-%USERPROFILE%\.cursor\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.cursor\skills\adt-sdd-spec\SKILL.md
 ```
 
 Restart the agent or reload the window if skills do not appear immediately. Trust hooks in the agent UI if prompted (manual; not part of CI).
@@ -123,12 +123,12 @@ Canonical form is the **skill id**. Host prefixes differ (`/id`, `$id`, `use ski
 Start a feature with Orchestrated Delivery (Cursor/Claude example with `/`):
 
 ```text
-/orchestrate-analyze
+/adt-orchestrate-analyze
 ```
 
-Codex / ZCode: `$orchestrate-analyze`. OpenCode: `skill({ name: "orchestrate-analyze" })`.
+Codex / ZCode: `$adt-orchestrate-analyze`. OpenCode: `skill({ name: "adt-orchestrate-analyze" })`.
 
-That skill classifies the request, asks, and either continues into `orchestrate-deliver` (which runs `sdd-spec` then `sdd-plan` per story) or exits early. A story that is already clear can go straight to `/sdd-spec`. A single product item with no feature delivery uses `/refine-story`. Mechanics: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
+That skill classifies the request, asks, and either continues into `adt-orchestrate-prepare` (which runs `adt-sdd-spec` then `adt-sdd-plan` per story) or exits early. A story that is already clear can go straight to `/adt-sdd-spec`. A single product item with no feature delivery uses `/adt-refine-story`. Mechanics: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
 
 **First feature write:** the agent asks whether to store SDD artifacts **local (repository)** or **global**. That choice sets where `features/` and `memory-bank/` land for the project (same root for both; never bank under `features/NNN-slug/`).
 
@@ -139,15 +139,15 @@ That skill classifies the request, asks, and either continues into `orchestrate-
 
 Use **portable paths** in artifacts and slash handoffs (e.g. `features/NNN-slug/US01/PRD/...`), not OS absolute paths. In **repository** mode the agent may add `/features/` to `.gitignore` when `features_versioned` is false (default); choose versioned features when you want those trees in git. There is **no** flat `PRD/` or `PLAN/` at the repo root — only under `features/NNN-slug/USnn|TSnn/`. Details: [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md), [domains/core.md](../domains/core.md) § SDD.
 
-After the backlog is approved, deliver writes the PRD and PLAN. Develop then runs one PLAN step per session (`orchestrate-develop`, or `sdd-develop` on a single plan path).
+After the backlog is approved, deliver writes the PRD and PLAN. Develop runs one PLAN step per gate scope. O3 uses one child per step; direct Classic stops after one by default. A bounded continuous sequence requires explicit authorization and reset/revalidation between steps.
 
 Small change, one file, when analyze offers the shortcut:
 
 ```text
-developer
+adt-developer
 ```
 
-or a stack skill such as `dotnet-developer` / `react-developer`.
+or a stack skill such as `adt-dotnet-developer` / `adt-react-developer`.
 
 ## 7. Next reading
 

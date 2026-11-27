@@ -659,9 +659,84 @@ function Copy-ToolkitManagedTreeCore {
         $filesCopied++
     }
 
-    if ($hasInstallRoot) { Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -InventoryEntries $inventoryEntries -SourceHashes $sourceHashes }
+    if ($hasInstallRoot) {
+        Remove-ToolkitRetiredManagedTreeFiles `
+            -InstallRoot $InstallRoot `
+            -DestinationRoot $destinationRootFull `
+            -InventoryEntries $inventoryEntries `
+            -CurrentPaths $copiedPaths
+        Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -InventoryEntries $inventoryEntries -SourceHashes $sourceHashes
+    }
 
     return $filesCopied
+}
+
+function Remove-ToolkitRetiredManagedTreeFiles {
+    <#
+    .SYNOPSIS
+      Delete files a previous publish installed under DestinationRoot that the source no longer ships.
+
+    .DESCRIPTION
+      Ownership comes from the publish inventory: only tree-file entries under
+      DestinationRoot that are absent from CurrentPaths qualify. A file is deleted
+      only while its bytes still match the recorded hash; an operator-edited file
+      is kept and released from the inventory. Files never recorded (user files)
+      are never touched. Directories left empty are removed up to DestinationRoot.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][string] $DestinationRoot,
+        [Parameter(Mandatory = $true)][hashtable] $InventoryEntries,
+        [Parameter(Mandatory = $true)] $CurrentPaths
+    )
+
+    $installRootFull = Get-NormalizedFullPath -Path $InstallRoot
+    $destinationPrefix = $DestinationRoot.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+    $kindProperty = $script:ToolkitConstant.ManagedPublishInventoryKindProperty
+    $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
+    $currentSet = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($path in $CurrentPaths) { [void]$currentSet.Add([System.IO.Path]::GetFullPath($path)) }
+
+    $releasedKeys = New-Object System.Collections.Generic.List[string]
+    $emptiedDirs = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($key in @($InventoryEntries.Keys)) {
+        $entry = $InventoryEntries[$key]
+        if ([string]$entry[$kindProperty] -ne 'tree-file') { continue }
+
+        $fullPath = [System.IO.Path]::GetFullPath((Join-Path $installRootFull ($key -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+        if (-not $fullPath.StartsWith($destinationPrefix, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        if ($currentSet.Contains($fullPath)) { continue }
+
+        if ([System.IO.File]::Exists($fullPath)) {
+            if (-not [string]::Equals((Get-ToolkitFileSha256Hex -Path $fullPath), [string]$entry[$sha256Property], [System.StringComparison]::OrdinalIgnoreCase)) {
+                Write-Warning ('Kept retired file edited after publish: {0}' -f $fullPath)
+                $releasedKeys.Add($key) | Out-Null
+                continue
+            }
+            $null = Assert-PathUnderInstallRootForDelete -CandidatePath $fullPath -InstallRoot $installRootFull
+            Remove-Item -LiteralPath $fullPath -Force -ErrorAction Stop
+            [void]$emptiedDirs.Add([System.IO.Path]::GetDirectoryName($fullPath))
+        }
+        $releasedKeys.Add($key) | Out-Null
+    }
+
+    $destinationTrimmed = $DestinationRoot.TrimEnd('\', '/')
+    foreach ($dir in @($emptiedDirs | Sort-Object { $_.Length } -Descending)) {
+        $current = $dir
+        while ($current.Length -gt $destinationTrimmed.Length -and
+            [System.IO.Directory]::Exists($current) -and
+            @(Get-ChildItem -LiteralPath $current -Force).Count -eq 0) {
+            $null = Assert-PathUnderInstallRootForDelete -CandidatePath $current -InstallRoot $installRootFull
+            Remove-Item -LiteralPath $current -Force -ErrorAction Stop
+            $current = [System.IO.Path]::GetDirectoryName($current)
+        }
+    }
+
+    if ($releasedKeys.Count -gt 0) {
+        $null = Remove-ToolkitManagedPublishInventoryEntries -InstallRoot $InstallRoot -RelativePaths @($releasedKeys.ToArray())
+        foreach ($key in $releasedKeys) { $InventoryEntries.Remove($key) }
+    }
 }
 
 function Copy-ToolkitManagedTree {
@@ -1195,18 +1270,53 @@ function Get-ToolkitManagedAgentFileNames {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $SourceAgentsRoot
+        [string] $SourceAgentsRoot,
+
+        # With both set, agent files an earlier publish installed and the source
+        # no longer ships are included, as long as they still match the recorded hash.
+        [Parameter()]
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [string] $DestinationAgentsRoot
     )
 
-    if (-not (Test-Path -LiteralPath $SourceAgentsRoot)) {
-        return @()
+    $names = New-Object System.Collections.Generic.List[string]
+    if (Test-Path -LiteralPath $SourceAgentsRoot) {
+        foreach ($file in @(Get-ChildItem -LiteralPath $SourceAgentsRoot -File -ErrorAction Stop | Where-Object { $_.Extension -eq '.md' })) {
+            $names.Add($file.Name) | Out-Null
+        }
     }
 
-    return @(
-        Get-ChildItem -LiteralPath $SourceAgentsRoot -File -ErrorAction Stop |
-            Where-Object { $_.Extension -eq '.md' } |
-            ForEach-Object { $_.Name }
-    )
+    if ([string]::IsNullOrWhiteSpace($InstallRoot) -or [string]::IsNullOrWhiteSpace($DestinationAgentsRoot)) {
+        return @($names.ToArray())
+    }
+
+    . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
+    try {
+        $entries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+    }
+    catch {
+        return @($names.ToArray())
+    }
+
+    $installRootFull = Get-NormalizedFullPath -Path $InstallRoot
+    $agentsFull = Get-NormalizedFullPath -Path $DestinationAgentsRoot
+    foreach ($key in @($entries.Keys)) {
+        $entry = $entries[$key]
+        if ([string]$entry[$script:ToolkitConstant.ManagedPublishInventoryKindProperty] -ne 'tree-file') { continue }
+        $fullPath = [System.IO.Path]::GetFullPath((Join-Path $installRootFull ($key -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+        if ([System.IO.Path]::GetExtension($fullPath) -ne '.md') { continue }
+        if (-not [string]::Equals([System.IO.Path]::GetDirectoryName($fullPath), $agentsFull, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        $leaf = [System.IO.Path]::GetFileName($fullPath)
+        if ($names.Contains($leaf) -or -not [System.IO.File]::Exists($fullPath)) { continue }
+        $recorded = [string]$entry[$script:ToolkitConstant.ManagedPublishInventorySha256Property]
+        if ([string]::Equals((Get-ToolkitFileSha256Hex -Path $fullPath), $recorded, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $names.Add($leaf) | Out-Null
+        }
+    }
+
+    return @($names.ToArray())
 }
 
 function Invoke-ToolkitManagedAgentsPublishCore {

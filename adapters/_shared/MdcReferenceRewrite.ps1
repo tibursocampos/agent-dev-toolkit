@@ -10,6 +10,23 @@
   "publishes `.mdc`") is kept.
 #>
 
+function Get-ToolkitFoldedPolicyReferenceMap {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo[]] $SourceRules,
+
+        [Parameter(Mandatory = $true)]
+        [string] $PublishedPolicyPath
+    )
+
+    $map = [ordered]@{}
+    foreach ($rule in $SourceRules) {
+        $map['{{TOOLKIT_ROOT}}/rules/' + $rule.BaseName + '.mdc'] = $PublishedPolicyPath
+    }
+    return $map
+}
+
 function Convert-MdcReferencesToMd {
     [CmdletBinding()]
     param(

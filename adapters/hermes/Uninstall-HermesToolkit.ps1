@@ -305,6 +305,8 @@ $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') '
         RemovedPaths = $removedArray
         PreservedPaths = @($preservedSkillPaths)
         RemovedCount = $removedArray.Count
+        KeyedOnly    = $true
+        WholesaleWipe = $false
         Message      = $message
         ExitCode        = $(if ($artifactCleanup.Status -eq 'Complete') { 0 } else { 1 })
     }

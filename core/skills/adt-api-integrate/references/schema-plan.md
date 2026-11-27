@@ -1,0 +1,20 @@
+## Detect stack, locate schema, and plan
+
+### Detect tech stack and locate schema
+
+* Identify target project language and preferred HTTP client patterns.
+* Locate the OpenAPI spec (ask user or load the specified file path). Validate that the file is readable.
+
+### Plan structure and workflow decision
+
+* Propose the client layout:
+  * Destination folder (e.g. `src/services/` or `Infrastructure/Clients/`).
+  * File splits: client interface, models, configuration.
+* Present the summary of identified API endpoints, routes, and request/response shapes.
+* Stop and ask the user to choose the workflow execution path based on the integration scope. Single select; ids `A`, `B`, `D`; render labels in the user chat language; answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`:
+  * **Option A - Direct Developer Skill (`/adt-developer`):** For straightforward local client generation.
+  * **Option B - Classic SDD (`/adt-sdd-spec` -> `adt-sdd-plan` -> `adt-sdd-develop`):** For complex third-party integrations requiring formal specifications (PRD) and a detailed plan (PLAN) in the resolved artifact language (`LANGUAGE.md`).
+  * **Option D - Plain Chat Plan:** Establish a simple task list directly in the chat, executing steps one by one without extra file creations.
+* **Wait for explicit user choice** before writing code or initializing another workflow.
+
+**Boundary:** this skill owns **typed client / DTO generation** from OpenAPI. Agnostic API **standards** packing belongs to the separate `adt-api-standards` skill (do not expand standards content here).

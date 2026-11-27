@@ -1,0 +1,9 @@
+{
+  "caveman_mode": true,
+  "caveman_level": "full",
+  "orchestrator_mode": "always",
+  "artifact_language": null,
+  "verify_mode": false,
+  "custom_key": { "keep": [1, 2] },
+  "subagent_models": { "extra": "keep" }
+}

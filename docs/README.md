@@ -9,7 +9,7 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | Document | Audience | Purpose |
 |----------|----------|---------|
 | [INSTALL.md](INSTALL.md) | Everyone | Prerequisites, clone, sync, live home, uninstall |
-| [sessions/README.md](sessions/README.md) | Everyone | How the 46 skills relate; start at Orchestrated Delivery |
+| [sessions/README.md](sessions/README.md) | Everyone | How the 52 skills relate; start at Orchestrated Delivery |
 | [guides/README.md](guides/README.md) | Daily usage | Entry decision |
 | [guides/01-getting-started.md](guides/01-getting-started.md) | New users | End-to-end first use |
 | [guides/02-using-skills.md](guides/02-using-skills.md) | Everyone | Invoking skills after sync |
@@ -53,6 +53,6 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 
 | Path | Purpose |
 |------|---------|
-| `documentation-plan/plan.md` | Maintainer doc plan (`document-plan` / `document-implement`). Local workflow state; ignored by git with the rest of `documentation-plan/` per `STORAGE.md`. Do not publish via MkDocs. |
+| `documentation-plan/plan.md` | Maintainer doc plan (`adt-document-plan` / `adt-document-implement`). Local workflow state; ignored by git with the rest of `documentation-plan/` per `STORAGE.md`. Do not publish via MkDocs. |
 
 For daily skill choice, prefer **[guides/README.md](guides/README.md)** over reading `SKILL.md` files directly.

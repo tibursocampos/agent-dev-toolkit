@@ -19,7 +19,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode user -Instal
 |------|-------|
 | Skills path | Mode `user`: `~/.copilot/skills` · Mode `repo`: `<repo>/.github/skills` |
 | Explicit form | `/id` |
-| Examples | `/help-skills`, `/dotnet-developer` |
+| Examples | `/adt-help-skills`, `/adt-dotnet-developer` |
 | After sync | `/skills reload` (CLI) so new skills appear |
 
 Canonical form is the skill **id**; `/` is the Copilot host prefix.
@@ -40,8 +40,8 @@ The sync path is `core/skills/**` → `Publish-CopilotSkills.ps1` → `Invoke-To
 
 | Canonical source | Generated Copilot artifact | Expected transformation |
 |------------------|----------------------------|-------------------------|
-| `core/skills/developer/SKILL.md` | `skills/developer/SKILL.md` | Preserve YAML `name: developer`, `description`, and body; expand path tokens to this install root. |
-| `core/skills/sdd-develop/references/plan-contract.md` | `skills/sdd-develop/references/plan-contract.md` | Preserve relative path and body; expand path tokens only. |
+| `core/skills/adt-developer/SKILL.md` | `skills/adt-developer/SKILL.md` | Preserve YAML `name: adt-developer`, `description`, and body; expand path tokens to this install root. |
+| `core/skills/adt-sdd-develop/references/plan-contract.md` | `skills/adt-sdd-develop/references/plan-contract.md` | Preserve relative path and body; expand path tokens only. |
 | `core/skills/_shared/sdd-artifacts/SESSION.md` | `skills/_shared/sdd-artifacts/SESSION.md` | Preserve shared support path and body; expand path tokens only. |
 
 The CI smoke compares every generated skill file with its canonical source after those three expansions, checks each discoverable top-level skill has a matching lowercase/hyphen `name` plus a non-empty `description`, and separately reports host execution as `SKIPPED`. GitHub documents the required `SKILL.md` directory/frontmatter and the user/repository discovery roots in [Adding agent skills](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills) and the [CLI configuration directory reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference).
@@ -90,7 +90,7 @@ For comparable runs, record host + exact version(s), mode, model, workspace, pro
 
 ### Child assignment lifecycle
 
-Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as idle. Continue it (SendMessage where the host offers it) only for the same topic and scope while its context is still relevant; never reuse it for a different topic, a different scope, or an already large context. A new task, review, or correction on a different scope must use a fresh child handle. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
+Lifecycle: see core/skills/_shared/agents/SPAWN.md section "Task ownership and lifecycle": batch related work, never reuse a returned child for a different topic or scope (use a fresh child), and the host manages teardown, so no process or context termination is claimed. Close control: unknown. Caps and checklist: SPAWN.md.
 
 ### Official references
 

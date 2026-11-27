@@ -1,6 +1,6 @@
 # Spring Boot defaults (Java)
 
-> **Default stack for `/java-developer`.** Prefer Spring Boot unless the open workspace already uses another JVM framework.
+> **Default stack for `/adt-java-developer`.** Prefer Spring Boot unless the open workspace already uses another JVM framework.
 
 ---
 

@@ -14,7 +14,7 @@
 - Operator CLI and validation asserts stay under `scripts/`.
 - Memory bank for this repo is `memory-bank/` (repository storage). Do not place it under `features/`.
 - SDD feature artifacts, when written, use `features/NNN-slug/` with portable paths relative to the repo root.
-- `core/skills/_shared/skills-catalog/CATALOG.md` and `OPERATOR.md` are the help-skills source of truth. Exhaustive mirrors must match invocable skill IDs; README previews may remain partial and must not imply completeness.
+- `adt-help-skills` presents the canonical catalog and operator notes from `core/skills/_shared/skills-catalog/CATALOG.md` and `OPERATOR.md`. Exhaustive mirrors must match invocable skill IDs; README previews may remain partial and must not imply completeness.
 
 ## Testing
 
@@ -23,15 +23,16 @@
 - Layout: `scripts/validation/Assert-*.ps1`, `scripts/validation/validate-core.ps1`, fixtures under `scripts/validation/fixtures/`.
 - Run core checks with `pwsh -NoProfile -File scripts/validation/validate-core.ps1`; use `-Only <check-name>` for a bounded assertion. Build the docs site strictly with `pip install -r docs-site/requirements-docs.txt` followed by `python -m mkdocs build --strict -f docs-site/mkdocs.yml`.
 - `scripts/toolkit.ps1` dispatches CLI scripts through `scripts/_lib/Invoke-ToolkitChildScript.ps1`; preserve this process boundary so a child script's top-level `exit` cannot terminate the interactive menu. `Assert-ToolkitScriptIsolation.ps1` is the regression check.
-- Catalog changes must keep all 45 invocable IDs aligned across source, `CATALOG.md`, `docs/SKILLS.md`, and both docs-site first-use pages. `Assert-SkillCatalogParity.ps1` checks these exhaustive surfaces.
+- Catalog changes must keep all 52 invocable IDs aligned across source, `CATALOG.md`, `docs/SKILLS.md`, and both docs-site first-use pages. `Assert-SkillCatalogParity.ps1` checks these exhaustive surfaces.
+- Session-wide subagent model/effort choice uses the host-supported complete pair when available and otherwise inherits the parent selection; published settings do not prove host runtime application.
 
 ## Git / branches
 
 - Commit messages follow Conventional Commits (`core/policy/conventional-commits.md`).
 - Commit and push only from `feature/<slug>` or `feat/<id>` (`core/policy/branch-validation.md`).
-- `sdd-spec`, `sdd-plan`, `orchestrate-analyze`, and `orchestrate-deliver` write the canonical artifact on the current branch. `orchestrate-develop`, `sdd-develop`, and `*-developer` still state the branch before code changes.
-- `/commit` confirms the message and commits. It does not start a memory-bank refresh, documentation, `/push`, or a pull request unless that same operator request already includes them.
-- `/code-review` does not suggest a pull request, a memory-bank refresh, or documentation. Report prose follows `LANGUAGE.md`. Band tokens stay English.
+- `adt-sdd-spec`, `adt-sdd-plan`, `adt-orchestrate-analyze`, and `adt-orchestrate-prepare` write the canonical artifact on the current branch. `adt-orchestrate-implement`, `adt-sdd-develop`, and `adt-*-developer` still state the branch before code changes.
+- `/adt-commit` confirms the message and commits. It does not start a memory-bank refresh, documentation, `/adt-push`, or a pull request unless that same operator request already includes them.
+- `/adt-code-review` does not suggest a pull request, a memory-bank refresh, or documentation. Report prose follows `LANGUAGE.md`. Band tokens stay English.
 - Do not add `/memory-bank/` to the SDD `.gitignore` block. Commit bank prose when it is product knowledge. Never commit secrets.
 - Normal release path is a `develop` to `master` PR merged with a merge commit (never squash or rebase, so `master` keeps `develop` history); the release workflow tags/publishes, then reconciles the promoted commit back to `develop`. For recovery, dispatch `release.yml` on `master` with `reconcile_only=true` and no version; do not create a second tag for reconciliation.
 - Keep `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions secrets only. The App needs contents and pull-request write permissions without branch-rule bypass.
@@ -42,8 +43,20 @@
 |----|--------|
 | Default publish to an in-repo fixture | Write a live user home without `-AllowUserHome` |
 | Treat registry `subagents` as `native` or `none`; use effective Antigravity probe | Assume OpenHands can spawn children |
-| Keep one PLAN step per `sdd-develop` session | Continue into the next PLAN step in the same session |
+| Keep one PLAN step per `adt-sdd-develop` session | Continue into the next PLAN step in the same session |
 | Cite env var names only | Copy tokens, connection strings, or raw `.env` values into the bank |
+
+<!-- BEGIN GENERATED: session-start-subagent-policy -->
+## Session startup and subagent choice
+
+- Resolve effective `subagents` capability and read preferences before loading spawn or model-choice contracts. `none` or unknown skips those contracts and the model question; `orchestrator_mode` has `adaptive` and `always`, while `subagents=none` disables delegation.
+- `orchestrator_mode` defaults to `adaptive`; delegate independent or substantial work when effective `subagents` is `native`, while bounded trivial work may stay in-parent. Children perform post-change validation.
+- Every canonical prompt has one `## Output` contract naming its deliverable and consumer; output formats remain role-specific. `RECEIPT.md` and `finding-format.md` remain authoritative for their respective receipt and finding shapes.
+- Caveman may compress conversational framing only. It never shortens required findings, evidence, analysis, artifact content, validation, or receipt fields.
+- Resolve effective `subagents` capability before spawn/model-choice contracts. Missing or unknown capability safely behaves as `none`; registry declarations do not prove live host support.
+- When native subagents are available, discover complete model-and-effort options for the current host surface before the single session choice. Offer `inherit` when no alternate pair is verified; unknown runtime application remains unverified.
+- Evidence: `core/router/AGENTS.md`, `core/policy/orchestrator-session.md`, `core/skills/_shared/agents/SPAWN.md`, `docs/SPAWN.md`, `docs/guides/02-using-skills.md`, `docs/guides/08-orchestrator-mode.md`, `docs/guides/session-behavior.md`.
+<!-- END GENERATED: session-start-subagent-policy -->
 
 ## Notes
 

@@ -14,11 +14,11 @@ Normative split — do **not** conflate axes. Marker: `A≠B≠C`.
 |------|------|------|
 | **A** | This file | Spawn vs in-parent decision. **Thin trivial exception intact** — never remove spawn choice. |
 | **B** | `SUBAGENT-MODEL.md` | Omit/inherit `model` (same as parent session). SPAWN does **not** pin child ≠ parent. |
-| **C** | `SUBAGENT-MODEL.md` | Alternate slug only after gate + explicit approval. SPAWN does **not** invent model escapes. |
+| **C** | `SUBAGENT-MODEL.md` | Optional pair chosen once per session by the user; refusal falls back to inheritance. |
 
-**Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
+**Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Thin trivial handling follows the mode in `orchestrator-session` section "Modes". Caps and fallback below still apply.
 
-**First sync does not change this tree.** Missing `preferences.json` is seeded with `orchestrator_mode` `adaptive` and does not ask the orchestration-mode question (`core/policy/orchestrator-session.md`). Work this contract says to delegate still goes to a subagent when effective `subagents` is `native`. The single-path trivial exception stays. The in-session `orchestrator adaptive` command stays.
+**First sync does not change this tree.** Missing `preferences.json` is seeded with `orchestrator_mode` `adaptive` and does not ask the orchestration-mode question (`core/policy/orchestrator-session.md`). Work this contract says to delegate still goes to a subagent when effective `subagents` is `native`. Trivial handling follows `## Delegation checklist` and `orchestrator-session` section "Modes". The in-session `orchestrator adaptive` command stays.
 
 **Mandatory Read:** the parent **must Read this file** before drafting a plan (plan mode or host plan file) that promises orchestration, Agent calls, or subagents, and before the first non-trivial spawn vs in-parent decision in a chat. A plan that cites orchestration/Agent calls/subagents without that Read = checklist fail. Thin trivial work may skip the Read.
 
@@ -73,28 +73,49 @@ Probe order: `ADT_ANTIGRAVITY_SUBAGENTS` override → product version `>= 2.0.0`
 
 ```text
 Need specialist work?
-  ├─ trivial: single-path Q&A OR one-file edit with no spread risk → in-parent
-  │  (always; no spawn for noise)
+  ├─ trivial: passes "## Delegation checklist" → in-parent only in adaptive; in always → delegate (qa_checklist excepted)
   ├─ analysis spans multiple files / one-file might extend / any doubt /
   │  script-batch / long build-test / deep investigation / non-trivial planning
   │    ├─ subagents == native → prefer Agent / host equivalent (table above)
   │    └─ else                → fallback by consumer contract; NEVER hard-fail only because Agent is absent
-  │                             O1 flags: in-parent ANALYSIS/ARCH/SEC work (never CONTINUITY substitute)
-  │                             O3: manual `/sdd-develop` handoff; parent stops and does not implement
-  └─ *-developer trivial path → in-parent (always)
+  │                             O1: in-parent investigation and canonical evidence
+  │                             O3: manual `/adt-sdd-develop` handoff; parent stops and does not implement
+  └─ adt-*-developer trivial path → follow the mode (see "## Delegation checklist")
 ```
 
 | Consumer | Prefer when `native` | Fallback when `none` |
 |----------|----------------------|----------------------|
-| `orchestrate-analyze` | Agent (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
-| `orchestrate-deliver` | Agent (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
-| `sdd-plan` required-checklist acquisition | One bounded `split-story-checklist` specialist when required checklist is missing | Execute the owner skill workflow in the current flow; never hard-fail or transfer checklist authorship |
-| `orchestrate-develop` (O3) | Agent (or host equivalent) per roster/caps | Manual `/sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
-| `code-review` multi-angle | Parallel specialist Agent calls / host equivalents | Sequential in-parent angles |
-| `*-developer` medium/complex | Up to **2** children | Same outcome in-parent |
+| `adt-orchestrate-analyze` | Agent (or host equivalent) per roster when expertise is needed for a concrete material question | In-parent investigation. Record evidence in FEATURE/STORY or a distinct ANALYSIS/ARCH/SEC note when useful. A flag or brownfield classification alone does not require a note. |
+| `adt-orchestrate-prepare` | Agent (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
+| `adt-sdd-plan` required-checklist acquisition | One bounded `adt-split-story-checklist` specialist when required checklist is missing | Execute the owner skill workflow in the current flow; never hard-fail or transfer checklist authorship |
+| `adt-orchestrate-implement` (O3) | Agent (or host equivalent) per roster/caps | Manual `/adt-sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
+| `adt-code-review` multi-angle | Parallel specialist Agent calls / host equivalents | Sequential in-parent angles |
+| `adt-*-developer` medium/complex | Cap in "## Limits" | Same outcome in-parent |
 | Parent general chat (analysis / multi-file / long build-test) | Specialist Agent when independent work is heavy | Same work in-parent |
 
-`needs_frontend` / `needs_devops` stay CONTINUITY-only (no Agent, no specialist folder). Required O1 folders missing → do **not** approve the backlog.
+For `needs_frontend` and `needs_devops`, record material findings in the canonical artifact. O1 does not require a CONTINUITY note or a separate backlog approval.
+
+## Delegation checklist
+
+Classify the task being handled now (never a running total of the conversation).
+
+| Dimension | What is counted | Trivial limit (inclusive) |
+|-----------|-----------------|---------------------------|
+| edited | files the task is expected to change | 3 |
+| read | distinct files opened to understand or do the task; reopening a file adds nothing | 6 |
+| lines | lines added or modified, estimated (read-only task: 0) | 150 |
+
+The task is trivial only when edited <= 3, read <= 6, lines <= 150 and no exclusion applies. A value of 4, 7 or 151 in any single dimension makes it delegable. Exclusions override the numbers, in this order: security (auth, secrets, PII, supply chain), shared contract (a file consumed by more than one skill or adapter), long command (full build, full test suite, batch script; a focused post-edit test is not one), scope not countable within 2 searches. If the estimated scope grows, classify again before continuing.
+
+What happens to a trivial task depends on the mode: see `orchestrator-session` section "Modes". Thin trivial exception intact: it never removes the spawn choice for delegable work.
+
+## Audit line
+
+Emit exactly one line per classification or continuation decision, with integers only and no user text, paths, model or effort:
+
+`[Spawn] <verb> mode=<adaptive|always> edited=<n> read=<n> lines=<n> criterion=<code>`
+
+Verbs: `trivial` (adaptive only), `delegate`, `continue`, `new-child`. Codes: `files-edited` (edited > 3), `files-read` (read > 6), `lines` (lines > 150), `long-command`, `shared-contract`, `security`, `search-count`, `topic` (different topic), `scope` (different scope, any edit, or receipt not validated), `count-limit` (2 continuations already used), `no-record` (the parent has no record of this child), `doubt`, `none` (nothing exceeded: used with `trivial`, with `delegate` in `always`, and with `continue`). For `continue` the numbers describe the follow-up request. The continuation count is never written in this line. Model and effort audit belongs to `SUBAGENT-MODEL.md`.
 
 **RN:** Subagent-first = **preference + fallback**, never hard-require Agent. Parent stays orchestrator per `orchestrator-session` policy.
 
@@ -104,7 +125,7 @@ When spawning (native path), pass the following bounded assignment context:
 
 | Field | Content |
 |-------|---------|
-| **Role** | Specialist id or roster role (e.g. `dotnet-developer`, `repo-analyst`) |
+| **Role** | Specialist id or roster role (e.g. `adt-dotnet-developer`, `repo-analyst`) |
 | **Objective** | One bounded outcome the specialist is responsible for delivering |
 | **Scoped paths** | Files/dirs the child may read/write |
 | **Relevant references** | Repository instructions, representative files/symbols, and portable artifact paths needed for this assignment |
@@ -114,9 +135,9 @@ When spawning (native path), pass the following bounded assignment context:
 
 This is semantic assignment context, not a new serialized payload or universal receipt schema. Include only references relevant to the objective and scope. Do **not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 
-### Classic direct `sdd-develop` parent relay
+### Classic direct `adt-sdd-develop` parent relay
 
-When a parent delegates one approved Classic/direct PLAN step to a specialist, the child owns that step's implementation and persisted PLAN checkpoint. After the child returns, the parent MUST re-read the canonical PLAN, reconcile its step row and checkpoint with the child report, and show the operator the complete current PLAN ledger (every step and every ledger column) plus the next eligible step, following `sdd-develop/references/execution-display.md`. The child receipt, child-rendered table, or a prose summary alone is not the parent relay. Never show only the closed step or stale rows. If the persisted checkpoint is unavailable or conflicts with the report, stop with `ledger_partial` and do not delegate another direct step. This display responsibility preserves the direct Classic session and claim contract; it does not activate the O3 queue or replace O3's separate progress table.
+When a parent delegates one approved Classic/direct PLAN step to a specialist, the child owns that step's implementation and persisted PLAN checkpoint. After the child returns, the parent MUST re-read the canonical PLAN, reconcile its step row and checkpoint with the child report, and show the operator the complete current PLAN ledger (every step and every ledger column) plus the next eligible step, following `adt-sdd-develop/references/execution-display.md`. The child receipt, child-rendered table, or a prose summary alone is not the parent relay. Never show only the closed step or stale rows. If the persisted checkpoint is unavailable or conflicts with the report, stop with `ledger_partial` and do not delegate another direct step. This display responsibility preserves the direct Classic session and claim contract; it does not activate the O3 queue or replace O3's separate progress table.
 
 ### O3 evidence paths
 
@@ -139,6 +160,7 @@ Treat each spawned child as a **single-invocation specialist**. Its initial hand
 - Batch closely related questions or actions for the same specialist into one well-scoped assignment before spawning. Do not spawn for trivial lookups or split one coherent task into many tiny delegations; keep the thin-trivial in-parent rule above.
 - A running child may receive a concise clarification only to resolve ambiguity inside its original scope, before it returns. Do not add deliverables, widen paths, or assign another phase while it is running; split expanded work into a new assignment.
 - Once a child returns, its invocation is idle. Continue it (SendMessage) only for the same topic and scope while its context is still relevant; never reuse a completed child for a different topic, a different scope, or an already large context. Those go to a **fresh child invocation** with a concise receipt, relevant excerpt, scoped paths, and a clear bounded assignment. A child cannot spawn subagents; only the main session spawns.
+- Continuation of a returned child is allowed at most 2 times and only when all hold: its receipt is validated (`status: done` per `RECEIPT.md`; in O3 also `Invoke-O3ReceiptValidation.ps1` exit 0), the topic and scope are the same, every path the follow-up reads equals or lies inside a path of the original scoped-paths list, the follow-up changes no file, and the parent's own record shows a count below 2 for that child. The parent keeps that count itself (one per child); it is not added to the receipt or to the audit line. Each allowed continuation logs `continue`. Every other case starts a fresh child with a compact excerpt (never the full history) and logs `new-child`. If the parent has no record (never kept, or lost after compaction or in a new session), or the topic is ambiguous even though the receipt is valid, log `new-child` with `no-record` or `doubt`.
 - Where the current host provides a documented close/kill/terminate control for completed child threads, use it after receipt and synthesis. Where only a user-facing control exists, describe the close action to the user only if useful; do not claim to have invoked it.
 - If the host exposes no close/terminate control to the agent, stop routing work to the completed child and let the host manage its idle thread. Do not claim a process was killed or that its context was erased. Host-managed threads, logs, and context retention remain outside this portable contract.
 - Never interrupt/kill a child that is still doing useful work merely to enforce one-shot semantics. For an abandoned assignment, use the host's supported cancellation control when available and record the cancellation in the parent summary.
@@ -152,7 +174,7 @@ When spawning (native path):
 1. Pass **scoped paths** (files/dirs the child may read/write).
 2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body). Prefer receipt even when Caveman OFF.
 3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery roster applies.
-4. Pass the **role, one bounded objective, scoped paths, relevant references, expected result, and receipt requirement**. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `{{SDD_ROOT}}/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
+4. Pass the **role, one bounded objective, scoped paths, relevant references, expected result, and receipt requirement**. Conversational framing may follow Caveman intensity from `{{SDD_ROOT}}/preferences.json`; required deliverables and receipt fields remain complete and uncompressed (`skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail — Auto-Clarity / never-compress still apply.
 5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 6. Agent `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
 7. **Language:** child prompts, specialist context, and agent receipts are **always en-US**. Do not dump a full user-language PLAN/PRD — **paths + excerpt** only. Contract: `LANGUAGE.md` (lazy-load).
@@ -167,15 +189,17 @@ Parent synthesizes into chat / CONTINUITY — **facts and paths only**; do not d
 
 | Context | Cap |
 |---------|-----|
-| `*-developer` children | **≤ 2** concurrent / per task wave |
-| `orchestrate-*` parallel Agent calls | **≤ 4** concurrent (existing skill caps; wave if more) |
+| `adt-*-developer` children | **≤ 2** concurrent / per task wave |
+| `adt-orchestrate-*` parallel Agent calls | **≤ 4** concurrent (existing skill caps; wave if more) |
 | `qa_checklist` | **No** Agent — CONTINUITY/STORY only (`ROSTER.md`) |
+
+These caps are fixed defaults, not settings. Review angles or activities requested by the user are not a cap: group related activities into at most the cap number of children.
 
 Model selection on a native subagent spawn: follow `SUBAGENT-MODEL.md` (omit `model` by default — **same model as parent session**; not a host auto model / not Memory Bank `auto`). Publish-layer `model: inherit` / omit-key is adapter honesty — orthogonal to this Agent omit rule.
 
 ## Receipt and synthesis
 
-- Child I/O is Caveman-scoped: prompts, style, and returns honor Caveman when ON; end with receipt rows (Caveman ON: required; OFF: still prefer receipt / tight bullets).
+- Child conversational framing may be Caveman-scoped. The assigned result and required receipt fields are always complete; Caveman never removes analytical content. End with the role-specific receipt when required.
 - Parent synthesizes into CONTINUITY / chat — **facts and paths only**.
 - Do not dump full specialist transcripts into CONTINUITY.
 - A child's return never replaces the owning flow's progress table. After reconciling the receipt with the canonical state, the parent renders the flow's complete table per `sdd-artifacts/LIVE-STAGE-TABLE.md`.
@@ -197,16 +221,9 @@ Model selection on a native subagent spawn: follow `SUBAGENT-MODEL.md` (omit `mo
 |------|------|
 | `core/policy/orchestrator-session.md` | Always-on parent/orchestrator policy |
 | `ROSTER.md` | Which specialist roles / `needs_*` |
-| `RECEIPT.md` | Receipt schema + refusal tokens (Caveman-scoped child returns) |
+| `RECEIPT.md` | Role-specific receipt schemas; complete deliverables in every Caveman mode |
 | `SUBAGENT-MODEL.md` | Agent `model` parameter policy (default = parent session model) |
-| `ROUTING.md` | Stack → `*-developer` |
+| `ROUTING.md` | Stack → `adt-*-developer` |
 | `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |
 | `LANGUAGE.md` | Normative language matrix; en-US spawn; content-language resolution; no hard-coded artifact locale |
 | `docs/SPAWN.md` | Host spawn matrix, product evidence, Antigravity probe |
-
-## Acceptance mapping
-
-| PRD | Covered here |
-|-----|----------------|
-| CA1 | Native vs fallback for orchestrate / code-review; no Agent hard-fail |
-| CA2 | Developer ≤2; paths + receipt; no guideline paste; trivial in-parent; O3 `none` → manual `/sdd-develop` handoff |

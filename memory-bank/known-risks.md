@@ -12,7 +12,20 @@
 | Repository rulesets are external configuration | Git / CI | `protect-develop` allows squash and merge only and requires `validate`; `protect-release` allows merge only and requires `release-source`. Both have no bypass actors. Local validation does not change GitHub rules; they were changed on 2026-10-31. || Codex and Copilot run no toolkit path/secret guard | Adapters / hooks | Codex registers only the SubagentStop trace hook; Copilot publishes an empty `hooks.json`. The `GuardCommon.ps1` shim always allows, so host authorization decides. The malformed-payload deny of the removed guard no longer applies. |
 | Hook publish failures do not stop sync | Sync / hooks | Failures are listed at the end of sync with a fix line and the run exits 0 (`SyncCompletedWithHookFailures`). Check the listed failures, not only the exit code. |
 | Hermes `config.yaml` is checked structurally, not parsed as YAML | Hermes | `Test-HermesConfigYamlStructure` accepts only the `plugins` layouts that the keyed merge can edit and blocks before any write otherwise. It is not a YAML validator; other layouts may be valid YAML and still be blocked. |
+| Subagent settings and bounded uninstall reports do not prove live provider behavior | Settings / adapters | The `adt-settings` contract uses inheritance when no supported model/effort pair is available. Hermes removal reports keyed-only scope and Copilot root checks consume publish mode; validate provider behavior on the host before claiming runtime acceptance. Evidence: `core/skills/adt-settings/SKILL.md`, `scripts/_lib/AdapterChecks.ps1`. |
 | Hook trust and consent steps are provider-owned and not verified in CI | Hooks / providers | Codex `/hooks`, Grok `/hooks-trust` and similar steps are reported as `manual` with the step text. Fixtures do not prove the host trust UI or that a host runs the hook. |
+
+<!-- BEGIN GENERATED: host-model-option-evidence -->
+## Host model-option evidence
+
+Model and effort choices depend on the active provider surface, schema, version, and configured route. Documentation or a visible schema does not prove account availability or effective runtime application. When a complete pair cannot be verified, preserve inheritance. Evidence: `docs/SPAWN.md`, `docs/guides/session-behavior.md`, `core/policy/orchestrator-session.md`.
+<!-- END GENERATED: host-model-option-evidence -->
+
+<!-- BEGIN GENERATED: uninstall-path-boundary-evidence -->
+## Uninstall path and preservation evidence
+
+Grok and OpenHands validate shared-configuration paths under `InstallRoot` and recheck before writes/deletes; junction/symlink escapes and TOCTOU remain filesystem risks that static checks do not prove absent. OpenCode preserves shared authorization configuration and operator-added keys during uninstall. `scripts/_lib/AdapterChecks.ps1` includes a parent-reparse blocking assertion. Evidence: `adapters/grok/Uninstall-GrokToolkit.ps1`, `adapters/openhands/Uninstall-OpenHandsToolkit.ps1`, `adapters/opencode/Uninstall-OpenCodeToolkit.ps1`, `scripts/_lib/AdapterChecks.ps1`.
+<!-- END GENERATED: uninstall-path-boundary-evidence -->
 
 ## Fragile areas
 

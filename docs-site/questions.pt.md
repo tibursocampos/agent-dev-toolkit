@@ -67,4 +67,4 @@ Somente a sessão principal faz perguntas a você. Subagentes nunca perguntam di
 
 ## Perguntas de texto livre
 
-Algumas perguntas são abertas de propósito. As perguntas de intake do `sdd-spec` são um exemplo. Elas não têm um conjunto fixo de ids, e a sua resposta é registrada como texto. A pergunta continua esperando até você responder.
+Algumas perguntas são abertas de propósito. As perguntas de intake do `adt-sdd-spec` são um exemplo. Elas não têm um conjunto fixo de ids, e a sua resposta é registrada como texto. A pergunta continua esperando até você responder.

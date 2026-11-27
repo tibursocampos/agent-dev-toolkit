@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Named constants for toolkit scripts (_lib).
@@ -77,13 +77,13 @@ $script:ToolkitConstant = @{
         'core/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md',
         'core/skills/_shared/templates/sdd/PRD.md',
         'core/skills/_shared/templates/sdd/PLAN.md',
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-spec/reference.md',
-        'core/skills/sdd-plan/SKILL.md',
-        'core/skills/sdd-plan/reference.md',
-        'core/skills/refine-story/SKILL.md',
-        'core/skills/refine-story/references/boundary.md',
-        'core/skills/refine-story/references/guardrails.md'
+        'core/skills/adt-sdd-spec/SKILL.md',
+        'core/skills/adt-sdd-spec/reference.md',
+        'core/skills/adt-sdd-plan/SKILL.md',
+        'core/skills/adt-sdd-plan/reference.md',
+        'core/skills/adt-refine-story/SKILL.md',
+        'core/skills/adt-refine-story/references/boundary.md',
+        'core/skills/adt-refine-story/references/guardrails.md'
     )
     SkillReferenceRetrievalRuleId      = 'SR-LAZY-REFERENCE'
     SkillReferenceRetrievalGuideRelativePath = 'core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md'
@@ -103,40 +103,34 @@ $script:ToolkitConstant = @{
     SddArtifactPrdHeaderPattern        = '(?im)^\|\s*\*{0,2}PRD\*{0,2}\s*\|\s*`?([^|`]+?)`?\s*\|'
     SddArtifactReqMapSectionPattern    = '(?i)Mapa\s+REQ|REQ\s*(→|->)\s*passo|REQ\s*->\s*step'
     ValidatePrdPlanSkillWiringRelativePaths = @(
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-spec/reference.md',
-        'core/skills/sdd-plan/SKILL.md',
-        'core/skills/sdd-plan/reference.md'
+        'core/skills/adt-sdd-spec/SKILL.md',
+        'core/skills/adt-sdd-spec/reference.md',
+        'core/skills/adt-sdd-plan/SKILL.md',
+        'core/skills/adt-sdd-plan/reference.md'
     )
     ValidatePrdFixtureValidRelativePath = 'prd/valid.md'
     ValidatePrdFixtureInvalidNoReqRelativePath = 'prd/invalid-no-req.md'
-    ValidatePrdFixtureInvalidNoAcRelativePath = 'prd/invalid-no-ac.md'
-    ValidatePrdFixtureInvalidNoSectionsRelativePath = 'prd/invalid-no-sections.md'
     ValidatePlanFixtureValidRelativePath = 'plan/valid.md'
-    ValidatePlanFixtureInvalidNoSectionsRelativePath = 'plan/invalid-no-sections.md'
     ValidatePlanFixtureInvalidMissingReqRelativePath = 'plan/invalid-missing-req.md'
     ValidatePlanFixtureCompanionPrdRelativePath = 'plan/companion-prd.md'
-    ValidateChangeScriptName           = 'validate-change.ps1'
     ChangeContractGuideRelativePath    = 'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
     ChangeTemplateRelativePath         = 'core/skills/_shared/templates/features/CHANGE.md'
     SddArtifactChangeSectionPattern    = '(?im)^#{1,3}\s*(ADDED|ADICIONAD[OA]S?|INCLU[IÍ]D[OA]S?|MODIFIED|MODIFICAD[OA]S?|ALTERAD[OA]S?|REMOVED|REMOVID[OA]S?|EXCLU[IÍ]D[OA]S?)\b'
     SddArtifactChangeForbiddenCurrentPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
-    ValidateChangeFixtureValidRelativePath = 'change/valid.md'
-    ValidateChangeFixtureInvalidNoSectionsRelativePath = 'change/invalid-no-sections.md'
     ChangeContractSkillWiringRelativePaths = @(
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-spec/reference.md',
-        'core/skills/orchestrate-deliver/SKILL.md',
-        'core/skills/orchestrate-deliver/reference.md',
-        'core/skills/orchestrate-analyze/SKILL.md',
-        'core/skills/orchestrate-develop/SKILL.md',
+        'core/skills/adt-sdd-spec/SKILL.md',
+        'core/skills/adt-sdd-spec/reference.md',
+        'core/skills/adt-orchestrate-prepare/SKILL.md',
+        'core/skills/adt-orchestrate-prepare/reference.md',
+        'core/skills/adt-orchestrate-analyze/SKILL.md',
+        'core/skills/adt-orchestrate-implement/SKILL.md',
         'core/skills/_shared/sdd-artifacts/STORAGE.md',
         'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
     )
     ChangeContractTasksPolicyRelativePaths = @(
         'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md',
-        'core/skills/split-story-checklist/SKILL.md',
-        'core/skills/split-story-checklist/reference.md'
+        'core/skills/adt-split-story-checklist/SKILL.md',
+        'core/skills/adt-split-story-checklist/reference.md'
     )
     ValidateEvidenceScriptName         = 'validate-evidence.ps1'
     EvidenceContractGuideRelativePath  = 'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md'
@@ -181,14 +175,11 @@ $script:ToolkitConstant = @{
     SddArtifactPlanExecutionPolicyPattern        = '(?im)^##\s+(?:Execution policy|Política de execução)\s*$'
     SddArtifactPlanStepHeadingPattern            = '^(?i)(?:STEP|PASSO|ETAPA)\s+(?<ordinal>\d+)\s*(?:[:\-–—]\s*)?(?<id>S\d+)\b(?:\s*(?:[:\-–—]\s*)|\s+)(?<name>.+?)\s*$'
     StorySizingContractRelativePath              = 'core/skills/_shared/backlog-item-types/story-sizing.md'
-    IntentClassificationContractRelativePath   = 'core/skills/orchestrate-analyze/references/intent-classification.md'
+    IntentClassificationContractRelativePath   = 'core/skills/adt-orchestrate-analyze/references/intent-classification.md'
     InvokeMemoryBankInventoryScriptRelativePath  = 'scripts/inventory/Invoke-MemoryBankInventory.ps1'
     AssertMemoryBankInventoryScriptName          = 'Assert-MemoryBankInventory.ps1'
     MemoryBankInventoryCheckName                 = 'memory-bank-inventory'
     InvokeDevelopSessionGateScriptRelativePath   = 'scripts/session/Invoke-DevelopSessionGate.ps1'
-    InvokePlanLedgerClaimScriptRelativePath      = 'scripts/ledger/Invoke-PlanLedgerClaim.ps1'
-    PlanLedgerFixtureHolderA                     = 'holder-A'
-    PlanLedgerFixtureStep                        = 2
     ValidateSessionGatesScriptRelativePath       = 'scripts/validation/validate-session-gates.ps1'
     AssertDevelopSessionGateScriptName           = 'Assert-DevelopSessionGate.ps1'
     DevelopSessionGateCheckName                  = 'develop-session-gate'
@@ -274,74 +265,10 @@ $script:ToolkitConstant = @{
     SiblingReadinessBlockingLegacySeverities     = @('blocker', 'high')
     SiblingReadinessMinorCanonicalSeverities     = @('MINOR')
     SiblingReadinessMinorLegacySeverities        = @('medium', 'low')
-    PlanLedgerClaimSchemaId                      = 'plan-ledger-claim/v1'
-    PlanLedgerStatusClaimed                      = 'claimed'
-    PlanLedgerStatusReleased                     = 'released'
-    PlanLedgerDirectoryName                      = 'ledger'
     PlanLedgerSessionsFolderName                 = 'sessions'
     PlanLedgerSessionsRootRequired               = 'SessionsRoot is required (or pass -SddRoot so sessions = <SddRoot>/sessions).'
     PlanLedgerRepoPathMissing                    = 'RepoPath not found: {0}'
     PlanLedgerPlanPathMissing                    = 'PlanPath not found: {0}'
-    PlanLedgerDoubleClaimFormat                  = 'PLAN-LEDGER reject: step {0} already claimed by holder={1}; attempted_holder={2}; reason=step_already_claimed'
-    PlanLedgerReleaseDeniedFormat                = 'PLAN-LEDGER release denied: attempted_holder={0}; existing_holder={1}; reason=release_forbidden'
-    PlanLedgerUnknownAction                      = 'Unknown PLAN-LEDGER action.'
-    PlanLedgerExitClaimOk                        = 0
-    PlanLedgerExitClaimRejected                  = 2
-    PlanLedgerExitUsage                          = 1
-    PlanLedgerReasonStepAlreadyClaimed           = 'step_already_claimed'
-    PlanLedgerReasonHolderRequired               = 'holder_required'
-    PlanLedgerReasonReleaseForbidden             = 'release_forbidden'
-    PlanLedgerReasonNotClaimed                   = 'step_not_claimed'
-    PlanLedgerEventClaimRejected                 = 'claim_rejected'
-    InvokeExecutionModeGateScriptRelativePath    = 'scripts/ledger/Invoke-ExecutionModeGate.ps1'
-    ExecutionModeGateSchemaId                    = 'execution-mode-gate/v1'
-    ExecutionModeAllowedIds                      = @('serial', 'parallel', 'manual')
-    ExecutionModeAuditFileName                   = 'execution-mode.audit.jsonl'
-    ExecutionModeEventRejected                   = 'mode_rejected'
-    ExecutionModeReasonOk                        = 'mode_ok'
-    ExecutionModeReasonUnknown                   = 'mode_unknown'
-    ExecutionModeReasonParallelForbidden         = 'mode_parallel_forbidden'
-    ExecutionModeReasonTaskSpawnForbidden        = 'mode_task_spawn_forbidden'
-    ExecutionModeReasonClaimRequired             = 'mode_claim_required'
-    ExecutionModeExitOk                          = 0
-    ExecutionModeExitUsage                       = 1
-    ExecutionModeExitRejected                    = 2
-    ExecutionModeRejectFormat                    = 'EXECUTION-MODE reject: reason={0}; mode={1}; intent={2}'
-    InvokePrdPlanChangePreflightScriptRelativePath = 'scripts/validation/Invoke-PrdPlanChangePreflight.ps1'
-    AssertPrdPlanChangePreflightScriptName       = 'Assert-PrdPlanChangePreflight.ps1'
-    PrdPlanChangePreflightCheckName              = 'prd-plan-change-preflight'
-    PrdPlanChangePreflightDeliverRefRelativePath = 'core/skills/orchestrate-deliver/references/preflight-prd-plan-change.md'
-    PrdPlanChangePreflightDeliverIndexRelativePath = 'core/skills/orchestrate-deliver/reference.md'
-    PrdPlanChangePreflightDeliverSkillRelativePath = 'core/skills/orchestrate-deliver/SKILL.md'
-    PrdPlanChangePreflightExitAllow              = 0
-    PrdPlanChangePreflightExitUsage              = 1
-    PrdPlanChangePreflightExitBlock              = 2
-    PrdPlanChangePreflightReasonOrphanReq        = 'orphan_req'
-    PrdPlanChangePreflightReasonNnnMismatch      = 'nnn_mismatch'
-    PrdPlanChangePreflightReasonChangeInvalid    = 'change_brownfield_invalid'
-    PrdPlanChangePreflightReasonValidatePrd      = 'validate_prd_failed'
-    PrdPlanChangePreflightReasonValidatePlan     = 'validate_plan_failed'
-    PrdPlanChangePreflightReasonValidateChange   = 'validate_change_failed'
-    PrdPlanChangePreflightReasonFeatureMissing   = 'feature_root_missing'
-    PrdPlanChangePreflightReasonPlanMissing      = 'plan_path_missing'
-    PrdPlanChangePreflightReasonPrdMissing       = 'prd_path_missing'
-    PrdPlanChangePreflightReasonPrdPathEscape    = 'prd_path_escape'
-    PrdPlanChangePreflightReasonChangeMissing    = 'change_missing_brownfield'
-    PrdPlanChangePreflightNatureBrownfield       = 'brownfield'
-    PrdPlanChangePreflightNatureGreenfield       = 'greenfield'
-    PrdPlanChangePreflightFeatureNaturePattern   = '(?im)\|\s*\*{0,2}Nature\*{0,2}\s*\|\s*`?([^|`]+?)`?\s*\|'
-    PrdPlanChangePreflightPrdFileNnnPattern      = '(?i)^(\d{3})_'
-    PrdPlanChangePreflightPlanFileNnnPattern     = '(?i)^PLAN_(\d{3})_'
-    PrdPlanChangePreflightFeatureFolderNnnPattern = '(?i)(?:^|[/\\])(\d{3})-[^/\\]+$'
-    PrdPlanChangePreflightChangeFileName         = 'CHANGE.md'
-    PrdPlanChangePreflightFeatureFileName        = 'FEATURE.md'
-    PrdPlanChangePreflightFixtureValidRelativeDir = 'preflight/valid'
-    PrdPlanChangePreflightFixtureOrphanRelativeDir = 'preflight/orphan-req'
-    PrdPlanChangePreflightFixtureNnnRelativeDir  = 'preflight/nnn-mismatch'
-    PrdPlanChangePreflightFixtureChangeRelativeDir = 'preflight/change-invalid'
-    PrdPlanChangePreflightBlockFormat            = 'preflight: BLOCK reason={0}; detail={1}'
-    PrdPlanChangePreflightAllowFormat            = 'preflight: ALLOW paths={{ plan={0}; prd={1}; change={2} }}'
-    PrdPlanChangePreflightMutatingCmdPattern     = '(?i)\b(Set-Content|Add-Content|Out-File|New-Item\s+-ItemType\s+File|Remove-Item|Move-Item|Copy-Item)\b'
     OrchestratorSessionPolicyRelativePath        = 'core/policy/orchestrator-session.md'
     OrchestratorCharterHeadingMarker             = 'ORCHESTRATOR CHARTER'
     OrchestratorCharterRuleMarkers               = @(
@@ -371,9 +298,9 @@ $script:ToolkitConstant = @{
     )
     ExecutionPolicyHeadingMarker                 = '## Execution policy'
     ExecutionPolicySkillWiringRelativePaths      = @(
-        'core/skills/sdd-plan/SKILL.md',
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-develop/SKILL.md'
+        'core/skills/adt-sdd-plan/SKILL.md',
+        'core/skills/adt-sdd-spec/SKILL.md',
+        'core/skills/adt-sdd-develop/SKILL.md'
     )
     ToolkitOrchestratorInstallMenuChoices        = @('1', '2')
     PreferencesFileName                          = 'preferences.json'
@@ -387,20 +314,20 @@ $script:ToolkitConstant = @{
     LanguageMdRelativePath         = 'core/skills/_shared/agents/LANGUAGE.md'
     InventedMissingLanguageMdRel   = 'core/skills/_shared/agents/__invented_missing_LANGUAGE__.md'
     LanguageEnUsSpawnMarker        = 'en-US'
-    JavaDeveloperSkillDirectoryName = 'java-developer'
+    JavaDeveloperSkillDirectoryName = 'adt-java-developer'
     JavaDeveloperSkillFileName     = 'SKILL.md'
-    JavaDeveloperRouteToken        = '/java-developer'
-    JavaDeveloperCatalogToken      = 'java-developer'
+    JavaDeveloperRouteToken        = '/adt-java-developer'
+    JavaDeveloperCatalogToken      = 'adt-java-developer'
     JavaMavenPomFileName           = 'pom.xml'
     JavaGradleBuildFileName        = 'build.gradle'
     RoutingMdRelativePath          = 'core/skills/_shared/agents/ROUTING.md'
-    DeveloperSkillRelativePath     = 'core/skills/developer/SKILL.md'
+    DeveloperSkillRelativePath     = 'core/skills/adt-developer/SKILL.md'
     SkillsCatalogRelativePath      = 'docs/SKILLS.md'
     InventedMissingJavaSkillRel    = 'core/skills/__invented_missing_java_developer__/SKILL.md'
-    OrchestrateSkillNamePrefix     = 'orchestrate-'
+    OrchestrateSkillNamePrefix     = 'adt-orchestrate-'
     OrchestrateSkillFileName       = 'SKILL.md'
     OrchestrateReferenceFileName   = 'reference.md'
-    CodeReviewSkillDirectoryName   = 'code-review'
+    CodeReviewSkillDirectoryName   = 'adt-code-review'
     SpawnTaskCitationMarker        = 'Agent'
     SpawnContractMarker            = 'SPAWN'
     HermesDelegateTaskNeedle       = 'delegate_task'
@@ -439,6 +366,7 @@ $script:ToolkitConstant = @{
     CopilotWorkFixtureUserRel      = 'scripts/validation/fixtures/copilot-user-ci-smoke'
     CopilotWorkFixtureRepoRel      = 'scripts/validation/fixtures/copilot-repo-ci-smoke'
     ModeParameterName              = 'Mode'
+    CodexSkillDistributionParameterName = 'CodexSkillDistribution'
     ReparsePointResolverTypeName   = 'ToolkitReparsePointResolver'
     ExtendedLengthPathPrefix       = '\\?\'
     ExtendedLengthUncPrefix        = '\\?\UNC\'
@@ -510,6 +438,7 @@ $script:ToolkitConstant = @{
     ExpectedCiSmokeScriptCount     = 10
     ToolkitHelpMenuChoices         = @('0', '1', '2', '3')
     ToolkitCopilotModeMenuChoices  = @('0', '1', '2')
+    ToolkitCodexSkillDistributionMenuChoices = @('0', '1', '2', '3')
     ToolkitConfirmRunChoices       = @('0', 'y', 'n', 'yes', 'no')
     OfficialUserRootPathProperty   = 'OfficialUserRootPath'
     OfficialUserRootRelativeProperty = 'OfficialUserRootRelativePath'
@@ -677,14 +606,14 @@ $script:ToolkitMessage = @{
     OrchestrateTaskWithoutFallbackExpectedFail = 'synthetic Agent citation without SPAWN/fallback did not fail contract check'
     OrchestrateTaskWithoutSpawnFallback = 'orchestrate skill cites Agent without SPAWN and fallback markers: {0}'
     OrchestrateSkillsDirMissing        = 'orchestrate skills directory missing under core/skills'
-    CodeReviewMissingSpawnFallback     = 'code-review multi-angle missing SPAWN/fallback/in-parent markers'
-    CodeReviewSkillMissing             = 'code-review SKILL.md missing: {0}'
-    JavaDeveloperMissingFromDiskExpectedFail = 'invented missing java-developer skill did not fail presence check: {0}'
-    JavaDeveloperMissingFromDisk       = 'java-developer skill missing on disk: {0}'
-    JavaMissingFromCatalogOrRoutesExpectedFail = 'synthetic surfaces without java-developer did not fail catalog/routes check'
-    JavaMissingFromCatalogOrRoutes     = 'java-developer missing from catalog or routes: {0}'
+    CodeReviewMissingSpawnFallback     = 'adt-code-review multi-angle missing SPAWN/fallback/in-parent markers'
+    CodeReviewSkillMissing             = 'adt-code-review SKILL.md missing: {0}'
+    JavaDeveloperMissingFromDiskExpectedFail = 'invented missing adt-java-developer skill did not fail presence check: {0}'
+    JavaDeveloperMissingFromDisk       = 'adt-java-developer skill missing on disk: {0}'
+    JavaMissingFromCatalogOrRoutesExpectedFail = 'synthetic surfaces without adt-java-developer did not fail catalog/routes check'
+    JavaMissingFromCatalogOrRoutes     = 'adt-java-developer missing from catalog or routes: {0}'
     JavaRoutingSurfaceMissing          = 'routing surface file missing: {0}'
-    JavaDeveloperNotRouted             = 'java-developer present on disk but not fully routed across catalog/routes'
+    JavaDeveloperNotRouted             = 'adt-java-developer present on disk but not fully routed across catalog/routes'
     SmokeSkippedNotImplemented         = 'Invoke-SmokeValidate skipped (adapter not implemented / no-op). Core validation still applies.'
     SmokeFailed                        = 'Invoke-SmokeValidate failed for agent ''{0}'': {1}'
     ToolkitBannerTitle                 = 'Agent Dev Toolkit - Smart Manager'
@@ -727,7 +656,7 @@ $script:ToolkitMessage = @{
     ToolkitTargetCustomLine            = '[3] Custom InstallRoot path (review the path before confirming)'
     ToolkitTargetBackLine              = '[0] Back'
     ToolkitTargetLiveUnknown           = 'official user root'
-    ToolkitTargetLiveCodexDualLine     = '    Codex note: config/AGENTS under ~/.codex; USER skills also at ~/.agents/skills; default sync writes plugin/ under InstallRoot'
+    ToolkitTargetLiveCodexDualLine     = '    Codex note: default sync publishes skills locally and in the plugin; the skill picker can show both entries'
     ToolkitTargetMenuDefaultChoice     = '1'
     ToolkitTargetMenuPromptWithDefault = 'Select option [0-3] (Enter = live home)'
     ToolkitCustomPathPrompt            = 'Enter InstallRoot path'
@@ -740,10 +669,16 @@ $script:ToolkitMessage = @{
     ToolkitCopilotModeUserLine         = '[1] user  — personal Copilot root (~/.copilot)'
     ToolkitCopilotModeRepoLine         = '[2] repo  — consumer app .github layout'
     ToolkitCopilotModeBackLine         = '[0] Back'
+    ToolkitCodexSkillDistributionTitle      = 'Codex skill destinations'
+    ToolkitCodexSkillDistributionBothLine   = '[1] Both   — local skills and plugin skills (current default)'
+    ToolkitCodexSkillDistributionLocalLine  = '[2] Local  — local skills only; keep plugin hooks'
+    ToolkitCodexSkillDistributionPluginLine = '[3] Plugin — plugin skills only'
+    ToolkitCodexSkillDistributionBackLine   = '[0] Back'
     ToolkitSummaryTitle                = 'Plan summary'
     ToolkitUninstallSummaryTitle       = 'Uninstall plan summary'
     ToolkitSummaryAgent                = '  Agent:        {0}'
     ToolkitSummaryMode                 = '  Mode:         {0}'
+    ToolkitSummaryCodexSkillDistribution = '  Codex skills: {0}'
     ToolkitSummaryInstallRoot          = '  InstallRoot:  {0}'
     ToolkitSummaryAllowUserHome        = '  AllowUserHome:{0}'
     ToolkitSummaryTargetKind           = '  Target:       {0}'
@@ -766,7 +701,8 @@ Menu actions
 ------------
 [1] Sync agent
     Publishes core skills/policy/router/agents/hooks into an agent InstallRoot via sync-agent.ps1.
-    Wizard: pick agent -> fixture | live home | custom path -> confirm.
+    Wizard: pick agent -> optional agent mode / Codex skill destination -> fixture | live home | custom path -> confirm.
+    Codex destinations: Both publishes local and plugin skills; Local publishes local skills and keeps plugin hooks; Plugin publishes plugin skills only. Existing copies are not removed when changing destinations.
     Fixture: temporary test target; no profile files are written. Live home: installs toolkit-managed files under that
     agent's root. Custom: choose an InstallRoot yourself; profile paths need explicit confirmation. Review the plan
     summary and target path before choosing y.

@@ -190,7 +190,7 @@ Existing literals stay until the operator approves extracting them. Touching a t
 
 **Allowed exception (CA6.1, CT7):** In an arithmetic expression, a **numeric multiplier factor** may stay inline when it is the only literal in that expression (e.g. unit conversion `bytes * 1024`). Other operands with business meaning (limits, thresholds, status codes) still require named constants.
 
-**Alignment with other toolkit docs:** `code-review` (maintainability / magic values) and `scaffold-message-handler/reference.md` (configuration queue names) defer to this section as the **canonical** C# rule - do not contradict it in reviews or scaffolds.
+**Alignment with other toolkit docs:** `adt-code-review` (maintainability / magic values) and `adt-scaffold-message-handler/reference.md` (configuration queue names) defer to this section as the **canonical** C# rule - do not contradict it in reviews or scaffolds.
 
 ```csharp
 // Wrong - magic strings and numbers in production

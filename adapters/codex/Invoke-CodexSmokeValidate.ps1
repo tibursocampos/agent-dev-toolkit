@@ -5,14 +5,14 @@
 
 .DESCRIPTION
   Asserts InstallRoot after Codex sync:
-  - plugin/.codex-plugin/plugin.json valid + plugin/skills/*/SKILL.md (TE02)
-  - plugin/skills/help-skills/SKILL.md + plugin/skills/_shared/skills-catalog/CATALOG.md
-  - InstallRoot/skills/help-skills/SKILL.md + CATALOG (Codex $ discovery; always published)
+  - plugins/agent-dev-toolkit/.codex-plugin/plugin.json valid + plugin skills as selected (TE02)
+  - plugins/agent-dev-toolkit/skills/adt-help-skills/SKILL.md + _shared/skills-catalog/CATALOG.md
+  - InstallRoot/skills/adt-help-skills/SKILL.md + CATALOG (Codex $ discovery; always published)
   - .agents/plugins/marketplace.json entry source.path resolves (TE03)
   - InstallRoot/rules/*.md when rules capable (Publish-Policy)
   - AGENTS.md materialized (no {{…}} placeholders, no docs/ live links, dual-root paths)
-  - plugin/hooks/hooks.json when hooks capable (TE04)
-  - .agents/skills: absent or empty skeleton OK (plugin+home default); when UserScope mirrored, assert help-skills + CATALOG
+  - plugins/agent-dev-toolkit/hooks/hooks.json when hooks capable (TE04)
+  - .agents/skills: absent or empty skeleton OK (plugin+home default); when UserScope mirrored, assert adt-help-skills + CATALOG
   Never invokes Codex runtime or /hooks trust UI (RN03 / TE05 out of scope).
   Live UserScope root is $HOME/.agents/skills (via Resolve-CodexUserSkillsRoot); fixture uses InstallRoot/.agents/skills.
 #>
@@ -99,7 +99,11 @@ function Test-CodexPluginManifestSchema {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $ManifestPath
+        [string] $ManifestPath,
+
+        [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $Distribution = 'Both'
     )
 
     if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) {
@@ -123,13 +127,20 @@ function Test-CodexPluginManifestSchema {
     }
 
     $props = @($json.PSObject.Properties.Name)
-    foreach ($required in @('name', 'version', 'description', 'skills')) {
+    $requiredFields = @('name', 'version', 'description')
+    if ($Distribution -ne 'Local') {
+        $requiredFields += 'skills'
+    }
+    foreach ($required in $requiredFields) {
         if ($props -notcontains $required) {
             return $false
         }
         if ([string]::IsNullOrWhiteSpace([string]$json.$required)) {
             return $false
         }
+    }
+    if ($Distribution -eq 'Local' -and $props -contains 'skills') {
+        return $false
     }
 
     if ($props -notcontains 'interface' -or $null -eq $json.interface) {
@@ -400,40 +411,71 @@ function Test-CodexSmokeAgentsMaterialized {
     }
 }
 
+function Get-CodexToolkitSkillIds {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RepoRoot
+    )
+
+    $coreSkillsRoot = Join-Path (Join-Path $RepoRoot $script:CodexPathConstant.CoreDirectoryName) $script:CodexPathConstant.SkillsDirectoryName
+    if (-not (Test-Path -LiteralPath $coreSkillsRoot -PathType Container)) {
+        return @()
+    }
+
+    return @(
+        Get-ChildItem -LiteralPath $coreSkillsRoot -Directory -Force |
+            Where-Object {
+                -not [string]::Equals($_.Name, $script:CodexPathConstant.SharedSkillsDirectoryName, [System.StringComparison]::OrdinalIgnoreCase)
+            } |
+            ForEach-Object { $_.Name }
+    )
+}
+
 function Test-CodexUserSkillsFixture {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $UserSkillsRoot
+        [string] $UserSkillsRoot,
+
+        [Parameter()]
+        [AllowEmptyCollection()]
+        [string[]] $ToolkitSkillIds = @()
     )
+
+    $notExpected = [PSCustomObject]@{
+        Ok       = $true
+        Mirrored = $false
+        Message  = ''
+    }
 
     # Absent root is valid: default Publish-Skills is plugin-only (live ~/.codex has no InstallRoot/.agents/skills).
     if (-not (Test-Path -LiteralPath $UserSkillsRoot -PathType Container)) {
-        return [PSCustomObject]@{
-            Ok       = $true
-            Mirrored = $false
-            Message  = ''
-        }
+        return $notExpected
     }
 
     $manifestName = $script:CodexPathConstant.SkillManifestFileName
     $skillDirs = @(Get-ChildItem -LiteralPath $UserSkillsRoot -Directory -Force -ErrorAction SilentlyContinue)
-    $kebabSkillDirs = @(
-        $skillDirs | Where-Object {
-            -not [string]::Equals($_.Name, $script:CodexPathConstant.SharedSkillsDirectoryName, [System.StringComparison]::OrdinalIgnoreCase)
-        }
-    )
+    $toolkitSkillDirs = @($skillDirs | Where-Object { $ToolkitSkillIds -contains $_.Name })
 
-    # Empty skeleton (.gitkeep only) is valid: default Publish-Skills is plugin-only.
-    if ($kebabSkillDirs.Count -lt 1) {
-        return [PSCustomObject]@{
-            Ok       = $true
-            Mirrored = $false
-            Message  = ''
+    # The mirror is expected only when the toolkit published it: a non-empty managed-skills marker
+    # in the USER root, or a folder named after a toolkit skill id. Foreign skill folders never count.
+    $managedManifestPath = Get-ToolkitManagedSkillsManifestPath -DestinationSkillsRoot $UserSkillsRoot
+    $markerListsSkills = $false
+    if (Test-Path -LiteralPath $managedManifestPath -PathType Leaf) {
+        try {
+            $markerListsSkills = (@(Read-ToolkitManagedSkillsManifest -DestinationSkillsRoot $UserSkillsRoot).Count -gt 0)
+        }
+        catch {
+            $markerListsSkills = $true
         }
     }
 
-    foreach ($dir in $kebabSkillDirs) {
+    if (-not $markerListsSkills -and $toolkitSkillDirs.Count -lt 1) {
+        return $notExpected
+    }
+
+    foreach ($dir in $toolkitSkillDirs) {
         $manifestPath = Join-Path $dir.FullName $manifestName
         if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
             return [PSCustomObject]@{
@@ -516,6 +558,8 @@ function Invoke-CodexSmokeValidate {
     $rulesPath = Join-Path $resolvedInstallRoot $script:CodexPathConstant.RulesDirectoryName
 
     $checks = [ordered]@{
+        SkillDistribution        = ''
+        SkillDistributionValid   = $false
         PluginManifestValid      = $false
         PluginSkillsPresent      = $false
         HelpSkillsCatalogPresent = $false
@@ -539,6 +583,26 @@ function Invoke-CodexSmokeValidate {
         RequiresHooksTrust       = $false
     }
 
+    $distribution = $null
+    try {
+        $distribution = Resolve-CodexSkillDistribution -InstallRoot $resolvedInstallRoot
+        $checks.SkillDistribution = $distribution
+        $checks.SkillDistributionValid = $true
+    }
+    catch {
+        $distributionPath = Join-Path $resolvedInstallRoot $script:CodexPathConstant.SkillDistributionStateRelativePath
+        return New-CodexSmokeResult `
+            -Success $false `
+            -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
+            -ResolvedInstallRoot $resolvedInstallRoot `
+            -Checks $checks `
+            -Message ("TE02: Codex skill distribution state is invalid at {0}: {1}" -f $distributionPath, $_.Exception.Message) `
+            -ExitCode $exitFail
+    }
+
+    $pluginSkillsRequired = $distribution -in @('Both', 'Plugin')
+    $homeSkillsRequired = $distribution -in @('Both', 'Local')
+
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
         return New-CodexSmokeResult `
             -Success $false `
@@ -549,7 +613,7 @@ function Invoke-CodexSmokeValidate {
             -ExitCode $exitFail
     }
 
-    $manifestOk = Test-CodexPluginManifestSchema -ManifestPath $manifestPath
+    $manifestOk = Test-CodexPluginManifestSchema -ManifestPath $manifestPath -Distribution $distribution
     $checks.PluginManifestValid = $manifestOk
     if (-not $manifestOk) {
         return New-CodexSmokeResult `
@@ -561,40 +625,54 @@ function Invoke-CodexSmokeValidate {
             -ExitCode $exitFail
     }
 
-    $skillsOk = Test-CodexSmokeSkillManifestPresent -SkillsRoot $pluginSkillsPath
-    $checks.PluginSkillsPresent = $skillsOk
-    if (-not $skillsOk) {
-        return New-CodexSmokeResult `
-            -Success $false `
-            -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
-            -ResolvedInstallRoot $resolvedInstallRoot `
-            -Checks $checks `
-            -Message ($script:CodexSmokeMessage.Te02PluginSkillsMissing -f $pluginSkillsPath) `
-            -ExitCode $exitFail
+    if ($pluginSkillsRequired) {
+        $skillsOk = Test-CodexSmokeSkillManifestPresent -SkillsRoot $pluginSkillsPath
+        $checks.PluginSkillsPresent = $skillsOk
+        if (-not $skillsOk) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ($script:CodexSmokeMessage.Te02PluginSkillsMissing -f $pluginSkillsPath) `
+                -ExitCode $exitFail
+        }
+
+        $catalogCheck = Test-CodexSmokeHelpSkillsAndCatalogPresent -SkillsRoot $pluginSkillsPath
+        $checks.HelpSkillsCatalogPresent = [bool]$catalogCheck.Ok
+        if (-not $catalogCheck.Ok) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message $catalogCheck.Message `
+                -ExitCode $exitFail
+        }
+    }
+    else {
+        # A stale folder may remain after changing modes, but the Local manifest
+        # omits the skills entry so it is not part of the installed plugin.
+        $checks.PluginSkillsPresent = $true
+        $checks.HelpSkillsCatalogPresent = $true
     }
 
-    $catalogCheck = Test-CodexSmokeHelpSkillsAndCatalogPresent -SkillsRoot $pluginSkillsPath
-    $checks.HelpSkillsCatalogPresent = [bool]$catalogCheck.Ok
-    if (-not $catalogCheck.Ok) {
-        return New-CodexSmokeResult `
-            -Success $false `
-            -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
-            -ResolvedInstallRoot $resolvedInstallRoot `
-            -Checks $checks `
-            -Message $catalogCheck.Message `
-            -ExitCode $exitFail
+    if ($homeSkillsRequired) {
+        $homeSkillsCheck = Test-CodexSmokeHomeSkillsPresent -HomeSkillsRoot $homeSkillsPath
+        $checks.HomeSkillsPresent = [bool]$homeSkillsCheck.Ok
+        if (-not $homeSkillsCheck.Ok) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message $homeSkillsCheck.Message `
+                -ExitCode $exitFail
+        }
     }
-
-    $homeSkillsCheck = Test-CodexSmokeHomeSkillsPresent -HomeSkillsRoot $homeSkillsPath
-    $checks.HomeSkillsPresent = [bool]$homeSkillsCheck.Ok
-    if (-not $homeSkillsCheck.Ok) {
-        return New-CodexSmokeResult `
-            -Success $false `
-            -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
-            -ResolvedInstallRoot $resolvedInstallRoot `
-            -Checks $checks `
-            -Message $homeSkillsCheck.Message `
-            -ExitCode $exitFail
+    else {
+        # Old local copies are intentionally retained when switching to Plugin.
+        $checks.HomeSkillsPresent = $true
     }
 
     if (-not (Test-Path -LiteralPath $marketplacePath -PathType Leaf)) {
@@ -838,7 +916,8 @@ function Invoke-CodexSmokeValidate {
         $checks.HooksPresent = Test-Path -LiteralPath $hooksPath -PathType Leaf
     }
 
-    $userSkillsCheck = Test-CodexUserSkillsFixture -UserSkillsRoot $userSkillsPath
+    $toolkitSkillIds = @(Get-CodexToolkitSkillIds -RepoRoot $repoRoot)
+    $userSkillsCheck = Test-CodexUserSkillsFixture -UserSkillsRoot $userSkillsPath -ToolkitSkillIds $toolkitSkillIds
     $checks.UserSkillsFixtureOk = [bool]$userSkillsCheck.Ok
     $checks.UserSkillsMirrored = [bool]$userSkillsCheck.Mirrored
     if (-not $userSkillsCheck.Ok) {

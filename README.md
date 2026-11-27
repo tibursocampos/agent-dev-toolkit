@@ -37,8 +37,8 @@ flowchart TD
   Start(["New work"]) --> Q{"What do you have?"}
   Q -->|"Several stories, brownfield, or specialists"| ORCH["Orchestrated Delivery"]
   Q -->|"One story already clear"| SDD["Classic SDD"]
-  Q -->|"Informal backlog item"| REF["refine-story"]
-  Q -->|"Feature or story to challenge"| REV["requirement-review"]
+  Q -->|"Informal backlog item"| REF["adt-refine-story"]
+  Q -->|"Feature or story to challenge"| REV["adt-requirement-review"]
 ```
 
 Decision guide and entry points: [Choosing the flow](docs/guides/flow-selection.md).

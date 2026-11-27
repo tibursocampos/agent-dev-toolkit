@@ -6,16 +6,14 @@
 | **Tipo** | US \| TS \| Bug |
 | **Feature** | `features/{{NNN}}-{{slug}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/` (global; portable path) |
 | **Path** | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (global) |
-| **Status** | draft \| approved \| in-progress \| done |
 
-**type_classification (REQ-012):** exact-set of item type (**Tipo** / Bug\|US\|TS) lives **only** on this STORY. `/split-story-checklist` must not scatter the set into `REFINE/tasks.md`, FEATURE, CONTINUITY, PLAN, or trackers (`skills/split-story-checklist/references/type-classification.md`).
+`Tipo` identifies the kind of story. Keep it here when useful; no separate implementation status is needed because execution progress belongs in the PLAN.
 
 ## Related
 
 | Relação | Path portátil |
 |---------|---------------|
 | FEATURE | `features/{{NNN}}-{{slug}}/FEATURE.md` |
-| CONTINUITY | `features/{{NNN}}-{{slug}}/CONTINUITY.md` (omit if absent) |
 | PRD | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/PRD/…` (omit if absent) |
 | PLAN | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/PLAN/…` (omit if absent) |
 | ANALYSIS / ARCH / SEC | `./ANALYSIS/`, `./ARCH/`, `./SEC/` when on-disk (omit if absent) |
@@ -40,13 +38,13 @@ Required when **Tipo** = `US`. For pure TS/Bug, set each field to `n/a`.
 
 See `skills/_shared/backlog-item-types/persona-context.md`. Optional Evidence under persona follows **omit > fabricate** (`product-evidence-lite.md`).
 
-## Descrição
+## Description
 
 {{DESCRIPTION}}
 
-Supporting narrative; does not replace Objective or Who/Job/Outcome.
+Describe the current behavior, what is in scope, and the intended change.
 
-## Fora de escopo (OOS)
+## Out of scope (OOS)
 
 | Item | Motivo |
 |------|--------|
@@ -54,15 +52,15 @@ Supporting narrative; does not replace Objective or Who/Job/Outcome.
 
 Explicit exclusions for this story. Use `N/A` / empty table only when truly none known — prefer naming known non-goals.
 
-## Critérios de aceite (AC budget)
+## Acceptance criteria
 
-Minimum budget (`gherkin-budget.md`): **happy** + **rule/edge** + **failure**, each with an **observable Then**. One stub alone is not enough.
+Describe the observable outcomes that define this story. Include edge or failure behavior when relevant to the outcome and risk; do not require a fixed number or category of scenarios.
 
 **FEATURE macro-acceptance ids:** {{FEATURE_MACRO_AC_IDS}}
 
-List the existing FEATURE ids covered by this story. The actual acceptance text below must preserve each mapped material behavior and agree with its current normative decision. A link or id alone is not evidence of agreement. Keep unchanged behavior, approved exclusions, and unresolved questions in their existing FEATURE disposition; do not create a decision list in STORY. This budget applies to the story outcome and does not require a fixed number of stories or one repeated scenario set per source.
+Reference related FEATURE outcomes or decisions when useful. The acceptance text states the behavior directly; links and IDs are navigation aids.
 
-### Happy
+### Outcome (add scenarios as useful)
 
 ```gherkin
 Dado {{HAPPY_GIVEN}}
@@ -70,57 +68,35 @@ Quando {{HAPPY_WHEN}}
 Então {{HAPPY_THEN_OBSERVABLE}}
 ```
 
-### Rule / edge
-
 ```gherkin
-Dado {{RULE_GIVEN}}
-Quando {{RULE_WHEN}}
-Então {{RULE_THEN_OBSERVABLE}}
+Dado {{CONTEXT_WHEN_RELEVANT}}
+Quando {{ACTION_OR_EVENT}}
+Então {{OBSERVABLE_OUTCOME}}
 ```
 
-### Failure
+Add another scenario only for a distinct outcome, boundary, or failure that matters to this story.
 
-```gherkin
-Dado {{FAILURE_GIVEN}}
-Quando {{FAILURE_WHEN}}
-Então {{FAILURE_THEN_OBSERVABLE}}
-```
+## Dependencies (when applicable)
 
-## Scorecard (resumo)
+- {{DEP_STORY_AND_REASON}}
 
-Rubric detail: `refine-story/references/scorecard-rubric.md` (scores **/100**; Product depth criterion max **10**). Map **Product depth** from that criterion (/10 → 1–5 per rubric). Map other rows from overall bands when needed (80+ = 5, 60–79 = 4, 40–59 = 3, else ≤2).
+## Definition of Done
 
-| Critério | Nota (1-5) | Nota |
-|----------|------------|------|
-| Clareza | | |
-| Testabilidade | | |
-| Dependências | | |
-| Product depth | | |
+[Evidence that demonstrates story completion. Reference the steps and their checks where available; progress remains in the PLAN.]
 
-**Product depth** reflects Valuable + AC budget (happy/rule/failure) + Who/Job/Outcome when US. Honest Evidence omission is not by itself a Product-depth failure.
+## Open decision (when material)
 
-## Dependências
+Record the question, affected work, and alternatives where useful. When answered, cite the decision source. Use the ANALYSIS, ARCH or SEC scaffolds under this template tree when the investigation needs its own durable note.
 
-- {{DEP_STORY_OR_NONE}}
-
-## Decisões em aberto
-
-Quando `needs_database` / `needs_domain`: apontar para `ANALYSIS/` (ex. `open-decisions.md`) — não o corpo de CONTINUITY.
-
-| Campo | Valor |
-|-------|--------|
-| **Open decisions** | `{{STORY_ID}}/ANALYSIS/` (ou N/A) |
-
-## Subpastas esperadas
+## Story artifacts (as needed)
 
 | Pasta | Uso |
 |-------|-----|
 | `REFINE/` | Refine / breakdown — **opcional / sob demanda** |
-| `ANALYSIS/` | Impacto / risco — **obrigatória** se FEATURE `needs_api` ou nature brownfield |
-| `ARCH/` | Arquitetura — **obrigatória** se FEATURE `needs_domain` / `needs_database` ou brownfield |
-| `SEC/` | Segurança — **obrigatória** se FEATURE `needs_security` |
+| `ANALYSIS/` | Evidência de investigação separada quando útil |
+| `ARCH/` | Decisão de arquitetura separada quando útil |
+| `SEC/` | Análise de segurança separada quando útil; riscos e controles continuam registrados onde apropriado |
 | `PRD/` | PRD canônico da história (O2) |
 | `PLAN/` | PLAN canônico da história (O2) |
 
-Não criar essas pastas na **raiz** do repositório.
-Não escrever “sob demanda” / “on demand” para `SEC/` / `ARCH/` / `ANALYSIS/` se a flag correspondente em FEATURE for true.
+Create only artifacts needed for the approved scope. Brownfield impact belongs in the PRD or PLAN when relevant: current behavior, intended change, and concrete risks. Do not create a sidecar solely because a flag or classification is present. Do not create these folders at the repository root.

@@ -35,9 +35,9 @@ Cap for Product Initiative maturity: **≤4 US/TS** unless FEATURE rationale exp
 | After split | Must be |
 |-------------|---------|
 | New US/TS | Outcome title + Valuable / technical outcome (`invest-and-story-quality.md`) |
-| Remaining work inside one story | Refine / PLAN **steps** (SMART tasks) — see `split-story-checklist` skill |
+| Remaining work inside one story | Refine / PLAN **steps** (SMART tasks) — see `adt-split-story-checklist` skill |
 
-`split-story-checklist` emits **tasks**, not a new US per file (`anti-task-shatter.md`).
+`adt-split-story-checklist` emits **tasks**, not a new US per file (`anti-task-shatter.md`).
 
 ---
 

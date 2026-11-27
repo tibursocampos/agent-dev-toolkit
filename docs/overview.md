@@ -2,7 +2,7 @@
 
 **agent-dev-toolkit** is a multi-agent developer toolkit. One agent-neutral **core** (skills, policy, router, SDD contracts, specialist prompts) is published by **adapters** into each host **install root**. Operators sync with a PowerShell CLI, then invoke the same skill ids inside the host.
 
-Evidence for counts and capabilities: `core/skills/*/SKILL.md` frontmatter `name` (46), `core/skills/_shared/skills-catalog/CATALOG.md`, `adapters/registry.json` (10 agents).
+Evidence for counts and capabilities: the 52 skill directories under `core/skills/` (excluding `_shared`), `core/skills/_shared/skills-catalog/CATALOG.md`, and `adapters/registry.json` (10 agents).
 
 ## Architecture
 
@@ -45,20 +45,28 @@ host layout   ~/.cursor, ~/.claude, ~/.codex, ~/.copilot or .github, …
 Host flags that change the CLI:
 
 - **Copilot** requires `-Mode user` or `-Mode repo`.
-- **Codex** optional `-UserScope` mirrors skills to a second personal root. Default sync is plugin-only under the Codex install root.
+- **Codex** direct sync defaults to `Both` (home skills and plugin package); guided Sync lets the operator choose `Both`, `Local`, or `Plugin`. Optional `-UserScope` mirrors skills to a second personal root.
 - **Live home** for any agent requires `-AllowUserHome` when the resolved install root is under the user profile.
 
 Specialist prompt files under `core/agents/` (`architect`, `database`, `repo-analyst`, `security`, `shell-runner`) are published when the adapter’s `agents` capability is true. They are roster roles, not extra registry agents. `qa_checklist` is an in-parent role in `core/skills/_shared/agents/ROSTER.md` and has no agent file.
 
 ## Skills and the delivery path
 
-**46** invocable skills (kebab-case `name` in each `SKILL.md`). Shared packs under `core/skills/_shared/` are not invocable skills. Agents present the map with skill `help-skills`, which reads `CATALOG.md` and `OPERATOR.md`. Human map, skill by skill: [sessions/09-every-skill.md](sessions/09-every-skill.md).
+**52** invocable skills (kebab-case `name` in each `SKILL.md`). Shared packs under `core/skills/_shared/` are not invocable skills. Agents present the map with skill `adt-help-skills`, which reads `CATALOG.md` and `OPERATOR.md`. Human map, skill by skill: [sessions/09-every-skill.md](sessions/09-every-skill.md).
 
-The complete path is **Orchestrated Delivery**: `memory-bank-init` (Step 0) → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`. Analyze classifies the request, asks, sets `needs_*`, calls specialists, and shapes stories. Deliver runs `sdd-spec` then `sdd-plan` for each approved story. Develop runs `sdd-develop` once per PLAN step. How that works: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
+Three feature-delivery paths coexist; choose by the shape of the work, not by the presence of optional folders:
 
-`sdd-spec`, `sdd-plan`, and `sdd-develop` remain invocable on their own when one story is already clear ([sessions/02-classic-sdd.md](sessions/02-classic-sdd.md)). `refine-story` is the scorecard and the product-only shape path; O1 applies that scorecard without a separate invoke ([sessions/03-backlog-shape.md](sessions/03-backlog-shape.md)).
+| Path | Use when | Plan and handoff |
+|------|----------|-----------------|
+| **Classic SDD** | One feature has a clear direction and direct spec → plan → implementation is sufficient. | A PRD and PLAN live under the story folder; one complete PLAN approval precedes implementation. [Guide](sessions/02-classic-sdd.md) |
+| **Orchestrated Delivery** | The feature needs multi-story analysis, coordinated specialist input, or serial implementation across story plans. | O1 analyzes, O2 prepares PRD/PLAN per selected story and obtains one approval for the complete PLAN set, and optional O3 dispatches one PLAN step at a time. [Guide](sessions/01-orchestrated-delivery.md) |
+| **ADT Delivery Flow** | The operator wants one coordinated refinement-to-implementation flow with one evolving feature plan. | Refine → plan → implement in one `features/NNN-slug/PLAN.md`; one explicit plan approval precedes implementation. [Guide](sessions/10-adt-delivery.md) |
 
-Contracts: `core/skills/_shared/sdd-artifacts/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`). Feature writes land under `features/NNN-slug/`.
+Backlog refinement and requirement review remain optional entry helpers, not prerequisites for any of the three paths. Memory Bank and separate `ANALYSIS/`, `ARCH/`, or `SEC/` notes are used when useful or required by the selected skill's contract; they are not universal workflow gates. See [choosing a flow](guides/flow-selection.md).
+
+Contracts: `core/skills/_shared/sdd-artifacts/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, `AUTHORING-CONTENT.md`) and `core/skills/_shared/agents/` (`ROSTER.md`, `RECEIPT.md`, `SPAWN.md`). Feature artifacts use the canonical paths under `features/NNN-slug/`; separate `ANALYSIS/`, `ARCH/`, or `SEC/` notes are optional and used only when they add a distinct durable record.
+
+Every canonical specialist prompt declares its expected result under `## Output`. The result remains role-specific: findings, a design recommendation, a story draft, or a command/implementation receipt. Caveman may shorten conversational framing but never required agent deliverables or receipt fields.
 
 ## Language
 

@@ -1,6 +1,6 @@
-# PRD Format Validator
+# PRD Structure Diagnostic
 
-Documents the PRD content checklist against the canonical template at `templates/sdd/PRD.md`. The executable structural gate is `scripts/validation/validate-prd.ps1`; this file is guidance, not an executable validator.
+Optional PRD authoring and diagnostic guidance against `templates/sdd/PRD.md`. `scripts/validation/validate-prd.ps1` reports differences from a legacy structure; neither this file nor that script is a handoff or implementation gate. The active `adt-sdd-spec` contract controls whether a PRD is ready.
 
 **Content-language:** Resolve via `agents/LANGUAGE.md` (invocation → preferences → manifest → else chat; `null` ≠ pt-BR). When content-language is **pt-BR**, use the pt-BR section titles checklist below. When `artifact_language: en` / English override, use the **English override** checklist.
 
@@ -8,13 +8,13 @@ Documents the PRD content checklist against the canonical template at `templates
 
 ## Validation levels
 
-### Level 1: Structure - pt-BR (when content-language is pt-BR)
+### Optional legacy-structure diagnostic - pt-BR (when content-language is pt-BR)
 
-**Executable structure:** `validate-prd.ps1` requires the PRD title and core metadata rows; Execution policy and Related headings; numbered sections 1–5 and 8–14; overview/context/objective; technical scope subsections 3.1–3.4; requirement subsections 4.1–4.4; at least one `REQ-NNN`, one `CA` heading, and a use-case block. It accepts the Portuguese canonical headings and the corresponding English headings where defined by the English override. It does not check heading order or prose quality.
+When run, `validate-prd.ps1` checks for a legacy shape: PRD title and metadata rows; Execution policy and Related headings; numbered sections 1–5 and 8–14; overview/context/objective; technical scope subsections 3.1–3.4; requirement subsections 4.1–4.4; a `REQ-NNN`, `CA` heading, and use-case block. It recognizes Portuguese headings and the corresponding English headings defined by the diagnostic. A mismatch is informational for the workflow: inspect whether behavior, acceptance, scope, or a relevant contract is actually unclear; equivalent content does not need rewriting to satisfy this structure.
 
-**Conditional content:** sections 1.3 (success metrics), 1.4 (blast radius), 6 (database migrations), and 7 (integrations) may be omitted when they have no applicable content; the gate does not infer applicability from prose. The `### 4.5 EARS` subsection is optional; omit it when EARS adds no clarity. `## 5.1 Perguntas em aberto` is optional and should be omitted when there are no open questions. Within `## Related`, sibling rows are optional when the corresponding artifacts are unavailable; provided paths must be portable. An API route described requires `### 7.3 Contrato observável de API`; other integrations do not.
+The diagnostic also checks conditional legacy structure: sections 1.3 (success metrics), 1.4 (blast radius), 6 (database migrations), and 7 (integrations); its trigger rules may not reflect context conveyed elsewhere. EARS, open-question sections, sibling rows, and API-contract subsections are optional authoring choices. Review substance and applicability directly rather than treating a diagnostic trigger as a gate.
 
-### Level 1: Structure - English override
+### Optional legacy-structure diagnostic - English override
 
 When `artifact_language` is `en` or user requested English in invocation:
 
@@ -31,8 +31,8 @@ When `artifact_language` is `en` or user requested English in invocation:
 | Metadata `Prioridade` / `Priority` | Alta/Média/Baixa or High/Medium/Low | error |
 | Metadata `Complexidade` / `Complexity` | Baixa/Média/Alta or Low/Medium/High | error |
 | Objective section | Non-empty, not bracket placeholder | error |
-| Acceptance section | At least 2 CA/AC blocks | warning |
-| Definition of done | At least 3 checkboxes | warning |
+| Acceptance section | Use clear observable acceptance where it helps; no fixed block count | guidance |
+| Definition of done | Keep implementation completion evidence in the PLAN; no fixed checkbox count | guidance |
 | No implementation code blocks | No fenced code with full implementations | error |
 
 ### Level 3: Quality (optional)
@@ -41,19 +41,19 @@ When `artifact_language` is `en` or user requested English in invocation:
 |---------|------|----------|
 | Context / Contexto | Minimum ~80 characters | info |
 | Acceptance criteria | Dado/Quando/Então or Given/When/Then in each block | info |
-| Próximos passos / Handoff | Contains `/sdd-plan` with PRD path | info |
+| Próximos passos / Handoff | Contains `/adt-sdd-plan` with PRD path | info |
 | Identifiers in prose | Type/method names in English when cited | info |
 
-## Executable gate in spec and plan skills
+## Optional diagnostic use
 
-**Integration point:** After writing the PRD and before handoff to `/sdd-plan`; `/sdd-plan` reruns the same deterministic gate on its source PRD.
+Run `validate-prd.ps1` only when explicitly requested or when its output helps investigate a concrete issue. `adt-sdd-spec` and `adt-sdd-plan` do not require it before handoff, and planning does not rerun it automatically.
 
 **Flow:**
 
 1. Detect content-language from `LANGUAGE.md` resolution (invocation → preferences → manifest → else chat).
-2. Run `scripts/validation/validate-prd.ps1`; use this file as template/content review guidance, not as an executable substitute.
-3. On errors, report missing REQ ids, CA headings, required template structure, or a triggered conditional section and correct the PRD before handoff.
-4. The script checks structure and applicability triggers only; it does not establish content quality, requirement-to-CA traceability, or host activation behavior.
+2. If the diagnostic is run, use this file to understand its checks and inspect any reported mismatch.
+3. Correct only omissions that materially affect behavior, acceptance, scope, or relevant contracts. Do not rewrite equivalent content solely to satisfy the diagnostic.
+4. The script does not establish content quality, requirement traceability, or host activation behavior.
 
 ## Output example
 

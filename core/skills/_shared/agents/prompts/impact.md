@@ -2,11 +2,15 @@
 
 ## Caveman / receipt
 
-When parent reports `caveman_mode` ON: end with structured receipt per `_shared/agents/RECEIPT.md` (Finding | Path:Line | Note | Next). Use refusal tokens `needs-confirm.` / `too-big.` / `No match.` when applicable. Never compress gates or full artifact drafts.
+When parent reports `caveman_mode` ON, compress the conversational wrapper only. Never omit or shorten required findings, evidence, limits, alternatives, affected work, validation, or artifact content. Any required receipt must retain every required field and value; do not replace it with shorthand or append a generic finding receipt unless assigned. Follow this prompt's `## Output`. Use refusal tokens only when applicable.
 
 Summarize **impact** for the parent orchestrator (O1).
 
-## Produce
+## Inputs
+
+The parent provides the feature/story request, repository context, and relevant paths or evidence. Assess only the assigned scope; do not infer schema changes or affected modules from missing evidence.
+
+## Output
 
 | Field | Content |
 |-------|---------|
@@ -17,12 +21,12 @@ Summarize **impact** for the parent orchestrator (O1).
 
 No line cap. No application code. Do not write a step plan.
 
-End with three lines:
+Cover blast radius, schema, dependency, and breaking change.
+
+Keep the routing block together at the end of the response:
 
 ```text
 Scope: <modules touched>
 DB changes: <yes or no, with the schema evidence>
 Risk: <breaking change or none>
 ```
-
-Cover blast radius, schema, dependency, and breaking change.

@@ -1,6 +1,6 @@
-# Story sizing contract
+# Story sizing guidance
 
-Normative rules for **how many stories** a feature needs and **how large** each story should be. Used by `orchestrate-analyze` (O1 synthesis) and `refine-story` (scorecard). Not a backlog item type — a cross-cutting contract.
+Guidance for choosing useful story boundaries when that question affects scope, dependencies, or acceptance. O1 and `adt-refine-story` may consult it selectively; it does not impose a fixed story count, rationale record, scorecard, or approval gate.
 
 Enforcement smoke: `Assert-CoreContracts.ps1` (StorySizing section).
 
@@ -43,33 +43,30 @@ Apply in order during O1 synthesis and refine escalation:
 
 **4. Dependency order** — Upstream story must merge before downstream (package on feed before App B references it).
 
-**5. Refine step count** — If a single story needs **more than ~5–8 refine steps** before `split-story-checklist`, consider splitting into **two stories** with explicit dependencies rather than one oversized STORY.
+**5. Refine step count** — If a single story needs **more than ~5–8 refine steps** before `adt-split-story-checklist`, consider splitting into **two stories** with explicit dependencies rather than one oversized STORY.
 
 When in doubt, prefer **fewer, outcome-sized stories** over many file-scoped ones.
 
-## Required split / merge decision record
+## Optional split / merge rationale
 
-Before O1 presents a story backlog, record a short rationale for each split or
-merge. The rationale must name the observable **value**, the **consumer**, and
-**delivery independence** (whether implementation, deployment, and rollback can
-happen independently). Endpoint count is never sufficient evidence for a split:
-multiple endpoints stay in one story when their consumer outcome and delivery
-boundary are inseparable.
+When a story boundary is unclear and the distinction materially affects the
+delivery, briefly explain the observable value, consumer, and delivery independence
+of implementation, deployment, or rollback. Do not create a per-story rationale
+matrix or delay the backlog for an empty or purely formal record. **Endpoint count is never sufficient** by itself to justify a split; also consider consumer value, shared behavior, dependencies, independent rollout, and rollback boundaries.
 
 ---
 
-## Merge policy (O1, before human gate)
+## Boundary guidance (O1, when relevant)
 
-Before presenting the backlog for approval:
+Use these heuristics when they help decide whether proposed outcomes belong
+together:
 
-1. Load this contract (`story-sizing.md`).
-2. For each proposed US/TS, verify objective = one verifiable outcome (not a file or layer list).
-3. **Merge** stories that only differ by file or layer within the same bounded context and consumer.
-4. **Split** stories that exceed ~8 steps, span independent consumers, or mix unrelated outcomes.
-5. Record **rationale** in `FEATURE.md` story table (why N stories, not N−1 or N+1).
-6. Optional validator: run mental check against `split-story-checklist` grouping limits (≤5 implementation groups per story after topology); if a single story would exceed that without test-only groups, split the story.
+1. Prefer outcome-based stories over file or layer lists.
+2. Consider merging slices that differ only by file or layer within the same bounded context and consumer.
+3. Consider separate stories when consumers, dependencies, rollout, or rollback boundaries are materially independent.
+4. Use the optional `adt-split-story-checklist` only when it adds distinct value; no step-count or group-count threshold is an authorization gate.
 
-Do **not** present the backlog until merge/split pass completes.
+O1 may complete backlog preparation without a separate backlog approval or a prescribed merge/split pass. Resolve only decisions that materially affect the approved outcome or dependent work.
 
 ---
 
@@ -97,7 +94,7 @@ Do **not** present the backlog until merge/split pass completes.
 | TS03 | TS | App B consumes package without CI regression | Same bounded context as TS02 but separate blast radius | n/a |
 | US01 | US | Developer documents publish flow in runbook | Optional user-facing outcome; not merged into TS01 | Who: package maintainer / Job: publish shared lib safely / Outcome: runbook-ready publish |
 
-Full triage flags and spawn map: `orchestrate-analyze/references/triage.md` § Example: NuGet brownfield triage.
+Full triage flags and spawn map: `adt-orchestrate-analyze/references/triage.md` § Example: NuGet brownfield triage.
 
 ---
 
@@ -105,14 +102,14 @@ Full triage flags and spawn map: `orchestrate-analyze/references/triage.md` § E
 
 | Skill | Role |
 |-------|------|
-| `refine-story` | Scorecard **Story scope** criterion; challenge file-only step titles |
-| `orchestrate-analyze` | Lazy-load at synthesis; merge policy + FEATURE rationale column |
-| `split-story-checklist` | Optional merge validator (group count / topology) after refine steps exist |
+| `adt-refine-story` | Consult when story scope or outcome boundaries need clarification |
+| `adt-orchestrate-analyze` | Consult only when story boundaries materially affect division or dependencies; no fixed rationale column |
+| `adt-split-story-checklist` | Optional, independently invocable organization aid when it adds distinct value |
 
 Handoff when item is too large for single refine:
 
 ```
-/orchestrate-analyze
+/adt-orchestrate-analyze
 ```
 
 ---

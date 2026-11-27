@@ -32,7 +32,7 @@ $allowedProseHits = [ordered]@{
     'skills/_shared/agents/ROSTER.md'                           = 1
     'skills/_shared/agents/SPAWN.md'                            = 1
     'skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md' = 1
-    'skills/code-review/references/policy.md'                   = 2
+    'skills/adt-code-review/references/policy.md'                = 2
 }
 
 $n = 'Should_NotReferenceMdcOrCorePaths_When_ClaudePublished'

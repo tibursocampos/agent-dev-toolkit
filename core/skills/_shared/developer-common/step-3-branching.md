@@ -2,7 +2,7 @@
 
 **Goal:** Work on a work branch before editing tracked files.
 
-This integration-branch stop applies only to `developer`, `*-developer`, `sdd-develop`, and `orchestrate-develop`. Those skills show the current branch and apply the stop before changing code. `sdd-spec`, `sdd-plan`, `orchestrate-analyze`, and `orchestrate-deliver` do not use this step and do not propose a branch switch.
+This integration-branch stop applies only to `adt-developer`, `adt-*-developer`, `adt-sdd-develop`, and `adt-orchestrate-implement`. Those skills show the current branch and apply the stop before changing code. `adt-sdd-spec`, `adt-sdd-plan`, `adt-orchestrate-analyze`, and `adt-orchestrate-prepare` do not use this step and do not propose a branch switch.
 
 Canonical rule: `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` (overrides this file if they differ).
 

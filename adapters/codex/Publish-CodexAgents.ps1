@@ -95,6 +95,60 @@ function Convert-CodexAgentMarkdownToToml {
     return $toml
 }
 
+function Remove-CodexRetiredManagedAgentFiles {
+    <#
+    .SYNOPSIS
+      Delete Codex agent .toml files an earlier publish recorded but the current source set no longer produces.
+
+    .DESCRIPTION
+      Ownership comes from the publish inventory: only managed-file entries directly under
+      DestinationAgentsRoot with a .toml leaf qualify. A file is deleted only while its bytes
+      still match the recorded hash; an operator-edited file is kept, warned about and released
+      from the inventory. Files never recorded (user files) are never touched.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][string] $DestinationAgentsRoot,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $CurrentFileNames
+    )
+
+    $installRootFull = Get-NormalizedFullPath -Path $InstallRoot
+    $agentsFull = Get-NormalizedFullPath -Path $DestinationAgentsRoot
+    $currentSet = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($name in $CurrentFileNames) { [void]$currentSet.Add($name) }
+    $kindProperty = $script:ToolkitConstant.ManagedPublishInventoryKindProperty
+    $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
+    $entries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+
+    $releasedKeys = New-Object System.Collections.Generic.List[string]
+    foreach ($key in @($entries.Keys)) {
+        $entry = $entries[$key]
+        if ([string]$entry[$kindProperty] -ne 'managed-file') { continue }
+
+        $fullPath = [System.IO.Path]::GetFullPath((Join-Path $installRootFull ($key -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+        if (-not [string]::Equals([System.IO.Path]::GetDirectoryName($fullPath), $agentsFull, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        if ([System.IO.Path]::GetExtension($fullPath) -ne $script:CodexPathConstant.CustomAgentTomlExtension) { continue }
+        if ($currentSet.Contains([System.IO.Path]::GetFileName($fullPath))) { continue }
+
+        if ([System.IO.File]::Exists($fullPath)) {
+            $recorded = [string]$entry[$sha256Property]
+            if (-not [string]::Equals((Get-ToolkitFileSha256Hex -Path $fullPath), $recorded, [System.StringComparison]::OrdinalIgnoreCase)) {
+                Write-Warning ('Kept retired file edited after publish: {0}' -f $fullPath)
+                $releasedKeys.Add($key) | Out-Null
+                continue
+            }
+            $null = Assert-PathUnderInstallRootForDelete -CandidatePath $fullPath -InstallRoot $installRootFull
+            Remove-Item -LiteralPath $fullPath -Force -ErrorAction Stop
+        }
+        $releasedKeys.Add($key) | Out-Null
+    }
+
+    if ($releasedKeys.Count -gt 0) {
+        $null = Remove-ToolkitManagedPublishInventoryEntries -InstallRoot $InstallRoot -RelativePaths @($releasedKeys.ToArray())
+    }
+}
+
 function Invoke-CodexPublishAgents {
     [CmdletBinding()]
     param(
@@ -103,7 +157,10 @@ function Invoke-CodexPublishAgents {
         [Parameter()]
         [switch] $WhatIf,
         [Parameter()]
-        [switch] $AllowUserHome
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [ValidateSet('Both', 'Local', 'Plugin')]
+        [string] $CodexSkillDistribution
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
@@ -114,6 +171,7 @@ function Invoke-CodexPublishAgents {
     $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
     Initialize-CodexToolkitManagedTreeLib
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
@@ -146,8 +204,14 @@ function Invoke-CodexPublishAgents {
 
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $destAgentsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.CustomAgentsDirectoryName
-    $homeSkillsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
-    $placeholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot -PublishedSkillsRoot $homeSkillsRoot
+    $distribution = Resolve-CodexSkillDistribution -InstallRoot $resolvedInstallRoot -Distribution $CodexSkillDistribution
+    $publishedSkillsRoot = if ($distribution -eq 'Local') {
+        Join-Path $resolvedInstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
+    }
+    else {
+        Join-Path (Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName) $script:CodexPathConstant.SkillsDirectoryName
+    }
+    $placeholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot -PublishedSkillsRoot $publishedSkillsRoot
 
     if (-not (Test-Path -LiteralPath $destAgentsRoot)) {
         New-Item -ItemType Directory -Path $destAgentsRoot -Force | Out-Null
@@ -155,6 +219,7 @@ function Invoke-CodexPublishAgents {
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     $published = 0
+    $currentTomlNames = New-Object System.Collections.Generic.List[string]
     foreach ($mdFile in $sourceFiles) {
         $raw = [System.IO.File]::ReadAllText($mdFile.FullName)
         foreach ($key in @($placeholderMap.Keys)) {
@@ -169,6 +234,7 @@ function Invoke-CodexPublishAgents {
         $relativeTomlPath = '{0}/{1}' -f $script:CodexPathConstant.CustomAgentsDirectoryName, $destName
         $null = Write-ToolkitFileIfAbsent -Path $destPath -Content $toml -Encoding $utf8NoBom -InstallRoot $resolvedInstallRoot -RelativePath $relativeTomlPath
         $published++
+        $currentTomlNames.Add($destName) | Out-Null
 
         # Catalog stem only: nome.md beside the published nome.toml. Other names stay.
         $catalogMarkdownPath = Join-Path $destAgentsRoot $mdFile.Name
@@ -176,6 +242,14 @@ function Invoke-CodexPublishAgents {
             $catalogMarkdownFinal = Assert-PathUnderInstallRootForDelete -CandidatePath $catalogMarkdownPath -InstallRoot $resolvedInstallRoot
             [System.IO.File]::Delete($catalogMarkdownFinal)
         }
+    }
+
+    Enter-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        Remove-CodexRetiredManagedAgentFiles -InstallRoot $resolvedInstallRoot -DestinationAgentsRoot $destAgentsRoot -CurrentFileNames @($currentTomlNames.ToArray())
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
 
     foreach ($token in (Get-CodexUnresolvedPlaceholderTokens)) {

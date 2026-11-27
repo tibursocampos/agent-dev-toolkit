@@ -62,13 +62,13 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Most
 | Home guard | USERPROFILE paths need `-AllowUserHome` |
 | Copilot Mode | `-Mode user\|repo` required |
 | OpenCode hooks | Plugin JS only (`HooksSemantics=plugin-only`); CI smoke = filesystem only |
-| Codex dual-root | Plugin skills under `InstallRoot/plugin`; Publish-Policy → `InstallRoot/rules`; default sync plugin-only; `-UserScope` → fixture `.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
+| Codex package and skills | Plugin source at `InstallRoot/plugins/agent-dev-toolkit`; Codex-managed cache at `InstallRoot/plugins/cache/<marketplace>/<plugin>/<version>`; skills publish local, plugin, or both via `-CodexSkillDistribution` (default `Both`); rules under `InstallRoot/rules`; optional `-UserScope` → fixture `.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
 | Codex / Grok trust | Manual in the product UI; never required for CI green |
 | ZCode vs GLM | `zcode` = ADE filesystem; GLM Coding Plan is out of scope |
 | Hermes | Native `$HERMES_HOME`; policy folded into `AGENTS.md`; no `rules/`; `hooks=true` + `plugin=true` (plugin registers no hook; `HookActivation` `unavailable`, `blocked` on unsupported `config.yaml`); `agents=false`; `delegate_task`; `memories/MEMORY.md` seed-if-missing; never SOUL.md / tokens / gateway |
 | OpenHands | Project tree + optional `~/.agents/skills`; Agent Skills not microagents; shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed); `subagents=none` |
 | Path/secrets guard | Four adapters keep a `PreToolUse` shim (Grok, OpenHands, ZCode, Antigravity) that denies empty/malformed input. `GuardCommon.ps1` is a compatibility helper that always allows. Codex and Copilot no longer register a guard (behavior change, see [ENFORCEMENT.md](../ENFORCEMENT.md)). Rules: `adapters/_shared/guard-rules.md`; host wiring in [ADAPTERS.md](../ADAPTERS.md) |
-| Shell allowlist (WS10) | Cursor operator tip: opt-in allowlist for `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` only — no silent Shell auto-approve; guards unchanged ([cursor README](../../adapters/cursor/README.md) § Shell allowlist; [cli-scripts](cli-scripts.md)) |
+| Session helper | Cursor operators may explicitly allowlist `Invoke-DevelopSessionGate.ps1` when using `adt-document-implement`; Classic SDD and Orchestrated Delivery do not require it. No silent Shell auto-approval; guards unchanged ([cursor README](../../adapters/cursor/README.md) § Session helper; [cli-scripts](cli-scripts.md)) |
 | Antigravity legacy | `antigravity-ide/plugins` opt-in / docs only — not default smoke |
 | Keyed uninstall | All registered adapters; preserves `sdd/sessions` + `sdd/manifest.json` |
 | Sync prepare | Every sync runs `Get-SddRoot -Prepare` |

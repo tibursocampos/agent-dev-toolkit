@@ -1,10 +1,10 @@
-# Memory Bank Gate (Orchestrated Delivery Step 0)
+# Optional workspace Memory Bank
 
-Single source of truth for the **workspace-scoped** `memory-bank/` contract and Step 0 / Step N policies used by `orchestrate-analyze`, `orchestrate-deliver`, and `orchestrate-develop`. Load on demand - do not paste into PRD/PLAN bodies.
+Reference for the **workspace-scoped** `memory-bank/` format and explicit `adt-memory-bank` operations. Classic SDD and Orchestrated Delivery may consult an existing bank when relevant, but do not require creation, inventory, refresh, or Step 0/Step N as a condition of analysis, planning, implementation, or closeout. Load on demand - do not paste into PRD/PLAN bodies.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`
 
-Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1` — resolve via toolkit root / clone (see Inventory below); sync does **not** publish `scripts/` into the host skills install root. Storage resolution: `STORAGE.md` + `STORAGE-RESOLUTION.md` (same manifest as `features/`; load the latter when resolving `bank_root`).
+Companion skill: `adt-memory-bank`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1` — resolve via toolkit root / clone (see Inventory below); sync does **not** publish `scripts/` into the host skills install root. Storage resolution: `STORAGE.md` + `STORAGE-RESOLUTION.md` (same manifest as `features/`; load the latter when resolving `bank_root`).
 
 **Credits:** durable-bank ideas are inspired in part by practices around [github/spec-kit](https://github.com/github/spec-kit); this toolkit does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
@@ -21,7 +21,7 @@ Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke
 
 **Must not:** place `memory-bank/` under `features/NNN-slug/`. CONTINUITY must not duplicate bank body.
 
-**Classic SDD:** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop`. Phase 2 BLOCKING / ARCH point-promote apply to Orchestrated Delivery (`orchestrate-*`) and to promote; Classic SDD does not require the bank.
+**Classic SDD and Orchestrated Delivery:** memory-bank is optional. Existing content may be read when relevant. Do not auto-create, refresh, or promote content into the bank as an O1/O2/O3 gate. Phase 2 files and refresh operations apply only when the operator explicitly requests a bank operation or another unchanged consumer requires them.
 
 ---
 
@@ -82,13 +82,12 @@ When those signals are **absent**, list the topic in `gaps.md` only — do not r
 
 ---
 
-## Gate policies (Step 0)
+## Retired orchestration gate policy (reference only)
 
 | Policy | Behavior |
 |--------|----------|
-| `auto` (default for `orchestrate-*`) | Missing -> create; incomplete/stale -> refresh; healthy -> continue without write |
-| `require` | **STOP** if missing/stale; handoff to `/memory-bank-init` (no auto-create) |
-| `skip` | Bypass gate **only** when user passes an explicit flag (e.g. `skip-memory-bank` / documented invoke arg). Silence ≠ skip |
+| Classic / Orchestrated Delivery | No Step 0 auto/require/skip gate; optionally read relevant existing files. |
+| Explicit `adt-memory-bank` | Use the selected operation and its own authorization; the skill remains directly invocable. |
 
 ### Healthy bank
 
@@ -108,11 +107,11 @@ If `sources.json` missing but markdown files exist -> treat as **incomplete** (r
 
 Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` forces stale/incomplete until checked off or removed after human ack. Phase 2 files that are BLOCKING (Prior/cited already has DDL, OpenAPI, or a UI component map) must use this flag until the file is written/promoted.
 
-**Inventory merge (agent-enforced):** On create/refresh/refresh-light, regenerate MVP/phase-2 stubs in `gaps.md` but **preserve** any existing line containing `BLOCKING:` — agents must not wipe human gate flags even when `Invoke-MemoryBankInventory.ps1` is absent (use Glob/Grep per `memory-bank-init/reference.md`).
+**Inventory merge (agent-enforced):** On create/refresh/refresh-light, regenerate MVP/phase-2 stubs in `gaps.md` but **preserve** any existing line containing `BLOCKING:` — agents must not wipe human gate flags even when `Invoke-MemoryBankInventory.ps1` is absent (use Glob/Grep per `adt-memory-bank/reference.md`).
 
 ---
 
-## Create / refresh rules
+## Explicit create / refresh rules
 
 1. **Confirm before write** (user chat language): show path + create|refresh|refresh-light; wait for **sim** / **ajustar** / **cancelar** (or session-equivalent). Healthy read-only path needs no confirm.
 2. **No application code** - never create/edit `*.cs`, `*.ts`, app sources, migrations, etc. Bank + `.inventory/` only.
@@ -128,15 +127,15 @@ Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` f
 
 Human prose outside markers is preserved on refresh when practical.
 6. **Selective read** - orchestrator parents load only the bank files needed for the current decision; never dump the entire bank into the parent prompt. Normative rule: `SELECTIVE-RETRIEVAL.md`; smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section).
-7. **Inventory → specialist synthesis** - after inventory, `memory-bank-init` runs the signal→specialist flow in `skills/memory-bank-init/references/inventory-specialist-synthesis.md`. Skip D: no tracker mutate, no external spec-tool constitution.
+7. **Inventory → specialist synthesis** - after inventory, `adt-memory-bank` runs the signal→specialist flow in `skills/adt-memory-bank/references/inventory-specialist-synthesis.md`. Skip D: no tracker mutate, no external spec-tool constitution.
 
-### Modes (`memory-bank-init`)
+### Modes (`adt-memory-bank`)
 
 | Mode | When | Action |
 |------|------|--------|
 | `create` | Bank missing / incomplete scaffold | Templates + inventory + **specialist synthesis** + fill GENERATED |
 | `refresh` | Stale / user asked full refresh | Inventory + synthesis when signals warrant + update GENERATED + `tech-stack.json`; preserve human prose |
-| `refresh-light` | O3 Step N after code changed; optional manual | Inventory + update GENERATED + `tech-stack.json` only; thin stack synthesis; no full prose rewrite; append `refresh-history.jsonl` with `action: refresh-light` |
+| `refresh-light` | Explicitly requested light refresh | Inventory + update GENERATED + `tech-stack.json` only; thin stack synthesis; no full prose rewrite; append `refresh-history.jsonl` with `action: refresh-light` |
 
 ---
 
@@ -153,7 +152,7 @@ Toolkit itself may keep templates only - not a live bank unless documenting the 
 
 ---
 
-## Step 0 algorithm (orchestrate-* start)
+## Legacy Step 0 algorithm (not used by Classic or Orchestrated Delivery)
 
 ```
 1. Resolve bank_root via `STORAGE.md` + `STORAGE-RESOLUTION.md` (manifest classic -> repository | global). Load the resolution guide for the manifest-backed root algorithm.
@@ -161,29 +160,29 @@ Toolkit itself may keep templates only - not a live bank unless documenting the 
 3. If skip (explicit): log and continue
 4. Evaluate presence + completeness + stale at bank_root
 5. auto + healthy -> read selective paths; status fresh; continue
-6. auto + missing/incomplete/stale -> confirm -> run memory-bank-init (create|refresh) -> continue
-7. require + not healthy -> STOP + handoff /memory-bank-init
+6. auto + missing/incomplete/stale -> confirm -> run adt-memory-bank (create|refresh) -> continue
+7. require + not healthy -> STOP + handoff /adt-memory-bank
 8. Record status for CONTINUITY: fresh | refreshed | created
 ```
 
-**Wiring:** O1, O2, and O3 (`orchestrate-*`) implement Step 0. Classic SDD (`sdd-*`) does not require the gate.
+**Wiring:** O1/O2/O3 do not implement Step 0. Classic SDD also does not require it.
 
 ---
 
-## Step N algorithm (O3 end - refresh-light)
+## Legacy Step N algorithm (not used by O3)
 
 After O3 has changed application code (at least one develop child succeeded with file changes):
 
 ```
 1. Resolve bank_root (same as Step 0)
 2. Confirm (user chat language) refresh-light at bank_root
-3. Run memory-bank-init mode refresh-light (inventory + GENERATED + tech-stack.json)
+3. Run adt-memory-bank mode refresh-light (inventory + GENERATED + tech-stack.json)
 4. Record CONTINUITY Memory-bank status refreshed (or note skipped if cancelar)
 ```
 
 | Phase | Step N? |
 |-------|---------|
-| **O3** (`orchestrate-develop`) | **Yes** when code changed this run (`refresh-light`) |
+| **O3** (`adt-orchestrate-implement`) | No automatic refresh; use only when explicitly requested |
 | **O1** | After ARCH **sim**: **point-promote** / update `memory-bank/architecture.md` so it is not left draft / `needs-confirm`. Optional point-promote of domain/risk facts. **Not** a full inventory refresh. |
 | **O2** | **No** full inventory refresh (O2 does not change app code). If style changed or ARCH was approved this feature, do **not** exit with status `fresh` — set `refreshed` (point-promote `architecture.md` if not already). |
 
@@ -198,7 +197,7 @@ Do **not** full-refresh at every O1/O2 start “just in case” - Step 0 already
 1. `{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1` (or agent-dev-toolkit clone / `AGENTS.md` toolkit root)
 2. Relative from toolkit repo when `$Cwd` is the toolkit
 3. Optional synced copy under install root **if present**
-4. Only then agent fallback (`memory-bank-init/references/inventory-fallback.md`) — curated allowlist only; never full-repo recurse; wire is schema_version **3** + `sources` (`files` invalid)
+4. Only then agent fallback (`adt-memory-bank/references/inventory-fallback.md`) — curated allowlist only; never full-repo recurse; wire is schema_version **3** + `sources` (`files` invalid)
 
 Prefer toolkit script when resolved:
 
@@ -206,7 +205,7 @@ Prefer toolkit script when resolved:
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1" -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
 ```
 
-Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths) resets to curated discovery, after drift is compared against the prior snapshot. A prior `sources.json` that is empty, `null`, or whose `sources` is not a non-empty array is not a baseline: the run is `not-ready` with reason `prior_snapshot_invalid`. A source path that is or passes through a reparse point (symlink or junction) is never read or hashed: the run is `not-ready` with reason `path_reparse_point`.
+Use `-Action refresh-light` only for an explicitly requested light refresh. Bloated existing index (> ~200 paths) resets to curated discovery, after drift is compared against the prior snapshot. A prior `sources.json` that is empty, `null`, or whose `sources` is not a non-empty array is not a baseline: the run is `not-ready` with reason `prior_snapshot_invalid`. A source path that is or passes through a reparse point (symlink or junction) is never read or hashed: the run is `not-ready` with reason `path_reparse_point`.
 - **Read-only** over consumer source tree (`-RepoPath` = `$Cwd`).
 - **Writes only** under `<bank_root>/.inventory/` (`-BankPath` may be `$Cwd/memory-bank` or `<classic.path>/memory-bank`).
 - Output: `sources.json` (v3 + `sources[]`), updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`. Preserve `- [ ] BLOCKING:` lines in `gaps.md` on every refresh; the text after the prefix passes the same sensitive-content redaction as other human notes.
@@ -217,12 +216,12 @@ Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths)
 ## Handoff strings
 
 ```text
-/memory-bank-init
-/memory-bank-init - refresh
-/memory-bank-init - refresh-light
-/orchestrate-analyze
+/adt-memory-bank
+/adt-memory-bank - refresh
+/adt-memory-bank - refresh-light
+/adt-orchestrate-analyze
 ```
 
-## sdd-plan read
+## adt-sdd-plan read
 
-In `sdd-plan`, an existing bank is read-only. An old or incomplete bank does not block. A missing bank asks permission once. Current code wins when it disagrees with the bank.
+In `adt-sdd-plan`, an existing bank is read-only. An old or incomplete bank does not block. A missing bank asks permission once. Current code wins when it disagrees with the bank.

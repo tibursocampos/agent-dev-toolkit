@@ -221,7 +221,7 @@ $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') '
 
     $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CustomAgentsDirectoryName
     $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
-    foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)) {
+    foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot -InstallRoot $resolvedInstallRoot -DestinationAgentsRoot $customAgentsRoot)) {
         $legacyAgentPath = Join-Path $customAgentsRoot $agentFileName
         if (Remove-CopilotManagedPath -TargetPath $legacyAgentPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
             $removedPaths.Add($legacyAgentPath) | Out-Null
